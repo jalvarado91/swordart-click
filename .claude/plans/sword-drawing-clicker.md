@@ -46,14 +46,30 @@ A browser-based clicker/incremental game themed around "drawing swords" — the 
 
 ---
 
+## Session 1.5: Git, Bun, and TypeScript setup — Completed
+
+**Goal:** Initialize version control, add Bun as the bundler, and migrate to TypeScript.
+
+**Changes made:**
+- `git init`, `.gitignore`, initial commit
+- `bun init`, `package.json` with build/watch scripts
+- `tsconfig.json` with strict mode and DOM lib
+- Restructured: `game.js` → `src/game.ts`, `style.css` → `src/style.css`
+- Added interfaces (`UpgradeEffect`, `UpgradeDef`, `GameState`) and typed all functions
+- `index.html` updated to reference `dist/game.js` and `src/style.css`
+- `CLAUDE.md` with project conventions
+- Build: `bun run build` → `dist/game.js`
+
+---
+
 ## Session 2: Sword types and art media progression
 
 **Goal:** Add the thematic content — sword varieties and art media tiers that give the game its personality.
 
 **File changes:**
-- `game.js` — Add sword catalog, media tiers, unlock logic, multiplier system
+- `src/game.ts` — Add sword catalog, media tiers, unlock logic, multiplier system
 - `index.html` — Gallery display area, media selector UI, sword unlock notifications
-- `style.css` — Sword gallery styling, unlock animations, media-tier visual themes
+- `src/style.css` — Sword gallery styling, unlock animations, media-tier visual themes
 
 **Content to add:**
 
@@ -91,9 +107,9 @@ A browser-based clicker/incremental game themed around "drawing swords" — the 
 **Goal:** Add depth to the idle/automation side — multiple tiers of "artists" that passively generate Strokes.
 
 **File changes:**
-- `game.js` — Artist system with multiple tiers, per-artist upgrades, offline progress calculation
+- `src/game.ts` — Artist system with multiple tiers, per-artist upgrades, offline progress calculation
 - `index.html` — Artist hiring panel UI, production breakdown tooltip
-- `style.css` — Artist panel styling, hire button states
+- `src/style.css` — Artist panel styling, hire button states
 
 *Artist tiers (automation generators):*
 1. Doodler — 1 Stroke/sec (base cost: 15)
@@ -123,9 +139,9 @@ A browser-based clicker/incremental game themed around "drawing swords" — the 
 **Goal:** Add achievements, click feedback animations, sound effects, and overall polish to make the game feel satisfying.
 
 **File changes:**
-- `game.js` — Achievement system with unlock conditions, number formatting (K, M, B, T), click animation triggers
+- `src/game.ts` — Achievement system with unlock conditions, number formatting (K, M, B, T), click animation triggers
 - `index.html` — Achievement panel/log, floating number animation elements, settings menu (sound toggle)
-- `style.css` — Achievement popup animation, floating "+N" on click, screen shake on big milestones, particle effects via CSS
+- `src/style.css` — Achievement popup animation, floating "+N" on click, screen shake on big milestones, particle effects via CSS
 - `sfx/` — A few simple audio files (click, purchase, achievement, milestone) or generate them with Web Audio API
 
 *Achievements (sampling):*
@@ -162,9 +178,9 @@ A browser-based clicker/incremental game themed around "drawing swords" — the 
 **Goal:** Add the "Erase & Redraw" prestige mechanic for replayability and a sense of meta-progression.
 
 **File changes:**
-- `game.js` — Prestige currency ("Erasure Points"), prestige reset logic, permanent bonuses, prestige upgrade shop
+- `src/game.ts` — Prestige currency ("Erasure Points"), prestige reset logic, permanent bonuses, prestige upgrade shop
 - `index.html` — Prestige panel UI, confirmation dialog, prestige stats display
-- `style.css` — Prestige panel styling, "erasing" animation on reset
+- `src/style.css` — Prestige panel styling, "erasing" animation on reset
 
 **Prestige mechanics:**
 - "Erase & Redraw" becomes available after reaching 10,000,000 Strokes
