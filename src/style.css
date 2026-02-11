@@ -30,17 +30,17 @@ body {
 
 #game {
     width: 100%;
-    max-width: 800px;
-    padding: 20px;
+    max-width: 1100px;
+    padding: 12px 16px;
 }
 
 header {
     text-align: center;
-    padding: 20px 0 10px;
+    padding: 8px 0 4px;
 }
 
 header h1 {
-    font-size: 2.4rem;
+    font-size: 1.8rem;
     color: var(--accent-bright);
     text-shadow: 0 2px 8px rgba(200, 160, 60, 0.3);
     letter-spacing: 2px;
@@ -49,26 +49,27 @@ header h1 {
 .tagline {
     color: var(--text-dim);
     font-style: italic;
-    margin-top: 4px;
+    margin-top: 2px;
+    font-size: 0.85rem;
 }
 
 #stats {
     text-align: center;
-    padding: 16px 0;
+    padding: 8px 0;
     border-bottom: 1px solid var(--surface-light);
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 #strokes-display {
-    font-size: 2rem;
+    font-size: 1.6rem;
     color: var(--parchment);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 #strokes-count {
     font-weight: bold;
     color: var(--accent-bright);
-    font-size: 2.4rem;
+    font-size: 2rem;
 }
 
 #multiplier-display {
@@ -91,27 +92,42 @@ header h1 {
 
 #main-area {
     display: flex;
-    gap: 24px;
+    gap: 14px;
     align-items: flex-start;
 }
 
-#left-column {
+#col-click {
+    width: 200px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+#col-upgrades {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 14px;
+}
+
+#col-artists {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
 }
 
 #click-zone {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 260px;
+    min-height: 160px;
 }
 
 #draw-btn {
-    width: 200px;
-    height: 200px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     border: 3px solid var(--accent);
     background: var(--surface);
@@ -146,13 +162,13 @@ header h1 {
 }
 
 .sword-icon {
-    font-size: 3.5rem;
+    font-size: 2.5rem;
     line-height: 1;
 }
 
 .btn-label {
     font-family: "Georgia", serif;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: bold;
     letter-spacing: 1px;
 }
@@ -162,7 +178,7 @@ header h1 {
 #media-panel {
     background: var(--surface);
     border-radius: 8px;
-    padding: 16px;
+    padding: 12px;
     border: 1px solid var(--surface-light);
 }
 
@@ -197,17 +213,29 @@ header h1 {
     font-style: italic;
 }
 
-/* --- Upgrades Panel --- */
+/* --- Panel shared styles --- */
 
-#upgrades-panel {
-    flex: 1;
+.panel-heading {
+    font-size: 1.1rem;
+    color: var(--parchment-dim);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: normal;
+}
+
+#upgrades-panel,
+#artists-panel,
+#breakdown-panel {
     background: var(--surface);
     border-radius: 8px;
-    padding: 16px;
+    padding: 12px;
     border: 1px solid var(--surface-light);
 }
 
-#upgrades-panel h2 {
+#upgrades-panel h2,
+#artists-panel h2,
+#breakdown-panel h2 {
     font-size: 1.1rem;
     color: var(--parchment-dim);
     margin-bottom: 12px;
@@ -221,8 +249,8 @@ header h1 {
     background: var(--surface-light);
     border: 1px solid var(--disabled);
     border-radius: 6px;
-    padding: 12px;
-    margin-bottom: 8px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
     cursor: pointer;
     text-align: left;
     color: var(--text);
@@ -270,23 +298,60 @@ header h1 {
     margin-top: 2px;
 }
 
+/* --- Artist specific --- */
+
+.artist-count {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+}
+
+.artist-production {
+    font-size: 0.8rem;
+    color: var(--success);
+    margin-top: 2px;
+}
+
+/* --- Production Breakdown --- */
+
+.breakdown-line {
+    font-size: 0.85rem;
+    color: var(--text);
+    padding: 4px 0;
+    border-bottom: 1px solid var(--surface-light);
+}
+
+.breakdown-line:last-child {
+    border-bottom: none;
+}
+
+.breakdown-empty {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    font-style: italic;
+}
+
 /* --- Sword Gallery --- */
 
 #gallery-section {
-    margin-top: 24px;
+    margin-top: 14px;
     background: var(--surface);
     border-radius: 8px;
-    padding: 16px;
+    padding: 12px;
     border: 1px solid var(--surface-light);
 }
 
 #gallery-section h2 {
     font-size: 1.1rem;
     color: var(--parchment-dim);
-    margin-bottom: 12px;
+    margin-bottom: 0;
     text-transform: uppercase;
     letter-spacing: 2px;
     font-weight: normal;
+}
+
+#gallery-section .collapsible-content:not(.collapsed) {
+    margin-top: 12px;
 }
 
 #sword-gallery {
@@ -394,31 +459,315 @@ header h1 {
     opacity: 0;
 }
 
+/* --- Floating click text --- */
+
+.floating-text {
+    position: fixed;
+    pointer-events: none;
+    font-family: "Georgia", serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--accent-bright);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    z-index: 200;
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+        transform 0.7s ease-out,
+        opacity 0.7s ease-out;
+}
+
+.floating-text.float-up {
+    transform: translateY(-60px);
+    opacity: 0;
+}
+
+/* --- Screen shake --- */
+
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-4px);
+    }
+    40% {
+        transform: translateX(4px);
+    }
+    60% {
+        transform: translateX(-3px);
+    }
+    80% {
+        transform: translateX(3px);
+    }
+}
+
+#game.shake {
+    animation: shake 0.3s ease;
+}
+
+/* --- Achievements --- */
+
+#achievements-section {
+    margin-top: 14px;
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--surface-light);
+}
+
+#achievements-section h2 {
+    font-size: 1.1rem;
+    color: var(--parchment-dim);
+    margin-bottom: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: normal;
+}
+
+#achievements-section .collapsible-content:not(.collapsed) {
+    margin-top: 12px;
+}
+
+#achievement-counter {
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-left: 8px;
+}
+
+#achievements-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+}
+
+.achievement-entry {
+    border-radius: 6px;
+    padding: 10px;
+    border: 1px solid var(--disabled);
+    transition:
+        border-color 0.3s ease,
+        background 0.3s ease;
+}
+
+.achievement-entry.unlocked {
+    background: var(--surface-light);
+    border-color: var(--accent);
+    animation: achievement-pop 0.4s ease;
+}
+
+.achievement-entry.locked {
+    background: var(--bg);
+    opacity: 0.4;
+}
+
+.achievement-name {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: var(--parchment);
+    margin-bottom: 2px;
+}
+
+.achievement-entry.locked .achievement-name {
+    color: var(--text-dim);
+}
+
+.achievement-desc {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-style: italic;
+}
+
+@keyframes achievement-pop {
+    0% {
+        transform: scale(0.9);
+        opacity: 0;
+        box-shadow: 0 0 15px rgba(232, 184, 74, 0.5);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(232, 184, 74, 0.3);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+        box-shadow: none;
+    }
+}
+
+/* --- Settings --- */
+
+#settings-section {
+    margin-top: 14px;
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--surface-light);
+}
+
+#settings-section h2 {
+    font-size: 1.1rem;
+    color: var(--parchment-dim);
+    margin-bottom: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: normal;
+}
+
+#settings-section .collapsible-content:not(.collapsed) {
+    margin-top: 12px;
+}
+
+#settings-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.settings-btn {
+    background: var(--surface-light);
+    border: 1px solid var(--disabled);
+    border-radius: 6px;
+    padding: 8px 16px;
+    color: var(--text);
+    font-family: "Georgia", serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease;
+}
+
+.settings-btn:hover {
+    border-color: var(--accent);
+    background: #3a352e;
+}
+
+.settings-btn.danger {
+    border-color: #a04040;
+    color: #e86050;
+    background: #3a2020;
+}
+
+.settings-btn.danger:hover {
+    border-color: #c05050;
+    background: #4a2525;
+}
+
+#save-data {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--surface-light);
+    border-radius: 6px;
+    padding: 8px;
+    color: var(--text-dim);
+    font-family: monospace;
+    font-size: 0.75rem;
+    resize: vertical;
+}
+
+#save-data::placeholder {
+    color: var(--disabled);
+}
+
+/* --- Collapsible sections --- */
+
+.collapsible-toggle {
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.collapsible-toggle:hover {
+    color: var(--parchment);
+}
+
+.toggle-indicator {
+    font-size: 0.7rem;
+    transition: transform 0.2s ease;
+    margin-left: auto;
+}
+
+.collapsible-content.collapsed + .collapsible-toggle .toggle-indicator,
+.collapsible .collapsed ~ .toggle-indicator {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content.collapsed {
+    display: none;
+}
+
+.collapsible.is-collapsed .toggle-indicator {
+    transform: rotate(-90deg);
+}
+
 /* --- Responsive --- */
+
+@media (max-width: 900px) {
+    #main-area {
+        flex-wrap: wrap;
+    }
+
+    #col-click {
+        width: 100%;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    #click-zone {
+        min-height: auto;
+    }
+
+    #col-upgrades,
+    #col-artists {
+        flex: 1;
+        min-width: 0;
+    }
+}
 
 @media (max-width: 600px) {
     #main-area {
         flex-direction: column;
     }
 
+    #col-click {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #col-click > #media-panel,
+    #col-click > #breakdown-panel {
+        width: 100%;
+    }
+
     #click-zone {
-        min-height: 220px;
+        min-height: 160px;
     }
 
     #draw-btn {
-        width: 160px;
-        height: 160px;
+        width: 130px;
+        height: 130px;
     }
 
     .sword-icon {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
 
     header h1 {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
     }
 
     #sword-gallery {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+
+    #achievements-list {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     }
 }

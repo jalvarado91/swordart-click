@@ -102,7 +102,7 @@ A browser-based clicker/incremental game themed around "drawing swords" — the 
 
 ---
 
-## Session 3: Automation upgrades and idle income
+## Session 3: Automation upgrades and idle income — Completed
 
 **Goal:** Add depth to the idle/automation side — multiple tiers of "artists" that passively generate Strokes.
 
@@ -134,7 +134,7 @@ A browser-based clicker/incremental game themed around "drawing swords" — the 
 
 ---
 
-## Session 4: Achievements and visual polish
+## Session 4: Achievements and visual polish — Completed
 
 **Goal:** Add achievements, click feedback animations, sound effects, and overall polish to make the game feel satisfying.
 

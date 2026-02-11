@@ -4,6 +4,10 @@ const SAVE_KEY = "swordArtClick_save";
 const SAVE_INTERVAL = 30_000;
 const TICK_RATE = 100; // ms per tick
 const COST_SCALE = 1.12;
+const ARTIST_COST_SCALE = 1.15;
+const MAX_OFFLINE_HOURS = 8;
+let soundMuted = false;
+let audioCtx: AudioContext | null = null;
 
 // --- Types ---
 
@@ -33,18 +37,37 @@ interface SwordDef {
   name: string;
   desc: string;
   threshold: number;
-  bonus: number; // percentage bonus to all production
+  bonus: number;
+}
+
+interface ArtistDef {
+  id: string;
+  name: string;
+  desc: string;
+  baseCost: number;
+  baseRate: number; // Strokes per second
+}
+
+interface AchievementDef {
+  id: string;
+  name: string;
+  desc: string;
+  check: (s: GameState) => boolean;
 }
 
 interface GameState {
   strokes: number;
   totalStrokes: number;
+  totalClicks: number;
   clickPower: number;
   passiveRate: number;
   upgrades: Record<string, number>;
+  artists: Record<string, number>;
   mediaTier: number;
   unlockedSwords: string[];
+  unlockedAchievements: string[];
   lastSave: number;
+  playStartTime: number;
 }
 
 // --- Media tiers ---
@@ -176,7 +199,68 @@ const SWORD_DEFS: SwordDef[] = [
   },
 ];
 
-// --- Upgrade definitions ---
+// --- Artist definitions ---
+
+const ARTIST_DEFS: ArtistDef[] = [
+  {
+    id: "doodler",
+    name: "Doodler",
+    desc: "Scribbles in the margins",
+    baseCost: 15,
+    baseRate: 1,
+  },
+  {
+    id: "sketchArtist",
+    name: "Sketch Artist",
+    desc: "Quick hands, quick lines",
+    baseCost: 100,
+    baseRate: 5,
+  },
+  {
+    id: "caricaturist",
+    name: "Caricaturist",
+    desc: "Exaggerates every detail",
+    baseCost: 750,
+    baseRate: 25,
+  },
+  {
+    id: "illustrator",
+    name: "Illustrator",
+    desc: "Turns words into blades",
+    baseCost: 5_000,
+    baseRate: 100,
+  },
+  {
+    id: "courtPainter",
+    name: "Court Painter",
+    desc: "By royal appointment",
+    baseCost: 50_000,
+    baseRate: 500,
+  },
+  {
+    id: "renaissanceMaster",
+    name: "Renaissance Master",
+    desc: "A true polymath of pointy things",
+    baseCost: 500_000,
+    baseRate: 3_000,
+  },
+  {
+    id: "swordSwallower",
+    name: "Sword Swallower",
+    desc: "Draws swords differently",
+    baseCost: 5_000_000,
+    baseRate: 15_000,
+  },
+  {
+    id: "bobRoss",
+    name: "Bob Ross",
+    desc: "Happy little swords",
+    baseCost: 100_000_000,
+    baseRate: 100_000,
+  },
+];
+
+// --- Upgrade definitions (click-only now) ---
 
 const UPGRADE_DEFS: UpgradeDef[] = [
   {
@@ -187,25 +271,11 @@ const UPGRADE_DEFS: UpgradeDef[] = [
     effect: { type: "click", value: 1 },
   },
   {
-    id: "artStudent",
-    name: "Art Student",
-    desc: "Works for exposure. +1 Stroke/sec.",
-    baseCost: 25,
-    effect: { type: "passive", value: 1 },
-  },
-  {
     id: "finePoint",
     name: "Fine Point Pen",
     desc: "Precision is an art form. +3 per click.",
     baseCost: 75,
     effect: { type: "click", value: 3 },
-  },
-  {
-    id: "sketchPad",
-    name: "Sketch Pad",
-    desc: "More pages, more swords. +4 Strokes/sec.",
-    baseCost: 150,
-    effect: { type: "passive", value: 4 },
   },
   {
     id: "calligraphy",
@@ -214,30 +284,179 @@ const UPGRADE_DEFS: UpgradeDef[] = [
     baseCost: 400,
     effect: { type: "click", value: 10 },
   },
+];
+
+// --- Achievements ---
+
+const ACHIEVEMENT_DEFS: AchievementDef[] = [
   {
-    id: "draftingTable",
-    name: "Drafting Table",
-    desc: "Professional-grade sword sketching. +15 Strokes/sec.",
-    baseCost: 1000,
-    effect: { type: "passive", value: 15 },
+    id: "firstStroke",
+    name: "First Stroke",
+    desc: "Draw your first sword",
+    check: (s) => s.totalClicks >= 1,
+  },
+  {
+    id: "sharpWit",
+    name: "Sharp Wit",
+    desc: "Reach 1,000 Strokes",
+    check: (s) => s.totalStrokes >= 1_000,
+  },
+  {
+    id: "cuttingEdge",
+    name: "Cutting Edge",
+    desc: "Buy your first media upgrade",
+    check: (s) => s.mediaTier >= 1,
+  },
+  {
+    id: "artOfWar",
+    name: "The Art of War",
+    desc: "Own 10 artists total",
+    check: (s) => {
+      let total = 0;
+      for (const id in s.artists) total += s.artists[id];
+      return total >= 10;
+    },
+  },
+  {
+    id: "sketchyBusiness",
+    name: "Sketchy Business",
+    desc: "Click 10,000 times",
+    check: (s) => s.totalClicks >= 10_000,
+  },
+  {
+    id: "drawnOut",
+    name: "Drawn Out",
+    desc: "Play for 30 minutes",
+    check: (s) => Date.now() - s.playStartTime >= 30 * 60 * 1000,
+  },
+  {
+    id: "fineLine",
+    name: "A Fine Line",
+    desc: "Reach 1,000,000 Strokes",
+    check: (s) => s.totalStrokes >= 1_000_000,
+  },
+  {
+    id: "foiledAgain",
+    name: "Foiled Again",
+    desc: "Reach the Ink & Quill media tier",
+    check: (s) => s.mediaTier >= 2,
+  },
+  {
+    id: "oilsWell",
+    name: "Oil's Well That Ends Well",
+    desc: "Reach Oil Painting",
+    check: (s) => s.mediaTier >= 4,
+  },
+  {
+    id: "pixelPerfect",
+    name: "Pixel Perfect",
+    desc: "Reach Digital Art",
+    check: (s) => s.mediaTier >= 5,
+  },
+  {
+    id: "aiOverlords",
+    name: "I, For One, Welcome Our AI Overlords",
+    desc: "Reach AI-Generated",
+    check: (s) => s.mediaTier >= 6,
   },
 ];
+
+// --- Number formatting ---
+
+function formatNumber(n: number): string {
+  if (n < 1_000) return Math.floor(n).toString();
+  const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi"];
+  const tier = Math.floor(Math.log10(Math.abs(n)) / 3);
+  if (tier === 0) return Math.floor(n).toLocaleString();
+  const suffix = suffixes[tier] ?? `e${tier * 3}`;
+  const scale = Math.pow(10, tier * 3);
+  const scaled = n / scale;
+  return scaled.toFixed(scaled < 10 ? 2 : scaled < 100 ? 1 : 0) + suffix;
+}
+
+// --- Sound effects (Web Audio API) ---
+
+function getAudioCtx(): AudioContext {
+  if (!audioCtx) audioCtx = new AudioContext();
+  return audioCtx;
+}
+
+function playSound(
+  type: "click" | "purchase" | "achievement" | "milestone",
+): void {
+  if (soundMuted) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    const now = ctx.currentTime;
+
+    switch (type) {
+      case "click":
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.08);
+        break;
+      case "purchase":
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.12);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        osc.start(now);
+        osc.stop(now + 0.15);
+        break;
+      case "achievement":
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(523, now);
+        osc.frequency.setValueAtTime(659, now + 0.1);
+        osc.frequency.setValueAtTime(784, now + 0.2);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+        break;
+      case "milestone":
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(392, now);
+        osc.frequency.setValueAtTime(523, now + 0.15);
+        osc.frequency.setValueAtTime(659, now + 0.3);
+        osc.frequency.setValueAtTime(784, now + 0.45);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+        osc.start(now);
+        osc.stop(now + 0.6);
+        break;
+    }
+  } catch {
+    // Web Audio not supported
+  }
+}
 
 // --- Game state ---
 
 let state: GameState = createDefaultState();
-let pendingNotifications: string[] = [];
 
 function createDefaultState(): GameState {
   return {
     strokes: 0,
     totalStrokes: 0,
+    totalClicks: 0,
     clickPower: 1,
     passiveRate: 0,
     upgrades: {},
+    artists: {},
     mediaTier: 0,
     unlockedSwords: ["butterKnife"],
+    unlockedAchievements: [],
     lastSave: Date.now(),
+    playStartTime: Date.now(),
   };
 }
 
@@ -277,6 +496,41 @@ function getUpgradeCost(def: UpgradeDef): number {
   return Math.floor(def.baseCost * Math.pow(COST_SCALE, owned));
 }
 
+function getArtistCost(def: ArtistDef): number {
+  const owned = state.artists[def.id] ?? 0;
+  return Math.floor(def.baseCost * Math.pow(ARTIST_COST_SCALE, owned));
+}
+
+// --- Artist system ---
+
+function recalcPassiveRate(): void {
+  state.passiveRate = 0;
+  for (const def of ARTIST_DEFS) {
+    const owned = state.artists[def.id] ?? 0;
+    state.passiveRate += def.baseRate * owned;
+  }
+}
+
+function getArtistProduction(def: ArtistDef): number {
+  const owned = state.artists[def.id] ?? 0;
+  return def.baseRate * owned * getTotalMultiplier();
+}
+
+function buyArtist(def: ArtistDef): void {
+  const cost = getArtistCost(def);
+  if (state.strokes < cost) return;
+
+  state.strokes -= cost;
+  state.artists[def.id] = (state.artists[def.id] ?? 0) + 1;
+  recalcPassiveRate();
+  playSound("purchase");
+  checkAchievements();
+
+  saveGame();
+  renderArtists();
+  updateDisplay();
+}
+
 // --- Media tier upgrade ---
 
 function buyMediaTier(): void {
@@ -292,6 +546,9 @@ function buyMediaTier(): void {
   showNotification(
     `Media upgraded to ${tier.name}! (${tier.multiplier}x multiplier)`,
   );
+  playSound("milestone");
+  triggerShake();
+  checkAchievements();
   saveGame();
   renderMediaPanel();
   updateDisplay();
@@ -305,9 +562,47 @@ function checkSwordUnlocks(): void {
     if (state.totalStrokes >= sword.threshold) {
       state.unlockedSwords.push(sword.id);
       showNotification(`Sword unlocked: ${sword.name}! "${sword.desc}"`);
+      playSound("milestone");
+      triggerShake();
       renderGallery();
     }
   }
+}
+
+// --- Achievement checking ---
+
+function checkAchievements(): void {
+  for (const ach of ACHIEVEMENT_DEFS) {
+    if (state.unlockedAchievements.includes(ach.id)) continue;
+    if (ach.check(state)) {
+      state.unlockedAchievements.push(ach.id);
+      showNotification(`Achievement: ${ach.name}! — ${ach.desc}`);
+      playSound("achievement");
+      renderAchievements();
+    }
+  }
+}
+
+// --- Floating click text ---
+
+function showFloatingText(amount: number, event: MouseEvent): void {
+  const el = document.createElement("div");
+  el.className = "floating-text";
+  el.textContent = "+" + formatNumber(amount);
+  el.style.left = event.clientX + "px";
+  el.style.top = event.clientY + "px";
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add("float-up"));
+  setTimeout(() => el.remove(), 800);
+}
+
+// --- Screen shake ---
+
+function triggerShake(): void {
+  const game = document.getElementById("game");
+  if (!game) return;
+  game.classList.add("shake");
+  setTimeout(() => game.classList.remove("shake"), 300);
 }
 
 // --- Notifications ---
@@ -321,7 +616,6 @@ function showNotification(msg: string): void {
   el.textContent = msg;
   container.appendChild(el);
 
-  // Trigger animation
   requestAnimationFrame(() => el.classList.add("show"));
 
   setTimeout(() => {
@@ -342,10 +636,9 @@ function buyUpgrade(def: UpgradeDef): void {
 
   if (def.effect.type === "click") {
     state.clickPower += def.effect.value;
-  } else if (def.effect.type === "passive") {
-    state.passiveRate += def.effect.value;
   }
 
+  playSound("purchase");
   saveGame();
   renderUpgrades();
   updateDisplay();
@@ -353,11 +646,15 @@ function buyUpgrade(def: UpgradeDef): void {
 
 // --- Click handler ---
 
-function handleClick(): void {
+function handleClick(event?: MouseEvent): void {
   const gain = getEffectiveClickPower();
   state.strokes += gain;
   state.totalStrokes += gain;
+  state.totalClicks++;
+  if (event) showFloatingText(gain, event);
+  playSound("click");
   checkSwordUnlocks();
+  checkAchievements();
   updateDisplay();
 }
 
@@ -369,6 +666,7 @@ function tick(): void {
     state.strokes += gain;
     state.totalStrokes += gain;
     checkSwordUnlocks();
+    checkAchievements();
     updateDisplay();
   }
 }
@@ -376,23 +674,23 @@ function tick(): void {
 // --- Display ---
 
 function updateDisplay(): void {
-  document.getElementById("strokes-count")!.textContent = Math.floor(
+  document.getElementById("strokes-count")!.textContent = formatNumber(
     state.strokes,
-  ).toLocaleString();
-  document.getElementById("per-click")!.textContent = Math.floor(
+  );
+  document.getElementById("per-click")!.textContent = formatNumber(
     getEffectiveClickPower(),
-  ).toLocaleString();
-  document.getElementById("per-second")!.textContent = Math.floor(
+  );
+  document.getElementById("per-second")!.textContent = formatNumber(
     getEffectivePassiveRate(),
-  ).toLocaleString();
+  );
 
-  // Update multiplier display
   const multEl = document.getElementById("multiplier-display");
   if (multEl) {
     const mult = getTotalMultiplier();
     multEl.textContent = mult > 1 ? `${mult.toFixed(1)}x` : "";
   }
 
+  // Update click upgrades
   for (const def of UPGRADE_DEFS) {
     const btn = document.getElementById(
       "upgrade-" + def.id,
@@ -401,10 +699,29 @@ function updateDisplay(): void {
       const cost = getUpgradeCost(def);
       btn.disabled = state.strokes < cost;
       btn.querySelector(".upgrade-cost")!.textContent =
-        cost.toLocaleString() + " Strokes";
+        formatNumber(cost) + " Strokes";
       const owned = state.upgrades[def.id] ?? 0;
       btn.querySelector(".upgrade-owned")!.textContent =
         owned > 0 ? "Owned: " + owned : "";
+    }
+  }
+
+  // Update artist buttons
+  for (const def of ARTIST_DEFS) {
+    const btn = document.getElementById(
+      "artist-" + def.id,
+    ) as HTMLButtonElement | null;
+    if (btn) {
+      const cost = getArtistCost(def);
+      btn.disabled = state.strokes < cost;
+      btn.querySelector(".upgrade-cost")!.textContent =
+        formatNumber(cost) + " Strokes";
+      const owned = state.artists[def.id] ?? 0;
+      btn.querySelector(".artist-count")!.textContent =
+        owned > 0 ? `Owned: ${owned}` : "";
+      const prod = getArtistProduction(def);
+      btn.querySelector(".artist-production")!.textContent =
+        owned > 0 ? `Producing: ${formatNumber(prod)}/sec` : "";
     }
   }
 
@@ -423,12 +740,15 @@ function updateDisplay(): void {
       mediaBtn.innerHTML = `
         <div class="upgrade-name">
           ${tier.name}
-          <span class="upgrade-cost">${tier.cost.toLocaleString()} Strokes</span>
+          <span class="upgrade-cost">${formatNumber(tier.cost)} Strokes</span>
         </div>
         <div class="upgrade-desc">${tier.desc} — ${tier.multiplier}x multiplier</div>
       `;
     }
   }
+
+  // Update production breakdown
+  renderProductionBreakdown();
 }
 
 function renderUpgrades(): void {
@@ -446,13 +766,65 @@ function renderUpgrades(): void {
     btn.innerHTML = `
       <div class="upgrade-name">
         ${def.name}
-        <span class="upgrade-cost">${cost.toLocaleString()} Strokes</span>
+        <span class="upgrade-cost">${formatNumber(cost)} Strokes</span>
       </div>
       <div class="upgrade-desc">${def.desc}</div>
       <div class="upgrade-owned">${owned > 0 ? "Owned: " + owned : ""}</div>
     `;
     btn.addEventListener("click", () => buyUpgrade(def));
     list.appendChild(btn);
+  }
+}
+
+function renderArtists(): void {
+  const list = document.getElementById("artists-list")!;
+  list.innerHTML = "";
+
+  for (const def of ARTIST_DEFS) {
+    const cost = getArtistCost(def);
+    const owned = state.artists[def.id] ?? 0;
+    const prod = getArtistProduction(def);
+
+    const btn = document.createElement("button");
+    btn.className = "upgrade-btn artist-btn";
+    btn.id = "artist-" + def.id;
+    btn.disabled = state.strokes < cost;
+    btn.innerHTML = `
+      <div class="upgrade-name">
+        ${def.name}
+        <span class="upgrade-cost">${formatNumber(cost)} Strokes</span>
+      </div>
+      <div class="upgrade-desc">${def.desc} — ${formatNumber(def.baseRate)} Strokes/sec each</div>
+      <div class="artist-count">${owned > 0 ? `Owned: ${owned}` : ""}</div>
+      <div class="artist-production">${owned > 0 ? `Producing: ${formatNumber(prod)}/sec` : ""}</div>
+    `;
+    btn.addEventListener("click", () => buyArtist(def));
+    list.appendChild(btn);
+  }
+}
+
+function renderProductionBreakdown(): void {
+  const el = document.getElementById("production-breakdown");
+  if (!el) return;
+
+  const mult = getTotalMultiplier();
+  const lines: string[] = [];
+
+  for (const def of ARTIST_DEFS) {
+    const owned = state.artists[def.id] ?? 0;
+    if (owned > 0) {
+      const prod = def.baseRate * owned * mult;
+      lines.push(`${def.name} (${owned}): ${formatNumber(prod)}/sec`);
+    }
+  }
+
+  if (lines.length === 0) {
+    el.innerHTML =
+      '<div class="breakdown-empty">Hire artists to generate passive Strokes!</div>';
+  } else {
+    el.innerHTML = lines
+      .map((l) => `<div class="breakdown-line">${l}</div>`)
+      .join("");
   }
 }
 
@@ -483,6 +855,193 @@ function renderGallery(): void {
   }
 }
 
+// --- Achievements panel ---
+
+function renderAchievements(): void {
+  const list = document.getElementById("achievements-list");
+  if (!list) return;
+  list.innerHTML = "";
+
+  for (const ach of ACHIEVEMENT_DEFS) {
+    const unlocked = state.unlockedAchievements.includes(ach.id);
+    const el = document.createElement("div");
+    el.className = "achievement-entry" + (unlocked ? " unlocked" : " locked");
+    el.innerHTML = unlocked
+      ? `<div class="achievement-name">${ach.name}</div><div class="achievement-desc">${ach.desc}</div>`
+      : `<div class="achievement-name">???</div><div class="achievement-desc">Keep playing to unlock</div>`;
+    list.appendChild(el);
+  }
+
+  const counter = document.getElementById("achievement-counter");
+  if (counter) {
+    counter.textContent = `${state.unlockedAchievements.length}/${ACHIEVEMENT_DEFS.length}`;
+  }
+}
+
+// --- Settings / Export / Import ---
+
+function exportSave(): string {
+  saveGame();
+  return btoa(JSON.stringify(state));
+}
+
+function importSave(data: string): boolean {
+  try {
+    const parsed = JSON.parse(atob(data)) as Partial<GameState>;
+    if (typeof parsed.strokes !== "number") return false;
+    state = { ...createDefaultState(), ...parsed } as GameState;
+    recalcPassiveRate();
+    renderAll();
+    saveGame();
+    showNotification("Save imported successfully!");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function renderAll(): void {
+  renderUpgrades();
+  renderArtists();
+  renderMediaPanel();
+  renderGallery();
+  renderAchievements();
+  updateDisplay();
+}
+
+function setupSettings(): void {
+  const muteBtn = document.getElementById("mute-btn");
+  if (muteBtn) {
+    muteBtn.addEventListener("click", () => {
+      soundMuted = !soundMuted;
+      muteBtn.textContent = soundMuted ? "Unmute" : "Mute";
+      try {
+        localStorage.setItem("swordArtClick_muted", soundMuted ? "1" : "0");
+      } catch {}
+    });
+    try {
+      soundMuted = localStorage.getItem("swordArtClick_muted") === "1";
+      muteBtn.textContent = soundMuted ? "Unmute" : "Mute";
+    } catch {}
+  }
+
+  document.getElementById("save-btn")?.addEventListener("click", () => {
+    saveGame();
+    showNotification("Game saved!");
+  });
+
+  document.getElementById("export-btn")?.addEventListener("click", () => {
+    const data = exportSave();
+    const textarea = document.getElementById(
+      "save-data",
+    ) as HTMLTextAreaElement | null;
+    if (textarea) {
+      textarea.value = data;
+      textarea.select();
+    }
+  });
+
+  document.getElementById("import-btn")?.addEventListener("click", () => {
+    const textarea = document.getElementById(
+      "save-data",
+    ) as HTMLTextAreaElement | null;
+    if (!textarea || !textarea.value.trim()) return;
+    if (!importSave(textarea.value.trim())) {
+      showNotification("Invalid save data!");
+    }
+  });
+
+  // Reset with two-click confirmation
+  const resetBtn = document.getElementById("reset-btn");
+  if (resetBtn) {
+    let confirmTimeout: ReturnType<typeof setTimeout> | null = null;
+    let awaitingConfirm = false;
+
+    resetBtn.addEventListener("click", () => {
+      if (awaitingConfirm) {
+        // Second click — actually reset
+        if (confirmTimeout) clearTimeout(confirmTimeout);
+        awaitingConfirm = false;
+        resetBtn.textContent = "Reset";
+        resetBtn.classList.remove("danger");
+
+        state = createDefaultState();
+        try {
+          localStorage.removeItem(SAVE_KEY);
+        } catch {}
+        saveGame();
+        renderAll();
+        showNotification("Game reset! Starting fresh.");
+      } else {
+        // First click — ask for confirmation
+        awaitingConfirm = true;
+        resetBtn.textContent = "Are you sure?";
+        resetBtn.classList.add("danger");
+
+        confirmTimeout = setTimeout(() => {
+          awaitingConfirm = false;
+          resetBtn.textContent = "Reset";
+          resetBtn.classList.remove("danger");
+        }, 3000);
+      }
+    });
+  }
+}
+
+// --- Collapsible sections ---
+
+const COLLAPSE_KEY = "swordArtClick_collapsed";
+
+function setupCollapsibles(): void {
+  let collapsed: Record<string, boolean> = {};
+  try {
+    const raw = localStorage.getItem(COLLAPSE_KEY);
+    if (raw) collapsed = JSON.parse(raw);
+  } catch {}
+
+  // Default: achievements and settings collapsed, gallery expanded
+  if (collapsed["achievements"] === undefined) collapsed["achievements"] = true;
+  if (collapsed["settings"] === undefined) collapsed["settings"] = true;
+
+  const toggles = document.querySelectorAll<HTMLElement>(".collapsible-toggle");
+  for (const toggle of toggles) {
+    const section = toggle.dataset.section;
+    if (!section) continue;
+
+    const content = toggle.nextElementSibling as HTMLElement | null;
+    if (!content) continue;
+
+    // Apply saved state
+    if (collapsed[section]) {
+      content.classList.add("collapsed");
+      toggle.closest(".collapsible")?.classList.add("is-collapsed");
+    } else {
+      content.classList.remove("collapsed");
+      toggle.closest(".collapsible")?.classList.remove("is-collapsed");
+    }
+
+    toggle.addEventListener("click", () => {
+      const isCollapsed = content.classList.toggle("collapsed");
+      toggle
+        .closest(".collapsible")
+        ?.classList.toggle("is-collapsed", isCollapsed);
+      collapsed[section] = isCollapsed;
+      try {
+        localStorage.setItem(COLLAPSE_KEY, JSON.stringify(collapsed));
+      } catch {}
+    });
+  }
+}
+
+// --- Offline progress ---
+
+function calculateOfflineProgress(elapsedMs: number): number {
+  const maxMs = MAX_OFFLINE_HOURS * 60 * 60 * 1000;
+  const cappedMs = Math.min(elapsedMs, maxMs);
+  const seconds = cappedMs / 1000;
+  return getEffectivePassiveRate() * seconds;
+}
+
 // --- Save / Load ---
 
 function saveGame(): void {
@@ -503,16 +1062,58 @@ function loadGame(): void {
 
     state = { ...createDefaultState(), ...saved } as GameState;
 
-    // Recalculate derived stats from owned upgrades
+    // Ensure fields exist for saves from older sessions
+    if (!state.artists) state.artists = {};
+    if (!state.unlockedAchievements) state.unlockedAchievements = [];
+    if (!state.totalClicks) state.totalClicks = 0;
+    if (!state.playStartTime) state.playStartTime = Date.now();
+
+    // Recalculate click power from owned upgrades
     state.clickPower = 1;
-    state.passiveRate = 0;
     for (const def of UPGRADE_DEFS) {
       const owned = state.upgrades[def.id] ?? 0;
-      if (owned > 0) {
-        if (def.effect.type === "click") {
-          state.clickPower += def.effect.value * owned;
-        } else if (def.effect.type === "passive") {
-          state.passiveRate += def.effect.value * owned;
+      if (owned > 0 && def.effect.type === "click") {
+        state.clickPower += def.effect.value * owned;
+      }
+    }
+
+    // Recalculate passive rate from artists
+    recalcPassiveRate();
+
+    // Migrate old passive upgrades: convert artStudent/sketchPad/draftingTable counts to artists
+    const oldPassiveIds = ["artStudent", "sketchPad", "draftingTable"];
+    let hadOldPassive = false;
+    for (const oldId of oldPassiveIds) {
+      if (state.upgrades[oldId] && state.upgrades[oldId] > 0) {
+        hadOldPassive = true;
+        // Give equivalent doodlers for old passive upgrades
+        const oldOwned = state.upgrades[oldId];
+        state.artists["doodler"] = (state.artists["doodler"] ?? 0) + oldOwned;
+        delete state.upgrades[oldId];
+      }
+    }
+    if (hadOldPassive) recalcPassiveRate();
+
+    // Calculate offline earnings
+    if (state.lastSave && state.passiveRate > 0) {
+      const elapsed = Date.now() - state.lastSave;
+      if (elapsed > 1000) {
+        const offlineGain = calculateOfflineProgress(elapsed);
+        if (offlineGain > 0) {
+          state.strokes += offlineGain;
+          state.totalStrokes += offlineGain;
+          const seconds = Math.min(elapsed, MAX_OFFLINE_HOURS * 3600000) / 1000;
+          const timeStr =
+            seconds >= 3600
+              ? `${(seconds / 3600).toFixed(1)} hours`
+              : seconds >= 60
+                ? `${Math.floor(seconds / 60)} minutes`
+                : `${Math.floor(seconds)} seconds`;
+          setTimeout(() => {
+            showNotification(
+              `Welcome back! Earned ${formatNumber(offlineGain)} Strokes while away (${timeStr})`,
+            );
+          }, 500);
         }
       }
     }
@@ -526,11 +1127,17 @@ function loadGame(): void {
 function init(): void {
   loadGame();
   renderUpgrades();
+  renderArtists();
   renderMediaPanel();
   renderGallery();
+  renderAchievements();
   updateDisplay();
+  setupSettings();
+  setupCollapsibles();
 
-  document.getElementById("draw-btn")!.addEventListener("click", handleClick);
+  document
+    .getElementById("draw-btn")!
+    .addEventListener("click", (e) => handleClick(e));
   document
     .getElementById("media-upgrade-btn")!
     .addEventListener("click", buyMediaTier);

@@ -4,6 +4,10 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Sword Art Click</title>
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x2694;</text></svg>"
+        />
         <link rel="stylesheet" href="src/style.css" />
     </head>
     <body>
@@ -25,7 +29,7 @@
             </div>
 
             <div id="main-area">
-                <div id="left-column">
+                <div id="col-click">
                     <div id="click-zone">
                         <button id="draw-btn">
                             <span class="sword-icon">&#x2694;</span>
@@ -44,17 +48,77 @@
                             class="upgrade-btn"
                         ></button>
                     </div>
+
+                    <div id="breakdown-panel">
+                        <h2>Production</h2>
+                        <div id="production-breakdown"></div>
+                    </div>
                 </div>
 
-                <div id="upgrades-panel">
-                    <h2>Upgrades</h2>
-                    <div id="upgrades-list"></div>
+                <div id="col-upgrades">
+                    <div id="upgrades-panel">
+                        <h2>Click Upgrades</h2>
+                        <div id="upgrades-list"></div>
+                    </div>
+                </div>
+
+                <div id="col-artists">
+                    <div id="artists-panel">
+                        <h2>Artists</h2>
+                        <div id="artists-list"></div>
+                    </div>
                 </div>
             </div>
 
-            <div id="gallery-section">
-                <h2>Sword Gallery</h2>
-                <div id="sword-gallery"></div>
+            <div id="gallery-section" class="collapsible">
+                <h2 class="collapsible-toggle" data-section="gallery">
+                    Sword Gallery <span class="toggle-indicator">&#x25BC;</span>
+                </h2>
+                <div class="collapsible-content" id="gallery-content">
+                    <div id="sword-gallery"></div>
+                </div>
+            </div>
+
+            <div id="achievements-section" class="collapsible">
+                <h2 class="collapsible-toggle" data-section="achievements">
+                    Achievements <span id="achievement-counter">0/11</span>
+                    <span class="toggle-indicator">&#x25BC;</span>
+                </h2>
+                <div
+                    class="collapsible-content collapsed"
+                    id="achievements-content"
+                >
+                    <div id="achievements-list"></div>
+                </div>
+            </div>
+
+            <div id="settings-section" class="collapsible">
+                <h2 class="collapsible-toggle" data-section="settings">
+                    Settings <span class="toggle-indicator">&#x25BC;</span>
+                </h2>
+                <div
+                    class="collapsible-content collapsed"
+                    id="settings-content"
+                >
+                    <div id="settings-controls">
+                        <button id="mute-btn" class="settings-btn">Mute</button>
+                        <button id="save-btn" class="settings-btn">Save</button>
+                        <button id="export-btn" class="settings-btn">
+                            Export
+                        </button>
+                        <button id="import-btn" class="settings-btn">
+                            Import
+                        </button>
+                        <button id="reset-btn" class="settings-btn">
+                            Reset
+                        </button>
+                    </div>
+                    <textarea
+                        id="save-data"
+                        placeholder="Paste save data here to import..."
+                        rows="3"
+                    ></textarea>
+                </div>
             </div>
 
             <div id="notifications"></div>
