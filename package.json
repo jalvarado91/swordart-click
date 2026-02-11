@@ -1,0 +1,14 @@
+{
+  "name": "swordart-click",
+  "private": true,
+  "scripts": {
+    "build": "bun build src/game.ts --outdir dist --target browser",
+    "watch": "bun build src/game.ts --outdir dist --target browser --watch"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
