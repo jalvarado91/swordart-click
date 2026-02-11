@@ -62,7 +62,7 @@ A browser-based clicker/incremental game themed around "drawing swords" — the 
 
 ---
 
-## Session 2: Sword types and art media progression
+## Session 2: Sword types and art media progression — Completed
 
 **Goal:** Add the thematic content — sword varieties and art media tiers that give the game its personality.
 

@@ -16,6 +16,7 @@
             <div id="stats">
                 <div id="strokes-display">
                     <span id="strokes-count">0</span> Strokes
+                    <span id="multiplier-display"></span>
                 </div>
                 <div id="rates">
                     <span>Per click: <strong id="per-click">1</strong></span>
@@ -24,11 +25,25 @@
             </div>
 
             <div id="main-area">
-                <div id="click-zone">
-                    <button id="draw-btn">
-                        <span class="sword-icon">&#x2694;</span>
-                        <span class="btn-label">Draw!</span>
-                    </button>
+                <div id="left-column">
+                    <div id="click-zone">
+                        <button id="draw-btn">
+                            <span class="sword-icon">&#x2694;</span>
+                            <span class="btn-label">Draw!</span>
+                        </button>
+                    </div>
+
+                    <div id="media-panel">
+                        <h2>Art Media</h2>
+                        <div id="current-media-label">
+                            Current:
+                            <span id="current-media">Pencil Sketch (1x)</span>
+                        </div>
+                        <button
+                            id="media-upgrade-btn"
+                            class="upgrade-btn"
+                        ></button>
+                    </div>
                 </div>
 
                 <div id="upgrades-panel">
@@ -36,6 +51,13 @@
                     <div id="upgrades-list"></div>
                 </div>
             </div>
+
+            <div id="gallery-section">
+                <h2>Sword Gallery</h2>
+                <div id="sword-gallery"></div>
+            </div>
+
+            <div id="notifications"></div>
         </div>
 
         <script src="dist/game.js"></script>
