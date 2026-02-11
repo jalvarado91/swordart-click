@@ -596,6 +596,133 @@ header h1 {
     }
 }
 
+/* --- Prestige --- */
+
+#prestige-section {
+    margin-top: 14px;
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #5a3a6a;
+}
+
+#prestige-section h2 {
+    font-size: 1.1rem;
+    color: #c49adb;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: normal;
+}
+
+#prestige-section .collapsible-content:not(.collapsed) {
+    margin-top: 12px;
+}
+
+#prestige-stats {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+#prestige-stats strong {
+    color: #c49adb;
+}
+
+#prestige-panel h3 {
+    font-size: 0.95rem;
+    color: #c49adb;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: normal;
+    margin-top: 14px;
+    margin-bottom: 8px;
+}
+
+.prestige-action-btn {
+    width: 100%;
+    background: #2a1a30;
+    border: 2px solid #5a3a6a;
+    border-radius: 8px;
+    padding: 14px;
+    color: #c49adb;
+    font-family: "Georgia", serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+    line-height: 1.4;
+}
+
+.prestige-action-btn:hover:not(:disabled) {
+    border-color: #8a5aaa;
+    background: #3a2545;
+    box-shadow: 0 0 15px rgba(140, 90, 180, 0.3);
+}
+
+.prestige-action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.prestige-action-btn.confirming {
+    border-color: #a04040;
+    color: #e86050;
+    background: #3a2020;
+}
+
+.prestige-ep-gain {
+    font-size: 0.8rem;
+    font-weight: normal;
+    opacity: 0.8;
+}
+
+.prestige-upgrade-btn {
+    border-color: #5a3a6a;
+}
+
+.prestige-upgrade-btn:hover:not(:disabled) {
+    border-color: #8a5aaa;
+    background: #3a2545;
+}
+
+.prestige-upgrade-btn .upgrade-cost {
+    color: #c49adb;
+}
+
+/* --- Erase animation --- */
+
+@keyframes erase {
+    0% {
+        opacity: 1;
+        filter: none;
+    }
+    30% {
+        opacity: 0.3;
+        filter: blur(4px) brightness(2);
+    }
+    60% {
+        opacity: 0;
+        filter: blur(8px) brightness(3);
+    }
+    80% {
+        opacity: 0.5;
+        filter: blur(2px);
+    }
+    100% {
+        opacity: 1;
+        filter: none;
+    }
+}
+
+#game.erasing {
+    animation: erase 1s ease;
+}
+
 /* --- Settings --- */
 
 #settings-section {

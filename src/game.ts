@@ -55,6 +55,14 @@ interface AchievementDef {
   check: (s: GameState) => boolean;
 }
 
+interface PrestigeUpgradeDef {
+  id: string;
+  name: string;
+  desc: string;
+  baseCost: number;
+  maxLevel: number;
+}
+
 interface GameState {
   strokes: number;
   totalStrokes: number;
@@ -68,6 +76,12 @@ interface GameState {
   unlockedAchievements: string[];
   lastSave: number;
   playStartTime: number;
+  // Prestige
+  erasurePoints: number;
+  totalErasurePoints: number;
+  prestigeCount: number;
+  prestigeUpgrades: Record<string, number>;
+  lifetimeStrokes: number;
 }
 
 // --- Media tiers ---
@@ -361,6 +375,48 @@ const ACHIEVEMENT_DEFS: AchievementDef[] = [
   },
 ];
 
+// --- Prestige definitions ---
+
+const PRESTIGE_THRESHOLD = 10_000_000;
+
+const PRESTIGE_UPGRADE_DEFS: PrestigeUpgradeDef[] = [
+  {
+    id: "muscleMemory",
+    name: "Muscle Memory",
+    desc: "+10% click power per level",
+    baseCost: 1,
+    maxLevel: 50,
+  },
+  {
+    id: "artSchool",
+    name: "Art School",
+    desc: "+25% artist production per level",
+    baseCost: 2,
+    maxLevel: 50,
+  },
+  {
+    id: "betterPaper",
+    name: "Better Paper",
+    desc: "Start with Charcoal media after prestige",
+    baseCost: 5,
+    maxLevel: 1,
+  },
+  {
+    id: "portfolio",
+    name: "Portfolio",
+    desc: "Keep unlocked sword types across prestiges",
+    baseCost: 10,
+    maxLevel: 1,
+  },
+  {
+    id: "speedSketch",
+    name: "Speed Sketch",
+    desc: "+50% all production per level",
+    baseCost: 25,
+    maxLevel: 20,
+  },
+];
+
 // --- Number formatting ---
 
 function formatNumber(n: number): string {
@@ -457,6 +513,11 @@ function createDefaultState(): GameState {
     unlockedAchievements: [],
     lastSave: Date.now(),
     playStartTime: Date.now(),
+    erasurePoints: 0,
+    totalErasurePoints: 0,
+    prestigeCount: 0,
+    prestigeUpgrades: {},
+    lifetimeStrokes: 0,
   };
 }
 
@@ -475,18 +536,25 @@ function getSwordBonus(): number {
   return bonus;
 }
 
+function getPrestigeBonus(id: string): number {
+  return state.prestigeUpgrades[id] ?? 0;
+}
+
 function getTotalMultiplier(): number {
   const mediaMultiplier = getMediaMultiplier();
   const swordBonus = 1 + getSwordBonus() / 100;
-  return mediaMultiplier * swordBonus;
+  const speedSketchBonus = 1 + getPrestigeBonus("speedSketch") * 0.5;
+  return mediaMultiplier * swordBonus * speedSketchBonus;
 }
 
 function getEffectiveClickPower(): number {
-  return state.clickPower * getTotalMultiplier();
+  const muscleMemoryBonus = 1 + getPrestigeBonus("muscleMemory") * 0.1;
+  return state.clickPower * getTotalMultiplier() * muscleMemoryBonus;
 }
 
 function getEffectivePassiveRate(): number {
-  return state.passiveRate * getTotalMultiplier();
+  const artSchoolBonus = 1 + getPrestigeBonus("artSchool") * 0.25;
+  return state.passiveRate * getTotalMultiplier() * artSchoolBonus;
 }
 
 // --- Cost calculation ---
@@ -749,6 +817,32 @@ function updateDisplay(): void {
 
   // Update production breakdown
   renderProductionBreakdown();
+
+  // Update prestige panel affordability
+  for (const def of PRESTIGE_UPGRADE_DEFS) {
+    const btn = document.querySelector(
+      `#prestige-upgrades-list .prestige-upgrade-btn:nth-child(${PRESTIGE_UPGRADE_DEFS.indexOf(def) + 1})`,
+    ) as HTMLButtonElement | null;
+    if (btn) {
+      const owned = state.prestigeUpgrades[def.id] ?? 0;
+      const maxed = owned >= def.maxLevel;
+      const cost = getPrestigeUpgradeCost(def);
+      btn.disabled = maxed || state.erasurePoints < cost;
+    }
+  }
+
+  // Update prestige button availability
+  const prestigeBtn = document.getElementById(
+    "prestige-btn",
+  ) as HTMLButtonElement | null;
+  if (prestigeBtn && !prestigeBtn.classList.contains("confirming")) {
+    const canDo = canPrestige();
+    const ep = calculateErasurePoints(state.totalStrokes);
+    prestigeBtn.disabled = !canDo;
+    if (canDo) {
+      prestigeBtn.innerHTML = `Erase &amp; Redraw<br><span class="prestige-ep-gain">+${ep} Erasure Point${ep !== 1 ? "s" : ""}</span>`;
+    }
+  }
 }
 
 function renderUpgrades(): void {
@@ -878,6 +972,150 @@ function renderAchievements(): void {
   }
 }
 
+// --- Prestige system ---
+
+function calculateErasurePoints(totalStrokes: number): number {
+  return Math.floor(Math.sqrt(totalStrokes / 1_000_000));
+}
+
+function canPrestige(): boolean {
+  return state.totalStrokes >= PRESTIGE_THRESHOLD;
+}
+
+function getPrestigeUpgradeCost(def: PrestigeUpgradeDef): number {
+  const owned = state.prestigeUpgrades[def.id] ?? 0;
+  return Math.floor(def.baseCost * Math.pow(1.5, owned));
+}
+
+function buyPrestigeUpgrade(def: PrestigeUpgradeDef): void {
+  const owned = state.prestigeUpgrades[def.id] ?? 0;
+  if (owned >= def.maxLevel) return;
+  const cost = getPrestigeUpgradeCost(def);
+  if (state.erasurePoints < cost) return;
+
+  state.erasurePoints -= cost;
+  state.prestigeUpgrades[def.id] = owned + 1;
+  playSound("purchase");
+  saveGame();
+  renderPrestige();
+  updateDisplay();
+}
+
+function doPrestige(): void {
+  const epGained = calculateErasurePoints(state.totalStrokes);
+  if (epGained <= 0) return;
+
+  // Preserve prestige-persistent data
+  const preserved = {
+    erasurePoints: state.erasurePoints + epGained,
+    totalErasurePoints: state.totalErasurePoints + epGained,
+    prestigeCount: state.prestigeCount + 1,
+    prestigeUpgrades: { ...state.prestigeUpgrades },
+    lifetimeStrokes: state.lifetimeStrokes + state.totalStrokes,
+    unlockedAchievements: [...state.unlockedAchievements],
+    playStartTime: state.playStartTime,
+  };
+
+  // Keep swords if portfolio upgrade is owned
+  const keepSwords = getPrestigeBonus("portfolio") >= 1;
+  const preservedSwords = keepSwords
+    ? [...state.unlockedSwords]
+    : ["butterKnife"];
+
+  // Reset to default
+  state = createDefaultState();
+
+  // Restore prestige data
+  state.erasurePoints = preserved.erasurePoints;
+  state.totalErasurePoints = preserved.totalErasurePoints;
+  state.prestigeCount = preserved.prestigeCount;
+  state.prestigeUpgrades = preserved.prestigeUpgrades;
+  state.lifetimeStrokes = preserved.lifetimeStrokes;
+  state.unlockedAchievements = preserved.unlockedAchievements;
+  state.playStartTime = preserved.playStartTime;
+  state.unlockedSwords = preservedSwords;
+
+  // Apply "Better Paper" — start with Charcoal
+  if (getPrestigeBonus("betterPaper") >= 1) {
+    state.mediaTier = 1;
+  }
+
+  recalcPassiveRate();
+  saveGame();
+  renderAll();
+  triggerEraseAnimation();
+  showNotification(
+    `Erased & Redrawn! Gained ${epGained} Erasure Point${epGained !== 1 ? "s" : ""}. (Prestige #${state.prestigeCount})`,
+  );
+  playSound("milestone");
+}
+
+function triggerEraseAnimation(): void {
+  const game = document.getElementById("game");
+  if (!game) return;
+  game.classList.add("erasing");
+  setTimeout(() => game.classList.remove("erasing"), 1000);
+}
+
+function renderPrestige(): void {
+  const panel = document.getElementById("prestige-panel");
+  if (!panel) return;
+
+  const epAvailable = calculateErasurePoints(state.totalStrokes);
+  const canDo = canPrestige();
+
+  // Stats
+  const statsEl = document.getElementById("prestige-stats");
+  if (statsEl) {
+    const lines = [
+      `Erasure Points: <strong>${state.erasurePoints}</strong>`,
+      `Total earned: ${state.totalErasurePoints}`,
+      `Times prestige'd: ${state.prestigeCount}`,
+      `Lifetime Strokes: ${formatNumber(state.lifetimeStrokes + state.totalStrokes)}`,
+    ];
+    statsEl.innerHTML = lines.join("<br>");
+  }
+
+  // Prestige button
+  const prestigeBtn = document.getElementById(
+    "prestige-btn",
+  ) as HTMLButtonElement | null;
+  if (prestigeBtn) {
+    if (canDo) {
+      prestigeBtn.disabled = false;
+      prestigeBtn.innerHTML = `Erase &amp; Redraw<br><span class="prestige-ep-gain">+${epAvailable} Erasure Point${epAvailable !== 1 ? "s" : ""}</span>`;
+    } else {
+      prestigeBtn.disabled = true;
+      prestigeBtn.innerHTML = `Erase &amp; Redraw<br><span class="prestige-ep-gain">Reach ${formatNumber(PRESTIGE_THRESHOLD)} total Strokes</span>`;
+    }
+  }
+
+  // Prestige upgrades list
+  const list = document.getElementById("prestige-upgrades-list");
+  if (list) {
+    list.innerHTML = "";
+    for (const def of PRESTIGE_UPGRADE_DEFS) {
+      const owned = state.prestigeUpgrades[def.id] ?? 0;
+      const maxed = owned >= def.maxLevel;
+      const cost = getPrestigeUpgradeCost(def);
+
+      const btn = document.createElement("button");
+      btn.className = "upgrade-btn prestige-upgrade-btn";
+      btn.disabled = maxed || state.erasurePoints < cost;
+      btn.innerHTML = `
+        <div class="upgrade-name">
+          ${def.name}
+          <span class="upgrade-cost">${maxed ? "MAX" : cost + " EP"}</span>
+        </div>
+        <div class="upgrade-desc">${def.desc}</div>
+        <div class="upgrade-owned">${owned > 0 ? `Level ${owned}${def.maxLevel > 1 ? "/" + def.maxLevel : ""}` : ""}</div>
+      `;
+      btn.addEventListener("click", () => buyPrestigeUpgrade(def));
+      list.appendChild(btn);
+    }
+  }
+}
+
 // --- Settings / Export / Import ---
 
 function exportSave(): string {
@@ -906,6 +1144,7 @@ function renderAll(): void {
   renderMediaPanel();
   renderGallery();
   renderAchievements();
+  renderPrestige();
   updateDisplay();
 }
 
@@ -983,6 +1222,32 @@ function setupSettings(): void {
           resetBtn.textContent = "Reset";
           resetBtn.classList.remove("danger");
         }, 3000);
+      }
+    });
+  }
+
+  // Prestige button with two-click confirmation
+  const prestigeBtn = document.getElementById("prestige-btn");
+  if (prestigeBtn) {
+    let confirmTimeout: ReturnType<typeof setTimeout> | null = null;
+    let awaitingConfirm = false;
+
+    prestigeBtn.addEventListener("click", () => {
+      if (!canPrestige()) return;
+      if (awaitingConfirm) {
+        if (confirmTimeout) clearTimeout(confirmTimeout);
+        awaitingConfirm = false;
+        doPrestige();
+      } else {
+        awaitingConfirm = true;
+        const ep = calculateErasurePoints(state.totalStrokes);
+        prestigeBtn.innerHTML = `Are you sure?<br><span class="prestige-ep-gain">This resets your progress for +${ep} EP</span>`;
+        prestigeBtn.classList.add("confirming");
+        confirmTimeout = setTimeout(() => {
+          awaitingConfirm = false;
+          prestigeBtn.classList.remove("confirming");
+          renderPrestige();
+        }, 4000);
       }
     });
   }
@@ -1067,6 +1332,11 @@ function loadGame(): void {
     if (!state.unlockedAchievements) state.unlockedAchievements = [];
     if (!state.totalClicks) state.totalClicks = 0;
     if (!state.playStartTime) state.playStartTime = Date.now();
+    if (!state.erasurePoints) state.erasurePoints = 0;
+    if (!state.totalErasurePoints) state.totalErasurePoints = 0;
+    if (!state.prestigeCount) state.prestigeCount = 0;
+    if (!state.prestigeUpgrades) state.prestigeUpgrades = {};
+    if (!state.lifetimeStrokes) state.lifetimeStrokes = 0;
 
     // Recalculate click power from owned upgrades
     state.clickPower = 1;
@@ -1131,6 +1401,7 @@ function init(): void {
   renderMediaPanel();
   renderGallery();
   renderAchievements();
+  renderPrestige();
   updateDisplay();
   setupSettings();
   setupCollapsibles();

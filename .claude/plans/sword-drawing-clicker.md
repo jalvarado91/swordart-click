@@ -173,7 +173,7 @@ A browser-based clicker/incremental game themed around "drawing swords" — the 
 
 ---
 
-## Session 5: Prestige system and endgame
+## Session 5: Prestige system and endgame — Completed
 
 **Goal:** Add the "Erase & Redraw" prestige mechanic for replayability and a sense of meta-progression.
 
