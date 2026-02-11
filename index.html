@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sword Art Click</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game">
+    <header>
+      <h1>Sword Art Click</h1>
+      <p class="tagline">Draw your sword.</p>
+    </header>
+
+    <div id="stats">
+      <div id="strokes-display">
+        <span id="strokes-count">0</span> Strokes
+      </div>
+      <div id="rates">
+        <span>Per click: <strong id="per-click">1</strong></span>
+        <span>Per second: <strong id="per-second">0</strong></span>
+      </div>
+    </div>
+
+    <div id="main-area">
+      <div id="click-zone">
+        <button id="draw-btn">
+          <span class="sword-icon">&#x2694;</span>
+          <span class="btn-label">Draw!</span>
+        </button>
+      </div>
+
+      <div id="upgrades-panel">
+        <h2>Upgrades</h2>
+        <div id="upgrades-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
