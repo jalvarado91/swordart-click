@@ -19,6 +19,15 @@
     --disabled: #c0b8a4;
     --prestige: #6a3a8a;
     --prestige-light: #8a5aaa;
+
+    /* Hand-drawn SVG border images (based on DoodleCSS by chr15m) */
+    --sketch-btn: url("../assets/button.svg");
+    --sketch-btn-heavy: url("../assets/button-heavy.svg");
+    --sketch-btn-prestige: url("../assets/button-prestige.svg");
+    --sketch-btn-danger: url("../assets/button-danger.svg");
+    --sketch-border: url("../assets/border.svg");
+    --sketch-hr: url("../assets/hr.svg");
+    --sketch-hr-prestige: url("../assets/hr-prestige.svg");
 }
 
 body {
@@ -78,7 +87,8 @@ header h1 {
 #stats {
     text-align: center;
     padding: 8px 0;
-    border-bottom: 1px solid var(--surface-light);
+    border-bottom: 6px solid transparent;
+    border-image: var(--sketch-hr) 0 3 6 3 stretch;
     margin-bottom: 12px;
 }
 
@@ -150,8 +160,8 @@ header h1 {
 #draw-btn {
     width: 140px;
     height: 140px;
-    border-radius: 50%;
-    border: 3px double var(--ink);
+    border: 10px solid transparent;
+    border-image: var(--sketch-btn-heavy) 10 stretch;
     background: var(--paper);
     color: var(--ink);
     cursor: pointer;
@@ -160,23 +170,17 @@ header h1 {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition:
-        transform 0.08s ease,
-        box-shadow 0.08s ease,
-        border-color 0.15s ease;
-    box-shadow: 2px 2px 0 var(--surface-light);
+    transition: transform 0.08s ease;
     user-select: none;
     -webkit-user-select: none;
 }
 
 #draw-btn:hover {
-    border-color: var(--accent);
-    box-shadow: 2px 2px 4px rgba(42, 32, 24, 0.2);
+    filter: drop-shadow(0 0 2px rgba(42, 32, 24, 0.2));
 }
 
 #draw-btn:active {
-    transform: translate(2px, 2px) scale(0.96);
-    box-shadow: none;
+    transform: scale(0.95);
 }
 
 .sword-icon {
@@ -198,7 +202,8 @@ header h1 {
     border-radius: 0;
     padding: 12px 4px;
     border: none;
-    border-bottom: 1px dashed var(--surface-light);
+    border-bottom: 6px solid transparent;
+    border-image: var(--sketch-hr) 0 3 6 3 stretch;
 }
 
 #media-panel h2 {
@@ -250,7 +255,8 @@ header h1 {
     border-radius: 0;
     padding: 12px 4px;
     border: none;
-    border-bottom: 1px dashed var(--surface-light);
+    border-bottom: 6px solid transparent;
+    border-image: var(--sketch-hr) 0 3 6 3 stretch;
 }
 
 #upgrades-panel h2,
@@ -267,36 +273,29 @@ header h1 {
 .upgrade-btn {
     width: 100%;
     background: var(--paper);
-    border: 1px solid var(--ink-light);
-    border-radius: 2px;
-    padding: 8px 10px;
+    border: 8px solid transparent;
+    border-image: var(--sketch-btn) 10 stretch;
+    padding: 6px 8px;
     margin-bottom: 6px;
     cursor: pointer;
     text-align: left;
     color: var(--text);
     font-family: "Georgia", serif;
-    transition:
-        border-color 0.15s ease,
-        background 0.15s ease,
-        box-shadow 0.15s ease;
+    transition: background 0.15s ease;
 }
 
 .upgrade-btn:hover:not(:disabled) {
-    border-color: var(--ink);
+    border-image: var(--sketch-btn-heavy) 10 stretch;
     background: var(--paper);
-    box-shadow: 1px 1px 0 var(--surface-light);
 }
 
 .upgrade-btn:active:not(:disabled) {
-    box-shadow: none;
     transform: translate(1px, 1px);
 }
 
 .upgrade-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    border-style: dashed;
-    border-color: var(--disabled);
     background: transparent;
 }
 
@@ -348,11 +347,13 @@ header h1 {
     font-size: 0.85rem;
     color: var(--text);
     padding: 4px 0;
-    border-bottom: 1px dashed var(--surface-light);
+    border-bottom: 4px solid transparent;
+    border-image: var(--sketch-hr) 0 3 6 3 stretch;
 }
 
 .breakdown-line:last-child {
     border-bottom: none;
+    border-image: none;
 }
 
 .breakdown-empty {
@@ -369,7 +370,8 @@ header h1 {
     border-radius: 0;
     padding: 12px 4px;
     border: none;
-    border-top: 1px solid var(--surface-light);
+    border-top: 6px solid transparent;
+    border-image: var(--sketch-hr) 6 3 0 3 stretch;
 }
 
 #gallery-section h2 {
@@ -392,24 +394,20 @@ header h1 {
 }
 
 .sword-entry {
-    border-radius: 2px;
     padding: 12px;
-    border: 1px solid var(--disabled);
-    transition:
-        border-color 0.3s ease,
-        background 0.3s ease;
+    border: 8px solid transparent;
+    border-image: var(--sketch-btn) 10 stretch;
+    transition: background 0.3s ease;
 }
 
 .sword-entry.unlocked {
     background: var(--paper);
-    border: 1px solid var(--ink-light);
-    box-shadow: 1px 1px 0 var(--surface-light);
+    border-image: var(--sketch-btn-heavy) 10 stretch;
     animation: sword-unlock 0.5s ease;
 }
 
 .sword-entry.locked {
     background: transparent;
-    border: 1px dashed var(--disabled);
     opacity: 0.5;
 }
 
@@ -440,17 +438,16 @@ header h1 {
     0% {
         transform: scale(0.9);
         opacity: 0;
-        border-color: var(--accent);
-        box-shadow: 0 0 12px rgba(138, 58, 42, 0.3);
+        filter: drop-shadow(0 0 8px rgba(138, 58, 42, 0.3));
     }
     50% {
         transform: scale(1.03);
-        box-shadow: 0 0 8px rgba(138, 58, 42, 0.15);
+        filter: drop-shadow(0 0 4px rgba(138, 58, 42, 0.15));
     }
     100% {
         transform: scale(1);
         opacity: 1;
-        box-shadow: 1px 1px 0 var(--surface-light);
+        filter: none;
     }
 }
 
@@ -469,12 +466,11 @@ header h1 {
 
 .notification {
     background: var(--paper);
-    border: 1px solid var(--ink-light);
-    border-radius: 2px;
+    border: 8px solid transparent;
+    border-image: var(--sketch-btn-heavy) 10 stretch;
     padding: 12px 18px;
     color: var(--ink);
     font-size: 0.9rem;
-    box-shadow: 2px 2px 0 var(--surface-light);
     transform: translateX(120%);
     opacity: 0;
     transition:
@@ -548,7 +544,8 @@ header h1 {
     border-radius: 0;
     padding: 12px 4px;
     border: none;
-    border-top: 1px solid var(--surface-light);
+    border-top: 6px solid transparent;
+    border-image: var(--sketch-hr) 6 3 0 3 stretch;
 }
 
 #achievements-section h2 {
@@ -577,24 +574,20 @@ header h1 {
 }
 
 .achievement-entry {
-    border-radius: 2px;
     padding: 10px;
-    border: 1px solid var(--disabled);
-    transition:
-        border-color 0.3s ease,
-        background 0.3s ease;
+    border: 8px solid transparent;
+    border-image: var(--sketch-btn) 10 stretch;
+    transition: background 0.3s ease;
 }
 
 .achievement-entry.unlocked {
     background: var(--paper);
-    border: 1px solid var(--ink-light);
-    box-shadow: 1px 1px 0 var(--surface-light);
+    border-image: var(--sketch-btn-heavy) 10 stretch;
     animation: achievement-pop 0.4s ease;
 }
 
 .achievement-entry.locked {
     background: transparent;
-    border: 1px dashed var(--disabled);
     opacity: 0.4;
 }
 
@@ -619,16 +612,16 @@ header h1 {
     0% {
         transform: scale(0.9);
         opacity: 0;
-        box-shadow: 0 0 10px rgba(138, 58, 42, 0.3);
+        filter: drop-shadow(0 0 6px rgba(138, 58, 42, 0.3));
     }
     50% {
         transform: scale(1.05);
-        box-shadow: 0 0 6px rgba(138, 58, 42, 0.15);
+        filter: drop-shadow(0 0 3px rgba(138, 58, 42, 0.15));
     }
     100% {
         transform: scale(1);
         opacity: 1;
-        box-shadow: 1px 1px 0 var(--surface-light);
+        filter: none;
     }
 }
 
@@ -640,7 +633,8 @@ header h1 {
     border-radius: 0;
     padding: 12px 4px;
     border: none;
-    border-top: 2px solid var(--prestige);
+    border-top: 6px solid transparent;
+    border-image: var(--sketch-hr-prestige) 6 3 0 3 stretch;
 }
 
 #prestige-section h2 {
@@ -680,44 +674,35 @@ header h1 {
 .prestige-action-btn {
     width: 100%;
     background: var(--paper);
-    border: 2px solid var(--prestige);
-    border-radius: 2px;
+    border: 8px solid transparent;
+    border-image: var(--sketch-btn-prestige) 10 stretch;
     padding: 14px;
     color: var(--prestige);
     font-family: "Georgia", serif;
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition:
-        border-color 0.2s ease,
-        background 0.2s ease,
-        box-shadow 0.2s ease;
+    transition: background 0.2s ease;
     line-height: 1.4;
-    box-shadow: 2px 2px 0 rgba(106, 58, 138, 0.15);
 }
 
 .prestige-action-btn:hover:not(:disabled) {
-    border-color: var(--prestige-light);
     background: var(--paper);
-    box-shadow: 2px 2px 4px rgba(106, 58, 138, 0.2);
+    filter: drop-shadow(0 0 2px rgba(106, 58, 138, 0.2));
 }
 
 .prestige-action-btn:active:not(:disabled) {
-    transform: translate(2px, 2px);
-    box-shadow: none;
+    transform: translate(1px, 1px);
 }
 
 .prestige-action-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    border-style: dashed;
-    box-shadow: none;
 }
 
 .prestige-action-btn.confirming {
-    border-color: #a04040;
+    border-image: var(--sketch-btn-danger) 10 stretch;
     color: #a04040;
-    border-style: solid;
     background: rgba(160, 64, 64, 0.05);
 }
 
@@ -728,13 +713,12 @@ header h1 {
 }
 
 .prestige-upgrade-btn {
-    border-color: var(--prestige);
+    border-image: var(--sketch-btn-prestige) 10 stretch;
 }
 
 .prestige-upgrade-btn:hover:not(:disabled) {
-    border-color: var(--prestige-light);
+    border-image: var(--sketch-btn-prestige) 10 stretch;
     background: var(--paper);
-    box-shadow: 1px 1px 0 rgba(106, 58, 138, 0.15);
 }
 
 .prestige-upgrade-btn .upgrade-cost {
@@ -791,7 +775,8 @@ header h1 {
     border-radius: 0;
     padding: 12px 4px;
     border: none;
-    border-top: 1px solid var(--surface-light);
+    border-top: 6px solid transparent;
+    border-image: var(--sketch-hr) 6 3 0 3 stretch;
 }
 
 #settings-section h2 {
@@ -816,44 +801,38 @@ header h1 {
 
 .settings-btn {
     background: var(--paper);
-    border: 1px solid var(--ink-light);
-    border-radius: 2px;
+    border: 8px solid transparent;
+    border-image: var(--sketch-btn) 10 stretch;
     padding: 8px 16px;
     color: var(--text);
     font-family: "Georgia", serif;
     font-size: 0.85rem;
     cursor: pointer;
-    transition:
-        border-color 0.15s ease,
-        box-shadow 0.15s ease;
 }
 
 .settings-btn:hover {
-    border-color: var(--ink);
-    box-shadow: 1px 1px 0 var(--surface-light);
+    border-image: var(--sketch-btn-heavy) 10 stretch;
 }
 
 .settings-btn:active {
-    box-shadow: none;
     transform: translate(1px, 1px);
 }
 
 .settings-btn.danger {
-    border-color: #a04040;
     color: #a04040;
+    border-image: var(--sketch-btn-danger) 10 stretch;
     background: var(--paper);
 }
 
 .settings-btn.danger:hover {
-    border-color: #c05050;
-    box-shadow: 1px 1px 0 rgba(160, 64, 64, 0.15);
+    border-image: var(--sketch-btn-danger) 10 stretch;
 }
 
 #save-data {
     width: 100%;
     background: var(--paper);
-    border: 1px solid var(--surface-light);
-    border-radius: 2px;
+    border: 8px solid transparent;
+    border-image: var(--sketch-btn) 10 stretch;
     padding: 8px;
     color: var(--text-dim);
     font-family: monospace;
