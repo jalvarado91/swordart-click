@@ -801,17 +801,25 @@ function updateDisplay(): void {
     const nextTier = state.mediaTier + 1;
     if (nextTier >= MEDIA_TIERS.length) {
       mediaBtn.disabled = true;
-      mediaBtn.textContent = "Max tier reached";
+      if (!mediaBtn.dataset.maxed) {
+        mediaBtn.textContent = "Max tier reached";
+        mediaBtn.dataset.maxed = "1";
+      }
     } else {
       const tier = MEDIA_TIERS[nextTier];
       mediaBtn.disabled = state.strokes < tier.cost;
-      mediaBtn.innerHTML = `
-        <div class="upgrade-name">
-          ${tier.name}
-          <span class="upgrade-cost">${formatNumber(tier.cost)} Strokes</span>
-        </div>
-        <div class="upgrade-desc">${tier.desc} — ${tier.multiplier}x multiplier</div>
-      `;
+      // Only rewrite innerHTML when the tier changes to avoid clobbering clicks
+      if (mediaBtn.dataset.tierId !== tier.id) {
+        mediaBtn.dataset.tierId = tier.id;
+        delete mediaBtn.dataset.maxed;
+        mediaBtn.innerHTML = `
+          <div class="upgrade-name">
+            ${tier.name}
+            <span class="upgrade-cost">${formatNumber(tier.cost)} Strokes</span>
+          </div>
+          <div class="upgrade-desc">${tier.desc} — ${tier.multiplier}x multiplier</div>
+        `;
+      }
     }
   }
 
@@ -1237,6 +1245,7 @@ function setupSettings(): void {
       if (awaitingConfirm) {
         if (confirmTimeout) clearTimeout(confirmTimeout);
         awaitingConfirm = false;
+        prestigeBtn.classList.remove("confirming");
         doPrestige();
       } else {
         awaitingConfirm = true;
