@@ -1,3 +1,11 @@
+@font-face {
+    font-family: "Short Stack";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../assets/ShortStack.ttf") format("truetype");
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -33,7 +41,7 @@
 body {
     background: var(--bg);
     color: var(--text);
-    font-family: "Georgia", "Times New Roman", serif;
+    font-family: "Short Stack", "Georgia", cursive;
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -189,7 +197,7 @@ header h1 {
 }
 
 .btn-label {
-    font-family: "Georgia", serif;
+    font-family: "Short Stack", "Georgia", cursive;
     font-size: 1.1rem;
     font-weight: bold;
     letter-spacing: 1px;
@@ -280,7 +288,7 @@ header h1 {
     cursor: pointer;
     text-align: left;
     color: var(--text);
-    font-family: "Georgia", serif;
+    font-family: "Short Stack", "Georgia", cursive;
     transition: background 0.15s ease;
 }
 
@@ -493,7 +501,7 @@ header h1 {
 .floating-text {
     position: fixed;
     pointer-events: none;
-    font-family: "Georgia", serif;
+    font-family: "Short Stack", "Georgia", cursive;
     font-size: 1.2rem;
     font-weight: bold;
     color: var(--ink);
@@ -678,7 +686,7 @@ header h1 {
     border-image: var(--sketch-btn-prestige) 10 stretch;
     padding: 14px;
     color: var(--prestige);
-    font-family: "Georgia", serif;
+    font-family: "Short Stack", "Georgia", cursive;
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
@@ -805,7 +813,7 @@ header h1 {
     border-image: var(--sketch-btn) 10 stretch;
     padding: 8px 16px;
     color: var(--text);
-    font-family: "Georgia", serif;
+    font-family: "Short Stack", "Georgia", cursive;
     font-size: 0.85rem;
     cursor: pointer;
 }
