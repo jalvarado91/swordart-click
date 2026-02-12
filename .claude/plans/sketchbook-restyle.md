@@ -46,7 +46,7 @@ The game is themed around drawing swords (sketching + unsheathing pun), but the 
 
 **Verify:** Build, open in browser. Text is readable dark-on-light. Numbers display correctly. General layout unchanged.
 
-## Session 2: Panels and cards — from floating cards to page sections
+## Session 2: Panels and cards — from floating cards to page sections — Completed
 
 **Goal:** Restyle panels to feel like areas on a sketchbook page rather than dark floating cards.
 
@@ -62,7 +62,7 @@ The game is themed around drawing swords (sketching + unsheathing pun), but the 
 
 **Verify:** Build, open in browser. Panels look like sections of a page. No floating card feel. Prestige section still visually distinct.
 
-## Session 3: Buttons and interactive elements
+## Session 3: Buttons and interactive elements — Completed
 
 **Goal:** Restyle buttons to feel like they belong on paper — stamped, inked, or sketched rather than glossy/dark.
 
@@ -78,7 +78,7 @@ The game is themed around drawing swords (sketching + unsheathing pun), but the 
 
 **Verify:** Build, open in browser. All buttons clickable, hover/active/disabled states all look right on the paper background. Draw button feels like a stamp.
 
-## Session 4: Gallery, achievements, and special elements
+## Session 4: Gallery, achievements, and special elements — Completed
 
 **Goal:** Restyle sword gallery entries, achievement entries, notifications, and floating text for the paper theme.
 
@@ -95,7 +95,7 @@ The game is themed around drawing swords (sketching + unsheathing pun), but the 
 
 **Verify:** Build, open in browser. Unlock a sword or achievement — animation looks good on paper. Notifications readable. Floating text visible.
 
-## Session 5: Paper texture and finishing touches
+## Session 5: Paper texture and finishing touches — Completed
 
 **Goal:** Add subtle paper texture and polish the overall feel.
 

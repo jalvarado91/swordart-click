@@ -28,12 +28,33 @@ body {
     min-height: 100vh;
     display: flex;
     justify-content: center;
+    /* Subtle paper grain texture via repeating gradients */
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 3px,
+            rgba(0, 0, 0, 0.008) 3px,
+            rgba(0, 0, 0, 0.008) 4px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 5px,
+            rgba(0, 0, 0, 0.005) 5px,
+            rgba(0, 0, 0, 0.005) 6px
+        );
 }
 
 #game {
     width: 100%;
     max-width: 1100px;
-    padding: 12px 16px;
+    padding: 20px 28px;
+    background: var(--paper);
+    min-height: 100vh;
+    box-shadow:
+        -4px 0 12px rgba(0, 0, 0, 0.06),
+        4px 0 12px rgba(0, 0, 0, 0.06);
 }
 
 header {
@@ -130,7 +151,7 @@ header h1 {
     width: 140px;
     height: 140px;
     border-radius: 50%;
-    border: 3px solid var(--ink);
+    border: 3px double var(--ink);
     background: var(--paper);
     color: var(--ink);
     cursor: pointer;
@@ -142,20 +163,20 @@ header h1 {
     transition:
         transform 0.08s ease,
         box-shadow 0.08s ease,
-        background 0.15s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        border-color 0.15s ease;
+    box-shadow: 2px 2px 0 var(--surface-light);
     user-select: none;
     -webkit-user-select: none;
 }
 
 #draw-btn:hover {
-    background: var(--bg);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+    border-color: var(--accent);
+    box-shadow: 2px 2px 4px rgba(42, 32, 24, 0.2);
 }
 
 #draw-btn:active {
-    transform: scale(0.94);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    transform: translate(2px, 2px) scale(0.96);
+    box-shadow: none;
 }
 
 .sword-icon {
@@ -173,10 +194,11 @@ header h1 {
 /* --- Media Panel --- */
 
 #media-panel {
-    background: var(--surface);
-    border-radius: 8px;
-    padding: 12px;
-    border: 1px solid var(--surface-light);
+    background: transparent;
+    border-radius: 0;
+    padding: 12px 4px;
+    border: none;
+    border-bottom: 1px dashed var(--surface-light);
 }
 
 #media-panel h2 {
@@ -224,10 +246,11 @@ header h1 {
 #upgrades-panel,
 #artists-panel,
 #breakdown-panel {
-    background: var(--surface);
-    border-radius: 8px;
-    padding: 12px;
-    border: 1px solid var(--surface-light);
+    background: transparent;
+    border-radius: 0;
+    padding: 12px 4px;
+    border: none;
+    border-bottom: 1px dashed var(--surface-light);
 }
 
 #upgrades-panel h2,
@@ -243,9 +266,9 @@ header h1 {
 
 .upgrade-btn {
     width: 100%;
-    background: var(--surface-light);
-    border: 1px solid var(--disabled);
-    border-radius: 6px;
+    background: var(--paper);
+    border: 1px solid var(--ink-light);
+    border-radius: 2px;
     padding: 8px 10px;
     margin-bottom: 6px;
     cursor: pointer;
@@ -254,17 +277,27 @@ header h1 {
     font-family: "Georgia", serif;
     transition:
         border-color 0.15s ease,
-        background 0.15s ease;
+        background 0.15s ease,
+        box-shadow 0.15s ease;
 }
 
 .upgrade-btn:hover:not(:disabled) {
-    border-color: var(--accent);
-    background: var(--bg);
+    border-color: var(--ink);
+    background: var(--paper);
+    box-shadow: 1px 1px 0 var(--surface-light);
+}
+
+.upgrade-btn:active:not(:disabled) {
+    box-shadow: none;
+    transform: translate(1px, 1px);
 }
 
 .upgrade-btn:disabled {
-    opacity: 0.45;
+    opacity: 0.4;
     cursor: not-allowed;
+    border-style: dashed;
+    border-color: var(--disabled);
+    background: transparent;
 }
 
 .upgrade-name {
@@ -315,7 +348,7 @@ header h1 {
     font-size: 0.85rem;
     color: var(--text);
     padding: 4px 0;
-    border-bottom: 1px solid var(--surface-light);
+    border-bottom: 1px dashed var(--surface-light);
 }
 
 .breakdown-line:last-child {
@@ -332,10 +365,11 @@ header h1 {
 
 #gallery-section {
     margin-top: 14px;
-    background: var(--surface);
-    border-radius: 8px;
-    padding: 12px;
-    border: 1px solid var(--surface-light);
+    background: transparent;
+    border-radius: 0;
+    padding: 12px 4px;
+    border: none;
+    border-top: 1px solid var(--surface-light);
 }
 
 #gallery-section h2 {
@@ -358,7 +392,7 @@ header h1 {
 }
 
 .sword-entry {
-    border-radius: 6px;
+    border-radius: 2px;
     padding: 12px;
     border: 1px solid var(--disabled);
     transition:
@@ -367,13 +401,15 @@ header h1 {
 }
 
 .sword-entry.unlocked {
-    background: var(--surface-light);
-    border-color: var(--accent);
+    background: var(--paper);
+    border: 1px solid var(--ink-light);
+    box-shadow: 1px 1px 0 var(--surface-light);
     animation: sword-unlock 0.5s ease;
 }
 
 .sword-entry.locked {
-    background: var(--bg);
+    background: transparent;
+    border: 1px dashed var(--disabled);
     opacity: 0.5;
 }
 
@@ -404,17 +440,17 @@ header h1 {
     0% {
         transform: scale(0.9);
         opacity: 0;
-        border-color: var(--accent-bright);
-        box-shadow: 0 0 20px rgba(232, 184, 74, 0.5);
+        border-color: var(--accent);
+        box-shadow: 0 0 12px rgba(138, 58, 42, 0.3);
     }
     50% {
         transform: scale(1.03);
-        box-shadow: 0 0 15px rgba(232, 184, 74, 0.3);
+        box-shadow: 0 0 8px rgba(138, 58, 42, 0.15);
     }
     100% {
         transform: scale(1);
         opacity: 1;
-        box-shadow: none;
+        box-shadow: 1px 1px 0 var(--surface-light);
     }
 }
 
@@ -432,13 +468,13 @@ header h1 {
 }
 
 .notification {
-    background: var(--surface);
-    border: 1px solid var(--accent);
-    border-radius: 8px;
+    background: var(--paper);
+    border: 1px solid var(--ink-light);
+    border-radius: 2px;
     padding: 12px 18px;
     color: var(--ink);
     font-size: 0.9rem;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 2px 2px 0 var(--surface-light);
     transform: translateX(120%);
     opacity: 0;
     transition:
@@ -464,8 +500,8 @@ header h1 {
     font-family: "Georgia", serif;
     font-size: 1.2rem;
     font-weight: bold;
-    color: var(--accent-bright);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    color: var(--ink);
+    text-shadow: none;
     z-index: 200;
     opacity: 1;
     transform: translateY(0);
@@ -508,10 +544,11 @@ header h1 {
 
 #achievements-section {
     margin-top: 14px;
-    background: var(--surface);
-    border-radius: 8px;
-    padding: 12px;
-    border: 1px solid var(--surface-light);
+    background: transparent;
+    border-radius: 0;
+    padding: 12px 4px;
+    border: none;
+    border-top: 1px solid var(--surface-light);
 }
 
 #achievements-section h2 {
@@ -540,7 +577,7 @@ header h1 {
 }
 
 .achievement-entry {
-    border-radius: 6px;
+    border-radius: 2px;
     padding: 10px;
     border: 1px solid var(--disabled);
     transition:
@@ -549,13 +586,15 @@ header h1 {
 }
 
 .achievement-entry.unlocked {
-    background: var(--surface-light);
-    border-color: var(--accent);
+    background: var(--paper);
+    border: 1px solid var(--ink-light);
+    box-shadow: 1px 1px 0 var(--surface-light);
     animation: achievement-pop 0.4s ease;
 }
 
 .achievement-entry.locked {
-    background: var(--bg);
+    background: transparent;
+    border: 1px dashed var(--disabled);
     opacity: 0.4;
 }
 
@@ -580,16 +619,16 @@ header h1 {
     0% {
         transform: scale(0.9);
         opacity: 0;
-        box-shadow: 0 0 15px rgba(232, 184, 74, 0.5);
+        box-shadow: 0 0 10px rgba(138, 58, 42, 0.3);
     }
     50% {
         transform: scale(1.05);
-        box-shadow: 0 0 10px rgba(232, 184, 74, 0.3);
+        box-shadow: 0 0 6px rgba(138, 58, 42, 0.15);
     }
     100% {
         transform: scale(1);
         opacity: 1;
-        box-shadow: none;
+        box-shadow: 1px 1px 0 var(--surface-light);
     }
 }
 
@@ -597,10 +636,11 @@ header h1 {
 
 #prestige-section {
     margin-top: 14px;
-    background: var(--surface);
-    border-radius: 8px;
-    padding: 12px;
-    border: 1px solid var(--prestige);
+    background: transparent;
+    border-radius: 0;
+    padding: 12px 4px;
+    border: none;
+    border-top: 2px solid var(--prestige);
 }
 
 #prestige-section h2 {
@@ -641,7 +681,7 @@ header h1 {
     width: 100%;
     background: var(--paper);
     border: 2px solid var(--prestige);
-    border-radius: 8px;
+    border-radius: 2px;
     padding: 14px;
     color: var(--prestige);
     font-family: "Georgia", serif;
@@ -653,23 +693,32 @@ header h1 {
         background 0.2s ease,
         box-shadow 0.2s ease;
     line-height: 1.4;
+    box-shadow: 2px 2px 0 rgba(106, 58, 138, 0.15);
 }
 
 .prestige-action-btn:hover:not(:disabled) {
     border-color: var(--prestige-light);
-    background: rgba(106, 58, 138, 0.08);
-    box-shadow: 0 0 10px rgba(106, 58, 138, 0.15);
+    background: var(--paper);
+    box-shadow: 2px 2px 4px rgba(106, 58, 138, 0.2);
+}
+
+.prestige-action-btn:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: none;
 }
 
 .prestige-action-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+    border-style: dashed;
+    box-shadow: none;
 }
 
 .prestige-action-btn.confirming {
     border-color: #a04040;
     color: #a04040;
-    background: rgba(160, 64, 64, 0.08);
+    border-style: solid;
+    background: rgba(160, 64, 64, 0.05);
 }
 
 .prestige-ep-gain {
@@ -684,7 +733,8 @@ header h1 {
 
 .prestige-upgrade-btn:hover:not(:disabled) {
     border-color: var(--prestige-light);
-    background: rgba(106, 58, 138, 0.08);
+    background: var(--paper);
+    box-shadow: 1px 1px 0 rgba(106, 58, 138, 0.15);
 }
 
 .prestige-upgrade-btn .upgrade-cost {
@@ -737,10 +787,11 @@ header h1 {
 
 #settings-section {
     margin-top: 14px;
-    background: var(--surface);
-    border-radius: 8px;
-    padding: 12px;
-    border: 1px solid var(--surface-light);
+    background: transparent;
+    border-radius: 0;
+    padding: 12px 4px;
+    border: none;
+    border-top: 1px solid var(--surface-light);
 }
 
 #settings-section h2 {
@@ -764,9 +815,9 @@ header h1 {
 }
 
 .settings-btn {
-    background: var(--surface-light);
-    border: 1px solid var(--disabled);
-    border-radius: 6px;
+    background: var(--paper);
+    border: 1px solid var(--ink-light);
+    border-radius: 2px;
     padding: 8px 16px;
     color: var(--text);
     font-family: "Georgia", serif;
@@ -774,30 +825,35 @@ header h1 {
     cursor: pointer;
     transition:
         border-color 0.15s ease,
-        background 0.15s ease;
+        box-shadow 0.15s ease;
 }
 
 .settings-btn:hover {
-    border-color: var(--accent);
-    background: var(--bg);
+    border-color: var(--ink);
+    box-shadow: 1px 1px 0 var(--surface-light);
+}
+
+.settings-btn:active {
+    box-shadow: none;
+    transform: translate(1px, 1px);
 }
 
 .settings-btn.danger {
     border-color: #a04040;
     color: #a04040;
-    background: rgba(160, 64, 64, 0.08);
+    background: var(--paper);
 }
 
 .settings-btn.danger:hover {
     border-color: #c05050;
-    background: rgba(160, 64, 64, 0.12);
+    box-shadow: 1px 1px 0 rgba(160, 64, 64, 0.15);
 }
 
 #save-data {
     width: 100%;
-    background: var(--bg);
+    background: var(--paper);
     border: 1px solid var(--surface-light);
-    border-radius: 6px;
+    border-radius: 2px;
     padding: 8px;
     color: var(--text-dim);
     font-family: monospace;
@@ -869,6 +925,11 @@ header h1 {
 }
 
 @media (max-width: 600px) {
+    #game {
+        padding: 12px 14px;
+        box-shadow: none;
+    }
+
     #main-area {
         flex-direction: column;
     }
