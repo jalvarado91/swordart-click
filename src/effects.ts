@@ -24,13 +24,16 @@ export function triggerShake(): void {
   setTimeout(() => game.classList.remove("shake"), 300);
 }
 
-// --- Erase animation ---
+// --- Prestige animation ---
 
 export function triggerEraseAnimation(): void {
   const game = document.getElementById("game");
   if (!game) return;
+  game.classList.remove("erasing");
+  // Force reflow so re-adding the class restarts the animation
+  void game.offsetHeight;
   game.classList.add("erasing");
-  setTimeout(() => game.classList.remove("erasing"), 1000);
+  setTimeout(() => game.classList.remove("erasing"), 800);
 }
 
 // --- Notifications ---

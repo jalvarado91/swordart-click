@@ -694,33 +694,46 @@ header h1 {
     color: #c49adb;
 }
 
-/* --- Erase animation --- */
+/* --- Prestige animation --- */
 
-@keyframes erase {
+@keyframes prestige-fade {
     0% {
-        opacity: 1;
-        filter: none;
-    }
-    30% {
-        opacity: 0.3;
-        filter: blur(4px) brightness(2);
-    }
-    60% {
         opacity: 0;
-        filter: blur(8px) brightness(3);
-    }
-    80% {
-        opacity: 0.5;
-        filter: blur(2px);
     }
     100% {
         opacity: 1;
-        filter: none;
+    }
+}
+
+@keyframes prestige-panel-in {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
 #game.erasing {
-    animation: erase 1s ease;
+    animation: prestige-fade 500ms ease-out both;
+}
+
+#game.erasing #stats {
+    animation: prestige-panel-in 400ms ease-out 100ms both;
+}
+
+#game.erasing #col-click {
+    animation: prestige-panel-in 400ms ease-out 150ms both;
+}
+
+#game.erasing #col-upgrades {
+    animation: prestige-panel-in 400ms ease-out 250ms both;
+}
+
+#game.erasing #col-artists {
+    animation: prestige-panel-in 400ms ease-out 350ms both;
 }
 
 /* --- Settings --- */
