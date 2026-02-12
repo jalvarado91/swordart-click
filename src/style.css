@@ -5,18 +5,20 @@
 }
 
 :root {
-    --bg: #1a1714;
-    --surface: #2a2520;
-    --surface-light: #3a3530;
-    --parchment: #d4c5a9;
-    --parchment-dim: #a89878;
-    --ink: #1a1714;
-    --accent: #c4943a;
-    --accent-bright: #e8b84a;
-    --text: #e8dcc8;
-    --text-dim: #8a7e6a;
-    --success: #6a9a4a;
-    --disabled: #4a4540;
+    --bg: #e8e0cc;
+    --paper: #f4edd8;
+    --surface: #efe8d4;
+    --surface-light: #c8b898;
+    --ink: #2a2018;
+    --ink-light: #6a5d4d;
+    --accent: #8a3a2a;
+    --accent-bright: #a0442e;
+    --text: #2a2018;
+    --text-dim: #7a6e5e;
+    --success: #4a7a3a;
+    --disabled: #c0b8a4;
+    --prestige: #6a3a8a;
+    --prestige-light: #8a5aaa;
 }
 
 body {
@@ -41,8 +43,7 @@ header {
 
 header h1 {
     font-size: 1.8rem;
-    color: var(--accent-bright);
-    text-shadow: 0 2px 8px rgba(200, 160, 60, 0.3);
+    color: var(--ink);
     letter-spacing: 2px;
 }
 
@@ -62,13 +63,13 @@ header h1 {
 
 #strokes-display {
     font-size: 1.6rem;
-    color: var(--parchment);
+    color: var(--ink);
     margin-bottom: 4px;
 }
 
 #strokes-count {
     font-weight: bold;
-    color: var(--accent-bright);
+    color: var(--accent);
     font-size: 2rem;
 }
 
@@ -87,7 +88,7 @@ header h1 {
 }
 
 #rates strong {
-    color: var(--parchment-dim);
+    color: var(--ink);
 }
 
 #main-area {
@@ -129,9 +130,9 @@ header h1 {
     width: 140px;
     height: 140px;
     border-radius: 50%;
-    border: 3px solid var(--accent);
-    background: var(--surface);
-    color: var(--parchment);
+    border: 3px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -142,23 +143,19 @@ header h1 {
         transform 0.08s ease,
         box-shadow 0.08s ease,
         background 0.15s ease;
-    box-shadow:
-        0 4px 20px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     user-select: none;
     -webkit-user-select: none;
 }
 
 #draw-btn:hover {
-    background: var(--surface-light);
-    box-shadow:
-        0 4px 30px rgba(200, 160, 60, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    background: var(--bg);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
 }
 
 #draw-btn:active {
     transform: scale(0.94);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
 .sword-icon {
@@ -184,7 +181,7 @@ header h1 {
 
 #media-panel h2 {
     font-size: 1.1rem;
-    color: var(--parchment-dim);
+    color: var(--ink-light);
     margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -217,7 +214,7 @@ header h1 {
 
 .panel-heading {
     font-size: 1.1rem;
-    color: var(--parchment-dim);
+    color: var(--ink-light);
     margin-bottom: 12px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -237,7 +234,7 @@ header h1 {
 #artists-panel h2,
 #breakdown-panel h2 {
     font-size: 1.1rem;
-    color: var(--parchment-dim);
+    color: var(--ink-light);
     margin-bottom: 12px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -262,7 +259,7 @@ header h1 {
 
 .upgrade-btn:hover:not(:disabled) {
     border-color: var(--accent);
-    background: #3a352e;
+    background: var(--bg);
 }
 
 .upgrade-btn:disabled {
@@ -273,7 +270,7 @@ header h1 {
 .upgrade-name {
     font-weight: bold;
     font-size: 1rem;
-    color: var(--parchment);
+    color: var(--ink);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -343,7 +340,7 @@ header h1 {
 
 #gallery-section h2 {
     font-size: 1.1rem;
-    color: var(--parchment-dim);
+    color: var(--ink-light);
     margin-bottom: 0;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -383,7 +380,7 @@ header h1 {
 .sword-name {
     font-weight: bold;
     font-size: 0.95rem;
-    color: var(--parchment);
+    color: var(--ink);
     margin-bottom: 4px;
 }
 
@@ -439,9 +436,9 @@ header h1 {
     border: 1px solid var(--accent);
     border-radius: 8px;
     padding: 12px 18px;
-    color: var(--parchment);
+    color: var(--ink);
     font-size: 0.9rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
     transform: translateX(120%);
     opacity: 0;
     transition:
@@ -468,7 +465,7 @@ header h1 {
     font-size: 1.2rem;
     font-weight: bold;
     color: var(--accent-bright);
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     z-index: 200;
     opacity: 1;
     transform: translateY(0);
@@ -519,7 +516,7 @@ header h1 {
 
 #achievements-section h2 {
     font-size: 1.1rem;
-    color: var(--parchment-dim);
+    color: var(--ink-light);
     margin-bottom: 0;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -565,7 +562,7 @@ header h1 {
 .achievement-name {
     font-weight: bold;
     font-size: 0.9rem;
-    color: var(--parchment);
+    color: var(--ink);
     margin-bottom: 2px;
 }
 
@@ -603,12 +600,12 @@ header h1 {
     background: var(--surface);
     border-radius: 8px;
     padding: 12px;
-    border: 1px solid #5a3a6a;
+    border: 1px solid var(--prestige);
 }
 
 #prestige-section h2 {
     font-size: 1.1rem;
-    color: #c49adb;
+    color: var(--prestige);
     margin-bottom: 0;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -627,12 +624,12 @@ header h1 {
 }
 
 #prestige-stats strong {
-    color: #c49adb;
+    color: var(--prestige);
 }
 
 #prestige-panel h3 {
     font-size: 0.95rem;
-    color: #c49adb;
+    color: var(--prestige);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: normal;
@@ -642,11 +639,11 @@ header h1 {
 
 .prestige-action-btn {
     width: 100%;
-    background: #2a1a30;
-    border: 2px solid #5a3a6a;
+    background: var(--paper);
+    border: 2px solid var(--prestige);
     border-radius: 8px;
     padding: 14px;
-    color: #c49adb;
+    color: var(--prestige);
     font-family: "Georgia", serif;
     font-size: 1.1rem;
     font-weight: bold;
@@ -659,9 +656,9 @@ header h1 {
 }
 
 .prestige-action-btn:hover:not(:disabled) {
-    border-color: #8a5aaa;
-    background: #3a2545;
-    box-shadow: 0 0 15px rgba(140, 90, 180, 0.3);
+    border-color: var(--prestige-light);
+    background: rgba(106, 58, 138, 0.08);
+    box-shadow: 0 0 10px rgba(106, 58, 138, 0.15);
 }
 
 .prestige-action-btn:disabled {
@@ -671,8 +668,8 @@ header h1 {
 
 .prestige-action-btn.confirming {
     border-color: #a04040;
-    color: #e86050;
-    background: #3a2020;
+    color: #a04040;
+    background: rgba(160, 64, 64, 0.08);
 }
 
 .prestige-ep-gain {
@@ -682,16 +679,16 @@ header h1 {
 }
 
 .prestige-upgrade-btn {
-    border-color: #5a3a6a;
+    border-color: var(--prestige);
 }
 
 .prestige-upgrade-btn:hover:not(:disabled) {
-    border-color: #8a5aaa;
-    background: #3a2545;
+    border-color: var(--prestige-light);
+    background: rgba(106, 58, 138, 0.08);
 }
 
 .prestige-upgrade-btn .upgrade-cost {
-    color: #c49adb;
+    color: var(--prestige);
 }
 
 /* --- Prestige animation --- */
@@ -748,7 +745,7 @@ header h1 {
 
 #settings-section h2 {
     font-size: 1.1rem;
-    color: var(--parchment-dim);
+    color: var(--ink-light);
     margin-bottom: 0;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -782,18 +779,18 @@ header h1 {
 
 .settings-btn:hover {
     border-color: var(--accent);
-    background: #3a352e;
+    background: var(--bg);
 }
 
 .settings-btn.danger {
     border-color: #a04040;
-    color: #e86050;
-    background: #3a2020;
+    color: #a04040;
+    background: rgba(160, 64, 64, 0.08);
 }
 
 .settings-btn.danger:hover {
     border-color: #c05050;
-    background: #4a2525;
+    background: rgba(160, 64, 64, 0.12);
 }
 
 #save-data {
@@ -824,7 +821,7 @@ header h1 {
 }
 
 .collapsible-toggle:hover {
-    color: var(--parchment);
+    color: var(--ink);
 }
 
 .toggle-indicator {
