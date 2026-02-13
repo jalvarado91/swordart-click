@@ -234,7 +234,29 @@ Footer bar polish:
 
 **Scope:** Explore what feels right once sessions 2-3 are done and we can see the layout in practice. This session is intentionally underspecified — we'll figure out the design when we get here.
 
-### Session 5: Canvas area — what goes here?
+### Session 5: Layout sizing and QOL tweaks
+
+**Goal:** Fine-tune the layout proportions, text sizing, and info placement now that the full grid + drawer structure is in place. The bones are right but the details need a pass.
+
+**Tweaks:**
+- **Side panels wider**: Bump `#panel-left` from 240px to ~280px and `#panel-right` from 260px to ~300px. The upgrade/artist buttons need more breathing room, especially with cost text.
+- **Top bar stats grouping**: Move the per-click/per-second rates next to the stroke count instead of pushed to the far right. The rates are closely related to the count — they shouldn't feel disconnected. Consider stacking them below the stroke count or placing them immediately after.
+- **Text sizing pass**: Review font sizes across the layout for consistency at full viewport width. Panel headings, upgrade button text, tab labels — make sure nothing feels too small or too large relative to the space it has.
+- **Upgrade button density**: Tighten up upgrade/artist button margins now that panels are wider. The buttons can afford slightly more internal padding with the extra width.
+- **Draw button sizing**: Consider making the draw button slightly larger now that it has a full center stage to itself — it's the primary interaction.
+- **Canvas area sizing**: Evaluate whether min-height 200px is right or if it should flex more based on available space.
+- **Tab bar height**: Make sure the tab buttons feel clickable and not too cramped — check padding and touch targets.
+
+**Files:** `src/style.css` (primary), possibly `index.html` if stats markup needs restructuring.
+
+**Verification:**
+- `bun run build` and `bunx tsc --noEmit` succeed
+- Visual pass: everything feels proportionate at common desktop widths (1440px, 1920px)
+- Stats feel grouped and readable at a glance
+- Side panels don't feel cramped
+- Draw button feels prominent
+
+### Session 6: Canvas area — what goes here?
 
 **Goal:** Figure out what the canvas area should actually *do*. Right now it's a themed empty box. This session is for exploring ideas and prototyping — not necessarily implementing a final version.
 
