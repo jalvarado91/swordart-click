@@ -223,7 +223,7 @@ Footer bar polish:
 - When manually changing `state.mediaTier` in console, canvas background/style changes per tier
 - No layout shifts when canvas style changes
 
-### Session 4: Bottom bar content redesign
+### Session 4: Bottom bar content redesign — Completed
 
 **Goal:** Rethink how information is presented in the bottom bar. The current approach just dumps the old collapsible sections into a horizontal row — production breakdown especially feels like an afterthought. Each section needs an interaction pattern that fits its role in a footer context.
 

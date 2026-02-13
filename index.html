@@ -73,13 +73,9 @@
                 </div>
             </div>
 
-            <div id="bottom-bar">
-                <div id="prestige-section" class="collapsible">
-                    <h2 class="collapsible-toggle" data-section="prestige">
-                        Erase &amp; Redraw
-                        <span class="toggle-indicator">&#x25BC;</span>
-                    </h2>
-                    <div class="collapsible-content" id="prestige-content">
+            <div id="drawer" class="drawer-closed">
+                <div id="drawer-content">
+                    <div id="drawer-prestige" class="drawer-panel">
                         <div id="prestige-panel">
                             <div id="prestige-stats"></div>
                             <button
@@ -96,36 +92,16 @@
                             <div id="prestige-upgrades-list"></div>
                         </div>
                     </div>
-                </div>
-
-                <div id="breakdown-panel">
-                    <h2>Production</h2>
-                    <div id="production-breakdown"></div>
-                </div>
-
-                <div id="achievements-section" class="collapsible">
-                    <h2 class="collapsible-toggle" data-section="achievements">
-                        Achievements
-                        <span id="achievement-counter">0/11</span>
-                        <span class="toggle-indicator">&#x25BC;</span>
-                    </h2>
-                    <div
-                        class="collapsible-content collapsed"
-                        id="achievements-content"
-                    >
+                    <div id="drawer-production" class="drawer-panel">
+                        <div id="breakdown-panel">
+                            <h2>Production</h2>
+                            <div id="production-breakdown"></div>
+                        </div>
+                    </div>
+                    <div id="drawer-achievements" class="drawer-panel">
                         <div id="achievements-list"></div>
                     </div>
-                </div>
-
-                <div id="settings-section" class="collapsible">
-                    <h2 class="collapsible-toggle" data-section="settings">
-                        Settings
-                        <span class="toggle-indicator">&#x25BC;</span>
-                    </h2>
-                    <div
-                        class="collapsible-content collapsed"
-                        id="settings-content"
-                    >
+                    <div id="drawer-settings" class="drawer-panel">
                         <div id="settings-controls">
                             <button id="mute-btn" class="settings-btn">
                                 Mute
@@ -150,6 +126,26 @@
                         ></textarea>
                     </div>
                 </div>
+            </div>
+
+            <div id="bottom-bar">
+                <button class="tab-btn" data-drawer="prestige">
+                    <span class="tab-label">Erase &amp; Redraw</span>
+                    <span class="tab-stat" id="tab-ep">0 EP</span>
+                </button>
+                <button class="tab-btn" data-drawer="production">
+                    <span class="tab-label">Production</span>
+                    <span class="tab-stat" id="tab-production">0/sec</span>
+                </button>
+                <button class="tab-btn" data-drawer="achievements">
+                    <span class="tab-label">Achievements</span>
+                    <span class="tab-stat" id="tab-achievements"
+                        ><span id="achievement-counter">0/11</span></span
+                    >
+                </button>
+                <button class="tab-btn" data-drawer="settings">
+                    <span class="tab-label">Settings</span>
+                </button>
             </div>
 
             <div id="notifications"></div>

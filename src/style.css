@@ -70,7 +70,9 @@ body {
    | left     | stage                      | right            |
    |          |                            |                  |
    +----------+----------------------------+------------------+
-   | bottom    bottom     bottom                               |
+   | drawer    drawer     drawer                               |
+   +----------------------------------------------------------+
+   | tabs      tabs       tabs                                 |
    +----------------------------------------------------------+
    ============================================================ */
 
@@ -78,12 +80,13 @@ body {
     width: 100%;
     height: 100vh;
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto 1fr auto auto;
     grid-template-columns: 240px 1fr 260px;
     grid-template-areas:
         "top-bar   top-bar    top-bar"
         "left      stage      right"
-        "bottom    bottom     bottom";
+        "drawer    drawer     drawer"
+        "tabs      tabs       tabs";
     overflow: hidden;
     background: var(--paper);
 }
@@ -584,42 +587,118 @@ body {
     }
 }
 
-/* --- Bottom Bar: footer with collapsible sections --- */
+/* --- Drawer: slides up from bottom bar --- */
 
-#bottom-bar {
-    grid-area: bottom;
-    display: flex;
-    gap: 0;
+#drawer {
+    grid-area: drawer;
+    overflow-y: auto;
+    max-height: 45vh;
+    background: var(--paper);
     border-top: 6px solid transparent;
     border-image: var(--sketch-hr) 6 3 0 3 stretch;
-    background: rgba(0, 0, 0, 0.02);
-    overflow-y: auto;
-    max-height: 40vh;
+    transition:
+        max-height 0.25s ease,
+        padding 0.25s ease;
+    padding: 12px 20px;
 }
 
-#bottom-bar > * {
+#drawer.drawer-closed {
+    max-height: 0;
+    padding: 0 20px;
+    border: none;
+    overflow: hidden;
+}
+
+#drawer-content {
+    min-height: 0;
+}
+
+.drawer-panel {
+    display: none;
+}
+
+.drawer-panel.active {
+    display: block;
+}
+
+/* --- Tab Bar: always-visible footer tabs --- */
+
+#bottom-bar {
+    grid-area: tabs;
+    display: flex;
+    gap: 0;
+    background: rgba(0, 0, 0, 0.03);
+    border-top: 6px solid transparent;
+    border-image: var(--sketch-hr) 6 3 0 3 stretch;
+}
+
+.tab-btn {
     flex: 1;
-    padding: 8px 12px;
-    min-width: 0;
-}
-
-#bottom-bar > *:not(:last-child) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 8px;
+    background: none;
+    border: none;
     border-right: 4px solid transparent;
     border-image: var(--sketch-hr) 3 6 3 0 stretch;
+    cursor: pointer;
+    font-family: "Short Stack", "Georgia", cursive;
+    color: var(--ink-light);
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
 }
 
-#bottom-bar .collapsible-toggle,
-#bottom-bar #breakdown-panel h2 {
-    font-size: 0.85rem;
-    padding: 4px 0;
+.tab-btn:last-child {
+    border-right: none;
+    border-image: none;
 }
 
-#bottom-bar .collapsible-toggle:hover {
+.tab-btn:hover {
+    background: rgba(0, 0, 0, 0.02);
+    color: var(--ink);
+}
+
+.tab-btn.active {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--ink);
+}
+
+.tab-btn[data-drawer="prestige"] {
+    color: var(--prestige);
+}
+
+.tab-btn[data-drawer="prestige"]:hover,
+.tab-btn[data-drawer="prestige"].active {
+    color: var(--prestige);
+    background: rgba(106, 58, 138, 0.04);
+}
+
+.tab-label {
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tab-stat {
+    font-size: 0.75rem;
+    font-weight: normal;
+    color: var(--text-dim);
+}
+
+.tab-btn[data-drawer="prestige"] .tab-stat {
+    color: var(--prestige-light);
+}
+
+.tab-btn.active .tab-stat {
     color: var(--accent);
 }
 
-#bottom-bar #prestige-section .collapsible-toggle:hover {
-    color: var(--prestige-light);
+.tab-btn[data-drawer="prestige"].active .tab-stat {
+    color: var(--prestige);
 }
 
 /* --- Notifications --- */
@@ -709,23 +788,9 @@ body {
 
 /* --- Achievements --- */
 
-#achievements-section h2 {
-    font-size: 0.95rem;
-    color: var(--ink-light);
-    margin-bottom: 0;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: normal;
-}
-
-#achievements-section .collapsible-content:not(.collapsed) {
-    margin-top: 8px;
-}
-
 #achievement-counter {
     font-size: 0.8rem;
     color: var(--accent);
-    margin-left: 6px;
 }
 
 #achievements-list {
@@ -787,19 +852,6 @@ body {
 }
 
 /* --- Prestige --- */
-
-#prestige-section h2 {
-    font-size: 0.95rem;
-    color: var(--prestige);
-    margin-bottom: 0;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: normal;
-}
-
-#prestige-section .collapsible-content:not(.collapsed) {
-    margin-top: 8px;
-}
 
 #prestige-stats {
     font-size: 0.8rem;
@@ -915,19 +967,6 @@ body {
 }
 
 /* --- Settings --- */
-
-#settings-section h2 {
-    font-size: 0.95rem;
-    color: var(--ink-light);
-    margin-bottom: 0;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: normal;
-}
-
-#settings-section .collapsible-content:not(.collapsed) {
-    margin-top: 8px;
-}
 
 #settings-controls {
     display: flex;

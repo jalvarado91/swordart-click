@@ -113,6 +113,10 @@ interface DOMCache {
   muteBtn: HTMLButtonElement;
   resetBtn: HTMLButtonElement;
   saveDataTextarea: HTMLTextAreaElement;
+  // Drawer
+  drawer: HTMLElement;
+  tabEP: HTMLElement;
+  tabProduction: HTMLElement;
   // Collapsible state
   collapsed: Record<string, boolean>;
 }
@@ -167,6 +171,9 @@ export function initDOM(): void {
     saveDataTextarea: document.getElementById(
       "save-data",
     )! as HTMLTextAreaElement,
+    drawer: document.getElementById("drawer")!,
+    tabEP: document.getElementById("tab-ep")!,
+    tabProduction: document.getElementById("tab-production")!,
     collapsed,
   };
 
@@ -212,7 +219,7 @@ export function initDOM(): void {
     }
   });
 
-  // Collapsible sections
+  // Collapsible sections (gallery only now)
   const toggles = Array.from(
     document.querySelectorAll<HTMLElement>(".collapsible-toggle"),
   );
@@ -240,6 +247,35 @@ export function initDOM(): void {
       try {
         localStorage.setItem(COLLAPSE_KEY, JSON.stringify(dom.collapsed));
       } catch {}
+    });
+  }
+
+  // Drawer tab buttons
+  let activeDrawer: string | null = null;
+  const tabBtns = Array.from(
+    document.querySelectorAll<HTMLButtonElement>(".tab-btn"),
+  );
+  const drawerPanels = Array.from(
+    document.querySelectorAll<HTMLElement>(".drawer-panel"),
+  );
+  for (const btn of tabBtns) {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.drawer!;
+      if (activeDrawer === target) {
+        // Close drawer
+        activeDrawer = null;
+        dom.drawer.classList.add("drawer-closed");
+        for (const b of tabBtns) b.classList.remove("active");
+        for (const p of drawerPanels) p.classList.remove("active");
+      } else {
+        // Open/switch drawer
+        activeDrawer = target;
+        dom.drawer.classList.remove("drawer-closed");
+        for (const b of tabBtns) b.classList.remove("active");
+        btn.classList.add("active");
+        for (const p of drawerPanels)
+          p.classList.toggle("active", p.id === `drawer-${target}`);
+      }
     });
   }
 
@@ -400,6 +436,10 @@ export function render(state: GameState): void {
   } else {
     dom.resetBtn.classList.remove("danger");
   }
+
+  // Tab bar inline stats
+  dom.tabEP.textContent = `${state.erasurePoints} EP`;
+  dom.tabProduction.textContent = `${formatNumber(getEffectivePassiveRate())}/sec`;
 }
 
 // --- Init helpers: create stable DOM elements ---
