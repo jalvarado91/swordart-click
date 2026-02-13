@@ -158,7 +158,7 @@ Replace the flex layout with CSS Grid:
 - Side panels scroll independently when content overflows
 - Title animation removed — compact header shows immediately
 
-### Session 2: Polish panel styles and footer UX
+### Session 2: Polish panel styles and footer UX — Completed
 
 **Goal:** Refine the visual presentation of each grid zone. Make the panels feel like proper game UI regions with clear visual separation. Improve the footer bar interaction pattern.
 
@@ -222,3 +222,14 @@ Footer bar polish:
 - Canvas area visible in center stage with sketch-border frame
 - When manually changing `state.mediaTier` in console, canvas background/style changes per tier
 - No layout shifts when canvas style changes
+
+### Session 4: Bottom bar content redesign
+
+**Goal:** Rethink how information is presented in the bottom bar. The current approach just dumps the old collapsible sections into a horizontal row — production breakdown especially feels like an afterthought. Each section needs an interaction pattern that fits its role in a footer context.
+
+**Open questions (decide at implementation time):**
+- What's the right interaction model for each section? Options include: expandable/collapsible inline, floating modals/popovers, hover tooltips, or some combination. The compact default state is good for "out of the way", but these sections need a way to show full detail when the player wants it.
+- Production breakdown is the biggest question — the per-artist stacked list doesn't belong in a footer. But the right replacement depends on how the rest of the bar feels by then.
+- Prestige, achievements, settings may each warrant different patterns depending on how much content they hold.
+
+**Scope:** Explore what feels right once sessions 2-3 are done and we can see the layout in practice. This session is intentionally underspecified — we'll figure out the design when we get here.

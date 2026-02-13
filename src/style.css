@@ -149,6 +149,7 @@ body {
     grid-area: left;
     overflow-y: auto;
     padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.015);
     border-right: 6px solid transparent;
     border-image: var(--sketch-hr) 3 6 3 0 stretch;
 }
@@ -159,6 +160,7 @@ body {
     grid-area: right;
     overflow-y: auto;
     padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.015);
     border-left: 6px solid transparent;
     border-image: var(--sketch-hr) 3 0 3 6 stretch;
 }
@@ -178,7 +180,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 24px 0;
+    flex: 1;
+    min-height: 160px;
 }
 
 #draw-btn {
@@ -224,7 +227,7 @@ body {
 #canvas-area {
     width: 100%;
     max-width: 500px;
-    min-height: 120px;
+    min-height: 200px;
     border: 8px solid transparent;
     border-image: var(--sketch-border) 10 stretch;
     background: var(--surface);
@@ -476,6 +479,7 @@ body {
     gap: 0;
     border-top: 6px solid transparent;
     border-image: var(--sketch-hr) 6 3 0 3 stretch;
+    background: rgba(0, 0, 0, 0.02);
     overflow-y: auto;
     max-height: 40vh;
 }
@@ -489,6 +493,20 @@ body {
 #bottom-bar > *:not(:last-child) {
     border-right: 4px solid transparent;
     border-image: var(--sketch-hr) 3 6 3 0 stretch;
+}
+
+#bottom-bar .collapsible-toggle,
+#bottom-bar #breakdown-panel h2 {
+    font-size: 0.85rem;
+    padding: 4px 0;
+}
+
+#bottom-bar .collapsible-toggle:hover {
+    color: var(--accent);
+}
+
+#bottom-bar #prestige-section .collapsible-toggle:hover {
+    color: var(--prestige-light);
 }
 
 /* --- Notifications --- */
