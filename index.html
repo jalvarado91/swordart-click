@@ -12,145 +12,142 @@
     </head>
     <body>
         <div id="game">
-            <header>
+            <div id="top-bar">
                 <h1>Sword Art Click</h1>
-                <p class="tagline">Draw your sword.</p>
-            </header>
-
-            <div id="stats">
-                <div id="strokes-display">
-                    <span id="strokes-count">0</span> Strokes
-                    <span id="multiplier-display"></span>
-                </div>
-                <div id="rates">
-                    <span>Per click: <strong id="per-click">1</strong></span>
-                    <span>Per second: <strong id="per-second">0</strong></span>
+                <div id="stats">
+                    <div id="strokes-display">
+                        <span id="strokes-count">0</span> Strokes
+                        <span id="multiplier-display"></span>
+                    </div>
+                    <div id="rates">
+                        <span
+                            >Per click: <strong id="per-click">1</strong></span
+                        >
+                        <span
+                            >Per second:
+                            <strong id="per-second">0</strong></span
+                        >
+                    </div>
                 </div>
             </div>
 
-            <div id="main-area">
-                <div id="col-click">
-                    <div id="click-zone">
-                        <button id="draw-btn">
-                            <span class="sword-icon">&#x2694;</span>
-                            <span class="btn-label">Draw!</span>
-                        </button>
+            <div id="panel-left">
+                <div id="media-panel">
+                    <h2>Art Media</h2>
+                    <div id="current-media-label">
+                        Current:
+                        <span id="current-media">Pencil Sketch (1x)</span>
                     </div>
+                    <button id="media-upgrade-btn" class="upgrade-btn"></button>
+                </div>
 
-                    <div id="media-panel">
-                        <h2>Art Media</h2>
-                        <div id="current-media-label">
-                            Current:
-                            <span id="current-media">Pencil Sketch (1x)</span>
-                        </div>
-                        <button
-                            id="media-upgrade-btn"
-                            class="upgrade-btn"
-                        ></button>
+                <div id="upgrades-panel">
+                    <h2>Click Upgrades</h2>
+                    <div id="upgrades-list"></div>
+                </div>
+            </div>
+
+            <div id="stage">
+                <div id="click-zone">
+                    <button id="draw-btn">
+                        <span class="sword-icon">&#x2694;</span>
+                        <span class="btn-label">Draw!</span>
+                    </button>
+                </div>
+                <div id="canvas-area"></div>
+                <div id="gallery-section" class="collapsible">
+                    <h2 class="collapsible-toggle" data-section="gallery">
+                        Sword Gallery
+                        <span class="toggle-indicator">&#x25BC;</span>
+                    </h2>
+                    <div class="collapsible-content" id="gallery-content">
+                        <div id="sword-gallery"></div>
                     </div>
+                </div>
+            </div>
 
-                    <div id="breakdown-panel">
-                        <h2>Production</h2>
-                        <div id="production-breakdown"></div>
-                    </div>
+            <div id="panel-right">
+                <div id="artists-panel">
+                    <h2>Artists</h2>
+                    <div id="artists-list"></div>
+                </div>
+            </div>
 
-                    <div id="gallery-section" class="collapsible">
-                        <h2 class="collapsible-toggle" data-section="gallery">
-                            Sword Gallery
-                            <span class="toggle-indicator">&#x25BC;</span>
-                        </h2>
-                        <div class="collapsible-content" id="gallery-content">
-                            <div id="sword-gallery"></div>
-                        </div>
-                    </div>
-
-                    <div id="prestige-section" class="collapsible">
-                        <h2 class="collapsible-toggle" data-section="prestige">
-                            Erase &amp; Redraw
-                            <span class="toggle-indicator">&#x25BC;</span>
-                        </h2>
-                        <div class="collapsible-content" id="prestige-content">
-                            <div id="prestige-panel">
-                                <div id="prestige-stats"></div>
-                                <button
-                                    id="prestige-btn"
-                                    class="prestige-action-btn"
-                                    disabled
+            <div id="bottom-bar">
+                <div id="prestige-section" class="collapsible">
+                    <h2 class="collapsible-toggle" data-section="prestige">
+                        Erase &amp; Redraw
+                        <span class="toggle-indicator">&#x25BC;</span>
+                    </h2>
+                    <div class="collapsible-content" id="prestige-content">
+                        <div id="prestige-panel">
+                            <div id="prestige-stats"></div>
+                            <button
+                                id="prestige-btn"
+                                class="prestige-action-btn"
+                                disabled
+                            >
+                                Erase &amp; Redraw<br />
+                                <span class="prestige-ep-gain"
+                                    >Reach 10M total Strokes</span
                                 >
-                                    Erase &amp; Redraw<br />
-                                    <span class="prestige-ep-gain"
-                                        >Reach 10M total Strokes</span
-                                    >
-                                </button>
-                                <h3>Erasure Upgrades</h3>
-                                <div id="prestige-upgrades-list"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="achievements-section" class="collapsible">
-                        <h2
-                            class="collapsible-toggle"
-                            data-section="achievements"
-                        >
-                            Achievements
-                            <span id="achievement-counter">0/11</span>
-                            <span class="toggle-indicator">&#x25BC;</span>
-                        </h2>
-                        <div
-                            class="collapsible-content collapsed"
-                            id="achievements-content"
-                        >
-                            <div id="achievements-list"></div>
-                        </div>
-                    </div>
-
-                    <div id="settings-section" class="collapsible">
-                        <h2 class="collapsible-toggle" data-section="settings">
-                            Settings
-                            <span class="toggle-indicator">&#x25BC;</span>
-                        </h2>
-                        <div
-                            class="collapsible-content collapsed"
-                            id="settings-content"
-                        >
-                            <div id="settings-controls">
-                                <button id="mute-btn" class="settings-btn">
-                                    Mute
-                                </button>
-                                <button id="save-btn" class="settings-btn">
-                                    Save
-                                </button>
-                                <button id="export-btn" class="settings-btn">
-                                    Export
-                                </button>
-                                <button id="import-btn" class="settings-btn">
-                                    Import
-                                </button>
-                                <button id="reset-btn" class="settings-btn">
-                                    Reset
-                                </button>
-                            </div>
-                            <textarea
-                                id="save-data"
-                                placeholder="Paste save data here to import..."
-                                rows="3"
-                            ></textarea>
+                            </button>
+                            <h3>Erasure Upgrades</h3>
+                            <div id="prestige-upgrades-list"></div>
                         </div>
                     </div>
                 </div>
 
-                <div id="col-upgrades">
-                    <div id="upgrades-panel">
-                        <h2>Click Upgrades</h2>
-                        <div id="upgrades-list"></div>
+                <div id="breakdown-panel">
+                    <h2>Production</h2>
+                    <div id="production-breakdown"></div>
+                </div>
+
+                <div id="achievements-section" class="collapsible">
+                    <h2 class="collapsible-toggle" data-section="achievements">
+                        Achievements
+                        <span id="achievement-counter">0/11</span>
+                        <span class="toggle-indicator">&#x25BC;</span>
+                    </h2>
+                    <div
+                        class="collapsible-content collapsed"
+                        id="achievements-content"
+                    >
+                        <div id="achievements-list"></div>
                     </div>
                 </div>
 
-                <div id="col-artists">
-                    <div id="artists-panel">
-                        <h2>Artists</h2>
-                        <div id="artists-list"></div>
+                <div id="settings-section" class="collapsible">
+                    <h2 class="collapsible-toggle" data-section="settings">
+                        Settings
+                        <span class="toggle-indicator">&#x25BC;</span>
+                    </h2>
+                    <div
+                        class="collapsible-content collapsed"
+                        id="settings-content"
+                    >
+                        <div id="settings-controls">
+                            <button id="mute-btn" class="settings-btn">
+                                Mute
+                            </button>
+                            <button id="save-btn" class="settings-btn">
+                                Save
+                            </button>
+                            <button id="export-btn" class="settings-btn">
+                                Export
+                            </button>
+                            <button id="import-btn" class="settings-btn">
+                                Import
+                            </button>
+                            <button id="reset-btn" class="settings-btn">
+                                Reset
+                            </button>
+                        </div>
+                        <textarea
+                            id="save-data"
+                            placeholder="Paste save data here to import..."
+                            rows="3"
+                        ></textarea>
                     </div>
                 </div>
             </div>
