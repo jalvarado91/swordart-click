@@ -96,6 +96,8 @@ interface DOMCache {
   upgrades: Map<string, UpgradeElements>;
   // Artists
   artists: Map<string, ArtistElements>;
+  // Canvas
+  canvasArea: HTMLElement;
   // Swords
   swords: Map<string, SwordElements>;
   // Achievements
@@ -151,6 +153,7 @@ export function initDOM(): void {
     breakdown: initBreakdown(),
     upgrades: initUpgrades(),
     artists: initArtists(),
+    canvasArea: document.getElementById("canvas-area")!,
     swords: initSwords(),
     achievements: initAchievements(),
     achievementCounter: document.getElementById("achievement-counter")!,
@@ -278,6 +281,10 @@ export function render(state: GameState): void {
       dom.mediaCost.textContent = formatNumber(nextTier.cost) + " Strokes";
       dom.mediaDesc.textContent = `${nextTier.desc} — ${nextTier.multiplier}x multiplier`;
     }
+  }
+  // Canvas area theming — update when tier changes
+  if (prevMediaTier !== state.mediaTier) {
+    dom.canvasArea.className = `canvas-${tier.id}`;
   }
   prevMediaTier = state.mediaTier;
 

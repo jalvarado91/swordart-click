@@ -199,7 +199,7 @@ Footer bar polish:
 - Draw button remains prominent and centered
 - Gallery grid adapts to center stage width
 
-### Session 3: Canvas area placeholder and progression theming
+### Session 3: Canvas area placeholder and progression theming — Completed
 
 **Goal:** Give the center canvas area visual life that hints at future progression content. Add per-media-tier theming so the canvas evolves as the player upgrades their media.
 
@@ -233,3 +233,24 @@ Footer bar polish:
 - Prestige, achievements, settings may each warrant different patterns depending on how much content they hold.
 
 **Scope:** Explore what feels right once sessions 2-3 are done and we can see the layout in practice. This session is intentionally underspecified — we'll figure out the design when we get here.
+
+### Session 5: Canvas area — what goes here?
+
+**Goal:** Figure out what the canvas area should actually *do*. Right now it's a themed empty box. This session is for exploring ideas and prototyping — not necessarily implementing a final version.
+
+**The question:** Cookie Clicker has grandmas and farms visually populating the screen. SPACEPLAN has a planet that evolves. What's our equivalent? The canvas is the center of the game — it should reward the player visually as they progress.
+
+**Ideas to explore:**
+- **Sword display**: Show the most recently unlocked sword as a drawn illustration (ASCII art, SVG, or CSS art) that changes as you unlock new ones. The canvas becomes a showcase.
+- **Drawing-in-progress**: An evolving sketch that fills in over time — starts as rough pencil lines, gains detail as you progress through media tiers. Could tie into the media tier theming that's already there.
+- **Artist workshop scene**: Show your hired artists at work — doodlers scribbling, sketch artists drawing, etc. More artists = more activity in the scene. This is the Cookie Clicker grandma approach.
+- **Stroke counter visualization**: Some kind of visual representation of strokes accumulating — ink pooling, paint splattering, pencil shavings piling up.
+- **Combination**: The canvas could have layers — a background scene that evolves with media tier, foreground activity from artists, and a featured sword.
+
+**Open questions:**
+- How much of this is CSS-only vs needs JS/canvas rendering?
+- Should it be interactive (clickable elements within the canvas) or purely visual?
+- What's the MVP version that adds life without being a huge implementation effort?
+- Should clicking the draw button trigger a visual effect in the canvas area (not just the floating text)?
+
+**Scope:** Research and prototype. Pick one approach that feels right and implement a first pass. This may spawn follow-up work.
