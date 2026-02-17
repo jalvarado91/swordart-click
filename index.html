@@ -10,18 +10,26 @@
         />
         <link rel="stylesheet" href="src/style.css" />
     </head>
-    <body class="artist-density-compact">
+    <body class="ui-density-compact">
         <div id="game">
             <div id="top-bar">
                 <h1>Sword Art Click</h1>
                 <div id="stats">
-                    <div id="strokes-display">
-                        <span id="strokes-count">0</span> Strokes
-                        <span id="multiplier-display"></span>
+                    <div id="stat-strokes-tile" class="stat-tile stat-primary">
+                        <span class="stat-label">Strokes</span>
+                        <span id="strokes-count" class="stat-value">0</span>
                     </div>
-                    <div id="rates">
-                        <span>+<strong id="per-click">1</strong>/click</span>
-                        <span>+<strong id="per-second">0</strong>/sec</span>
+                    <div id="stat-click-tile" class="stat-tile">
+                        <span class="stat-label">Per Click</span>
+                        <span class="stat-value">+<strong id="per-click">1</strong></span>
+                    </div>
+                    <div id="stat-second-tile" class="stat-tile">
+                        <span class="stat-label">Per Second</span>
+                        <span class="stat-value">+<strong id="per-second">0</strong></span>
+                    </div>
+                    <div id="stat-multiplier" class="stat-tile stat-multiplier">
+                        <span class="stat-label">Multiplier</span>
+                        <span id="multiplier-display" class="stat-value"></span>
                     </div>
                 </div>
             </div>
@@ -33,7 +41,13 @@
                         Current:
                         <span id="current-media">Pencil Sketch (1x)</span>
                     </div>
-                    <button id="media-upgrade-btn" class="upgrade-btn"></button>
+                    <div id="media-interaction">
+                        <button id="draw-btn">
+                            <span class="sword-icon">&#x2694;</span>
+                            <span class="btn-label">Draw!</span>
+                        </button>
+                        <button id="media-upgrade-btn" class="upgrade-btn"></button>
+                    </div>
                 </div>
 
                 <div id="upgrades-panel" class="panel-card">
@@ -43,12 +57,6 @@
             </div>
 
             <div id="stage">
-                <div id="click-zone">
-                    <button id="draw-btn">
-                        <span class="sword-icon">&#x2694;</span>
-                        <span class="btn-label">Draw!</span>
-                    </button>
-                </div>
                 <div id="canvas-area"></div>
                 <div id="gallery-section" class="collapsible">
                     <h2 class="collapsible-toggle" data-section="gallery">
@@ -56,6 +64,9 @@
                         <span class="toggle-indicator">&#x25BC;</span>
                     </h2>
                     <div class="collapsible-content" id="gallery-content">
+                        <p class="gallery-note">
+                            Unlocks automatically as your total Strokes increase.
+                        </p>
                         <div id="sword-gallery"></div>
                     </div>
                 </div>
@@ -69,79 +80,119 @@
             </div>
 
             <div id="drawer" class="drawer-closed">
-                <div id="drawer-content">
-                    <div id="drawer-prestige" class="drawer-panel">
+                <div id="drawer-backdrop"></div>
+                <div id="drawer-shell">
+                    <div id="drawer-top">
+                        <h2 id="drawer-title">Production</h2>
+                        <button id="drawer-close-btn" class="settings-btn">
+                            Close
+                        </button>
+                    </div>
+                    <div id="drawer-content">
+                        <div id="drawer-prestige" class="drawer-panel">
                         <div
                             id="prestige-panel"
                             class="panel-card panel-card-prestige"
                         >
-                            <div id="prestige-stats"></div>
-                            <button
-                                id="prestige-btn"
-                                class="prestige-action-btn"
-                                disabled
-                            >
-                                Erase &amp; Redraw<br />
-                                <span class="prestige-ep-gain"
-                                    >Reach 10M total Strokes</span
+                            <div id="prestige-phases" class="panel-inline-meta">
+                                <span id="prestige-phase-build" class="panel-pill"
+                                    >1. Build</span
                                 >
-                            </button>
-                            <h3>Erasure Upgrades</h3>
-                            <div id="prestige-upgrades-list"></div>
+                                <span id="prestige-phase-qualify" class="panel-pill"
+                                    >2. Qualify</span
+                                >
+                                <span id="prestige-phase-confirm" class="panel-pill"
+                                    >3. Confirm</span
+                                >
+                            </div>
+                            <div id="prestige-stats"></div>
+                                <button
+                                    id="prestige-btn"
+                                    class="prestige-action-btn"
+                                    disabled
+                                >
+                                    Ascend<br />
+                                    <span class="prestige-ep-gain"
+                                        >Reach 10M total Strokes to unlock</span
+                                    >
+                                </button>
+                                <p class="prestige-note">
+                                    Ascending starts a stronger new run. Legacy
+                                    upgrades and milestones carry your progress
+                                    forward.
+                                </p>
+                                <h3>Legacy Upgrades</h3>
+                                <div id="prestige-upgrades-list"></div>
+                            </div>
                         </div>
-                    </div>
-                    <div id="drawer-production" class="drawer-panel">
-                        <div id="breakdown-panel" class="panel-card">
-                            <h2>Production</h2>
+                        <div id="drawer-production" class="drawer-panel">
+                            <div id="breakdown-panel" class="panel-card">
+                                <div
+                                    id="production-summary"
+                                    class="panel-inline-meta"
+                                >
+                                    <span
+                                        id="production-artist-pill"
+                                        class="panel-pill"
+                                    >0 artist types active</span
+                                >
+                                <span
+                                    id="production-top-pill"
+                                    class="panel-pill"
+                                    >Top: none</span
+                                >
+                            </div>
                             <div id="production-breakdown"></div>
                         </div>
                     </div>
                     <div id="drawer-achievements" class="drawer-panel">
-                        <h2 class="drawer-heading">Achievements</h2>
+                        <p class="achievement-note">
+                            Newly unlocked achievements glow briefly.
+                        </p>
                         <div id="achievements-list"></div>
                     </div>
                     <div id="drawer-settings" class="drawer-panel">
-                        <h2 class="drawer-heading">Settings</h2>
                         <div id="settings-controls">
-                            <button id="mute-btn" class="settings-btn">
-                                Mute
-                            </button>
-                            <button id="save-btn" class="settings-btn">
-                                Save
-                            </button>
-                            <button id="export-btn" class="settings-btn">
-                                Export
-                            </button>
-                            <button id="import-btn" class="settings-btn">
-                                Import
-                            </button>
-                            <button id="reset-btn" class="settings-btn">
-                                Reset
-                            </button>
+                                <button id="mute-btn" class="settings-btn">
+                                    Mute
+                                </button>
+                                <button id="save-btn" class="settings-btn">
+                                    Save
+                                </button>
+                                <button id="export-btn" class="settings-btn">
+                                    Export
+                                </button>
+                                <button id="import-btn" class="settings-btn">
+                                    Import
+                                </button>
+                                <button id="reset-btn" class="settings-btn">
+                                    Reset
+                                </button>
+                            </div>
+                            <textarea
+                                id="save-data"
+                                placeholder="Paste save data here to import..."
+                                rows="3"
+                            ></textarea>
                         </div>
-                        <textarea
-                            id="save-data"
-                            placeholder="Paste save data here to import..."
-                            rows="3"
-                        ></textarea>
                     </div>
                 </div>
             </div>
 
             <div id="bottom-bar">
-                <button class="tab-btn" data-drawer="prestige">
-                    <span class="tab-label">Erase &amp; Redraw</span>
-                    <span class="tab-stat" id="tab-ep">0 EP</span>
-                </button>
                 <button class="tab-btn" data-drawer="production">
                     <span class="tab-label">Production</span>
-                    <span class="tab-stat" id="tab-production">0/sec</span>
+                    <span class="tab-stat" id="tab-production">0 active</span>
                 </button>
                 <button class="tab-btn" data-drawer="achievements">
                     <span class="tab-label">Achievements</span>
                     <span class="tab-stat" id="tab-achievements"
                         ><span id="achievement-counter">0/11</span></span
                     >
+                </button>
+                <button class="tab-btn" data-drawer="prestige">
+                    <span class="tab-label">Ascend</span>
+                    <span class="tab-stat" id="tab-ep">0 LP</span>
                 </button>
                 <button class="tab-btn" data-drawer="settings">
                     <span class="tab-label">Settings</span>

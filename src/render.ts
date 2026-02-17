@@ -56,6 +56,7 @@ interface ArtistElements {
 interface SwordElements {
   el: HTMLElement;
   name: HTMLElement;
+  status: HTMLElement;
   desc: HTMLElement;
   bonus: HTMLElement;
 }
@@ -63,6 +64,7 @@ interface SwordElements {
 interface AchievementElements {
   el: HTMLElement;
   name: HTMLElement;
+  status: HTMLElement;
   desc: HTMLElement;
 }
 
@@ -84,12 +86,20 @@ interface DOMCache {
   perClick: HTMLElement;
   perSecond: HTMLElement;
   multiplier: HTMLElement;
+  statsContainer: HTMLElement;
+  strokesTile: HTMLElement;
+  secondTile: HTMLElement;
+  clickTile: HTMLElement;
+  multiplierTile: HTMLElement;
   // Media
+  mediaPanel: HTMLElement;
+  drawBtn: HTMLButtonElement;
   currentMedia: HTMLElement;
   mediaBtn: HTMLButtonElement;
   mediaName: HTMLElement;
   mediaCost: HTMLElement;
   mediaDesc: HTMLElement;
+  mediaNext: HTMLElement;
   // Production breakdown
   breakdown: BreakdownElements;
   // Upgrades
@@ -105,6 +115,10 @@ interface DOMCache {
   achievementCounter: HTMLElement;
   // Prestige
   prestigeStats: HTMLElement;
+  prestigePanel: HTMLElement;
+  prestigePhaseBuild: HTMLElement;
+  prestigePhaseQualify: HTMLElement;
+  prestigePhaseConfirm: HTMLElement;
   prestigeBtn: HTMLButtonElement;
   prestigeBtnLabel: HTMLElement;
   prestigeBtnSub: HTMLElement;
@@ -115,8 +129,14 @@ interface DOMCache {
   saveDataTextarea: HTMLTextAreaElement;
   // Drawer
   drawer: HTMLElement;
+  drawerBackdrop: HTMLElement;
+  drawerTitle: HTMLElement;
+  drawerCloseBtn: HTMLButtonElement;
   tabEP: HTMLElement;
   tabProduction: HTMLElement;
+  prestigeTabBtn: HTMLButtonElement;
+  productionArtistPill: HTMLElement;
+  productionTopPill: HTMLElement;
   // Collapsible state
   collapsed: Record<string, boolean>;
 }
@@ -127,6 +147,8 @@ let dom: DOMCache;
 let prevMediaTier = -1;
 let prevSwordCount = -1;
 let prevAchievementCount = -1;
+let prevUnlockedAchievements = new Set<string>();
+let achievementsInitialized = false;
 
 // --- Init: create all DOM elements once ---
 
@@ -147,6 +169,13 @@ export function initDOM(): void {
     perClick: document.getElementById("per-click")!,
     perSecond: document.getElementById("per-second")!,
     multiplier: document.getElementById("multiplier-display")!,
+    statsContainer: document.getElementById("stats")!,
+    strokesTile: document.getElementById("stat-strokes-tile")!,
+    secondTile: document.getElementById("stat-second-tile")!,
+    clickTile: document.getElementById("stat-click-tile")!,
+    multiplierTile: document.getElementById("stat-multiplier")!,
+    mediaPanel: document.getElementById("media-panel")!,
+    drawBtn: document.getElementById("draw-btn")! as HTMLButtonElement,
     currentMedia: document.getElementById("current-media")!,
     mediaBtn: document.getElementById(
       "media-upgrade-btn",
@@ -154,6 +183,7 @@ export function initDOM(): void {
     mediaName: createElement("div", "upgrade-name"),
     mediaCost: createElement("span", "upgrade-cost"),
     mediaDesc: createElement("div", "upgrade-desc"),
+    mediaNext: createElement("div", "upgrade-tag media-next"),
     breakdown: initBreakdown(),
     upgrades: initUpgrades(),
     artists: initArtists(),
@@ -162,6 +192,10 @@ export function initDOM(): void {
     achievements: initAchievements(),
     achievementCounter: document.getElementById("achievement-counter")!,
     prestigeStats: document.getElementById("prestige-stats")!,
+    prestigePanel: document.getElementById("prestige-panel")!,
+    prestigePhaseBuild: document.getElementById("prestige-phase-build")!,
+    prestigePhaseQualify: document.getElementById("prestige-phase-qualify")!,
+    prestigePhaseConfirm: document.getElementById("prestige-phase-confirm")!,
     prestigeBtn: document.getElementById("prestige-btn")! as HTMLButtonElement,
     prestigeBtnLabel: createElement("span", ""),
     prestigeBtnSub: createElement("span", "prestige-ep-gain"),
@@ -172,15 +206,28 @@ export function initDOM(): void {
       "save-data",
     )! as HTMLTextAreaElement,
     drawer: document.getElementById("drawer")!,
+    drawerBackdrop: document.getElementById("drawer-backdrop")!,
+    drawerTitle: document.getElementById("drawer-title")!,
+    drawerCloseBtn: document.getElementById(
+      "drawer-close-btn",
+    )! as HTMLButtonElement,
     tabEP: document.getElementById("tab-ep")!,
     tabProduction: document.getElementById("tab-production")!,
+    prestigeTabBtn: document.querySelector<HTMLButtonElement>(
+      '.tab-btn[data-drawer="prestige"]',
+    )!,
+    productionArtistPill: document.getElementById("production-artist-pill")!,
+    productionTopPill: document.getElementById("production-top-pill")!,
     collapsed,
   };
 
   // Assemble media button (stable sub-elements, never re-created)
+  const mediaMeta = createElement("div", "upgrade-meta");
+  mediaMeta.appendChild(dom.mediaNext);
   dom.mediaName.appendChild(dom.mediaCost);
   dom.mediaBtn.appendChild(dom.mediaName);
   dom.mediaBtn.appendChild(dom.mediaDesc);
+  dom.mediaBtn.appendChild(mediaMeta);
 
   // Assemble prestige button
   dom.prestigeBtn.textContent = "";
@@ -258,31 +305,54 @@ export function initDOM(): void {
   const drawerPanels = Array.from(
     document.querySelectorAll<HTMLElement>(".drawer-panel"),
   );
+  const drawerTitles: Record<string, string> = {
+    production: "Production",
+    achievements: "Achievements",
+    prestige: "Ascension",
+    settings: "Settings",
+  };
+
+  const closeDrawer = () => {
+    activeDrawer = null;
+    dom.drawer.classList.add("drawer-closed");
+    for (const b of tabBtns) b.classList.remove("active");
+    for (const p of drawerPanels) p.classList.remove("active");
+  };
+
+  const openDrawer = (target: string) => {
+    activeDrawer = target;
+    dom.drawer.classList.remove("drawer-closed");
+    dom.drawerTitle.textContent = drawerTitles[target] ?? "Panel";
+    for (const b of tabBtns) b.classList.remove("active");
+    const activeTab = tabBtns.find((b) => b.dataset.drawer === target);
+    activeTab?.classList.add("active");
+    for (const p of drawerPanels)
+      p.classList.toggle("active", p.id === `drawer-${target}`);
+  };
+
   for (const btn of tabBtns) {
     btn.addEventListener("click", () => {
       const target = btn.dataset.drawer!;
       if (activeDrawer === target) {
-        // Close drawer
-        activeDrawer = null;
-        dom.drawer.classList.add("drawer-closed");
-        for (const b of tabBtns) b.classList.remove("active");
-        for (const p of drawerPanels) p.classList.remove("active");
+        closeDrawer();
       } else {
-        // Open/switch drawer
-        activeDrawer = target;
-        dom.drawer.classList.remove("drawer-closed");
-        for (const b of tabBtns) b.classList.remove("active");
-        btn.classList.add("active");
-        for (const p of drawerPanels)
-          p.classList.toggle("active", p.id === `drawer-${target}`);
+        openDrawer(target);
       }
     });
   }
+
+  dom.drawerCloseBtn.addEventListener("click", closeDrawer);
+  dom.drawerBackdrop.addEventListener("click", closeDrawer);
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && activeDrawer) closeDrawer();
+  });
 
   // Force initial render of lists that depend on tracking previous state
   prevMediaTier = -1;
   prevSwordCount = -1;
   prevAchievementCount = -1;
+  prevUnlockedAchievements = new Set<string>();
+  achievementsInitialized = false;
 }
 
 // --- Render: pure function of state, writes to DOM, never reads ---
@@ -295,6 +365,8 @@ export function render(state: GameState): void {
 
   const mult = getTotalMultiplier();
   dom.multiplier.textContent = mult > 1 ? `${mult.toFixed(1)}x` : "";
+  dom.multiplierTile.style.display = mult > 1 ? "" : "none";
+  orderStatTiles(mult > 1);
 
   // Media panel
   const tier = MEDIA_TIERS[state.mediaTier]!;
@@ -303,19 +375,25 @@ export function render(state: GameState): void {
   const nextTierIdx = state.mediaTier + 1;
   if (nextTierIdx >= MEDIA_TIERS.length) {
     dom.mediaBtn.disabled = true;
+    dom.mediaPanel.classList.add("media-maxed");
+    dom.drawBtn.classList.add("draw-focus-maxed");
     if (prevMediaTier !== state.mediaTier) {
       dom.mediaName.textContent = "Max tier reached";
       dom.mediaDesc.textContent = "";
       dom.mediaCost.textContent = "";
+      dom.mediaNext.textContent = "Maxed";
     }
   } else {
     const nextTier = MEDIA_TIERS[nextTierIdx]!;
+    dom.mediaPanel.classList.remove("media-maxed");
+    dom.drawBtn.classList.remove("draw-focus-maxed");
     dom.mediaBtn.disabled = state.strokes < nextTier.cost;
     if (prevMediaTier !== state.mediaTier) {
       // Only rebuild text when tier changes
       dom.mediaName.childNodes[0]!.textContent = nextTier.name + " ";
       dom.mediaCost.textContent = formatNumber(nextTier.cost) + " Strokes";
-      dom.mediaDesc.textContent = `${nextTier.desc} — ${nextTier.multiplier}x multiplier`;
+      dom.mediaDesc.textContent = nextTier.desc;
+      dom.mediaNext.textContent = `Next ${nextTier.multiplier}x`;
     }
   }
   // Canvas area theming — update when tier changes
@@ -331,7 +409,7 @@ export function render(state: GameState): void {
     els.btn.disabled = state.strokes < cost;
     els.cost.textContent = formatNumber(cost) + " Strokes";
     const owned = state.upgrades[def.id] ?? 0;
-    els.owned.textContent = owned > 0 ? "Owned: " + owned : "";
+    els.owned.textContent = `Owned ${owned}`;
   }
 
   // Artists
@@ -359,12 +437,15 @@ export function render(state: GameState): void {
       els.el.className = "sword-entry " + (unlocked ? "unlocked" : "locked");
       if (unlocked) {
         els.name.textContent = sword.name;
-        els.desc.textContent = `"${sword.desc}"`;
-        els.bonus.textContent = `+${sword.bonus}% production`;
+        els.status.textContent = "Collected";
+        els.desc.textContent = sword.desc;
+        els.bonus.textContent = `Passive bonus +${sword.bonus}% production`;
       } else {
         els.name.textContent = "???";
-        els.desc.textContent = `Reach ${sword.threshold.toLocaleString()} total Strokes`;
-        els.bonus.textContent = "";
+        els.status.textContent = "Milestone";
+        els.desc.textContent =
+          `Unlock at ${formatNumber(sword.threshold)} total Strokes`;
+        els.bonus.textContent = `At unlock +${sword.bonus}% production`;
       }
     }
     prevSwordCount = currentSwordCount;
@@ -376,28 +457,34 @@ export function render(state: GameState): void {
     for (const ach of ACHIEVEMENT_DEFS) {
       const els = dom.achievements.get(ach.id)!;
       const unlocked = state.unlockedAchievements.includes(ach.id);
-      els.el.className =
-        "achievement-entry " + (unlocked ? "unlocked" : "locked");
+      const newlyUnlocked =
+        unlocked &&
+        achievementsInitialized &&
+        !prevUnlockedAchievements.has(ach.id);
+      els.el.className = `achievement-entry ${unlocked ? "unlocked" : "locked"}${newlyUnlocked ? " newly-unlocked" : ""}`;
       els.name.textContent = unlocked ? ach.name : "???";
-      els.desc.textContent = unlocked ? ach.desc : "Keep playing to unlock";
+      els.status.textContent = unlocked ? "Unlocked" : "Locked";
+      els.desc.textContent = ach.desc;
     }
     dom.achievementCounter.textContent = `${currentAchCount}/${ACHIEVEMENT_DEFS.length}`;
+    prevUnlockedAchievements = new Set(state.unlockedAchievements);
+    achievementsInitialized = true;
     prevAchievementCount = currentAchCount;
   }
 
   // Prestige stats
   dom.prestigeStats.innerHTML = [
-    `Erasure Points: <strong>${state.erasurePoints}</strong>`,
-    `Total earned: ${state.totalErasurePoints}`,
-    `Times prestige'd: ${state.prestigeCount}`,
+    `Legacy Points: <strong>${state.erasurePoints}</strong>`,
+    `Total Legacy earned: ${state.totalErasurePoints}`,
+    `Ascensions: ${state.prestigeCount}`,
     `Lifetime Strokes: ${formatNumber(state.lifetimeStrokes + state.totalStrokes)}`,
   ].join("<br>");
 
   // Prestige button — state-driven, no closures
   if (state.prestigeConfirming) {
     const ep = calculateErasurePoints(state.totalStrokes);
-    dom.prestigeBtnLabel.textContent = "Are you sure?";
-    dom.prestigeBtnSub.textContent = `This resets your progress for +${ep} EP`;
+    dom.prestigeBtnLabel.textContent = "Confirm Ascension";
+    dom.prestigeBtnSub.textContent = `Begin a new run with +${ep} LP`;
     dom.prestigeBtn.disabled = false;
     dom.prestigeBtn.classList.add("confirming");
   } else {
@@ -406,13 +493,33 @@ export function render(state: GameState): void {
     dom.prestigeBtn.disabled = !canDo;
     if (canDo) {
       const ep = calculateErasurePoints(state.totalStrokes);
-      dom.prestigeBtnLabel.textContent = "Erase & Redraw";
-      dom.prestigeBtnSub.textContent = `+${ep} Erasure Point${ep !== 1 ? "s" : ""}`;
+      dom.prestigeBtnLabel.textContent = "Ascend";
+      dom.prestigeBtnSub.textContent = `Gain +${ep} Legacy Point${ep !== 1 ? "s" : ""}`;
     } else {
-      dom.prestigeBtnLabel.textContent = "Erase & Redraw";
-      dom.prestigeBtnSub.textContent = `Reach ${formatNumber(PRESTIGE_THRESHOLD)} total Strokes`;
+      dom.prestigeBtnLabel.textContent = "Ascend";
+      dom.prestigeBtnSub.textContent = `Reach ${formatNumber(PRESTIGE_THRESHOLD)} total Strokes to unlock`;
     }
   }
+  const prestigeState = state.prestigeConfirming
+    ? "confirm"
+    : canPrestige()
+      ? "ready"
+      : "locked";
+  dom.prestigePanel.dataset.state = prestigeState;
+  dom.prestigePhaseBuild.classList.toggle("is-active", prestigeState === "locked");
+  dom.prestigePhaseBuild.classList.toggle(
+    "is-complete",
+    prestigeState !== "locked",
+  );
+  dom.prestigePhaseQualify.classList.toggle("is-active", prestigeState === "ready");
+  dom.prestigePhaseQualify.classList.toggle(
+    "is-complete",
+    prestigeState === "confirm",
+  );
+  dom.prestigePhaseConfirm.classList.toggle(
+    "is-active",
+    prestigeState === "confirm",
+  );
 
   // Prestige upgrades
   for (const def of PRESTIGE_UPGRADE_DEFS) {
@@ -421,11 +528,9 @@ export function render(state: GameState): void {
     const maxed = owned >= def.maxLevel;
     const cost = getPrestigeUpgradeCost(def);
     els.btn.disabled = maxed || state.erasurePoints < cost;
-    els.cost.textContent = maxed ? "MAX" : cost + " EP";
+    els.cost.textContent = maxed ? "MAX" : cost + " LP";
     els.owned.textContent =
-      owned > 0
-        ? `Level ${owned}${def.maxLevel > 1 ? "/" + def.maxLevel : ""}`
-        : "";
+      `Level ${owned}${def.maxLevel > 1 ? "/" + def.maxLevel : ""}`;
   }
 
   // Settings
@@ -438,8 +543,29 @@ export function render(state: GameState): void {
   }
 
   // Tab bar inline stats
-  dom.tabEP.textContent = `${state.erasurePoints} EP`;
-  dom.tabProduction.textContent = `${formatNumber(getEffectivePassiveRate())}/sec`;
+  dom.tabEP.textContent = `${state.erasurePoints} LP`;
+  dom.prestigeTabBtn.classList.toggle("tab-ready", canPrestige());
+  const passiveRate = getEffectivePassiveRate();
+  let activeArtistTypes = 0;
+  let topArtistName = "none";
+  let topArtistProd = 0;
+  for (const def of ARTIST_DEFS) {
+    const owned = state.artists[def.id] ?? 0;
+    if (owned > 0) {
+      activeArtistTypes++;
+      const prod = getArtistProduction(def);
+      if (prod > topArtistProd) {
+        topArtistProd = prod;
+        topArtistName = def.name;
+      }
+    }
+  }
+  dom.tabProduction.textContent = `${activeArtistTypes} active`;
+  dom.productionArtistPill.textContent = `${activeArtistTypes} artist type${activeArtistTypes === 1 ? "" : "s"} active`;
+  dom.productionTopPill.textContent =
+    topArtistProd > 0
+      ? `Top: ${topArtistName} (${formatNumber(topArtistProd)}/sec)`
+      : "Top: none";
 }
 
 // --- Init helpers: create stable DOM elements ---
@@ -467,11 +593,13 @@ function initUpgrades(): Map<string, UpgradeElements> {
     const descDiv = createElement("div", "upgrade-desc");
     descDiv.textContent = def.desc;
 
-    const ownedDiv = createElement("div", "upgrade-owned");
+    const metaDiv = createElement("div", "upgrade-meta");
+    const ownedDiv = createElement("div", "upgrade-owned upgrade-tag");
 
     btn.appendChild(nameDiv);
     btn.appendChild(descDiv);
-    btn.appendChild(ownedDiv);
+    metaDiv.appendChild(ownedDiv);
+    btn.appendChild(metaDiv);
     btn.addEventListener("click", () => buyUpgrade(def));
     list.appendChild(btn);
 
@@ -535,16 +663,26 @@ function initSwords(): Map<string, SwordElements> {
 
   for (const sword of SWORD_DEFS) {
     const el = createElement("div", "sword-entry locked");
+    const headEl = createElement("div", "sword-head");
     const nameEl = createElement("div", "sword-name");
+    const statusEl = createElement("div", "sword-status");
     const descEl = createElement("div", "sword-desc");
     const bonusEl = createElement("div", "sword-bonus");
 
-    el.appendChild(nameEl);
+    headEl.appendChild(nameEl);
+    headEl.appendChild(statusEl);
+    el.appendChild(headEl);
     el.appendChild(descEl);
     el.appendChild(bonusEl);
     gallery.appendChild(el);
 
-    map.set(sword.id, { el, name: nameEl, desc: descEl, bonus: bonusEl });
+    map.set(sword.id, {
+      el,
+      name: nameEl,
+      status: statusEl,
+      desc: descEl,
+      bonus: bonusEl,
+    });
   }
 
   return map;
@@ -556,14 +694,18 @@ function initAchievements(): Map<string, AchievementElements> {
 
   for (const ach of ACHIEVEMENT_DEFS) {
     const el = createElement("div", "achievement-entry locked");
+    const headEl = createElement("div", "achievement-head");
     const nameEl = createElement("div", "achievement-name");
+    const statusEl = createElement("div", "achievement-status");
     const descEl = createElement("div", "achievement-desc");
 
-    el.appendChild(nameEl);
+    headEl.appendChild(nameEl);
+    headEl.appendChild(statusEl);
+    el.appendChild(headEl);
     el.appendChild(descEl);
     list.appendChild(el);
 
-    map.set(ach.id, { el, name: nameEl, desc: descEl });
+    map.set(ach.id, { el, name: nameEl, status: statusEl, desc: descEl });
   }
 
   return map;
@@ -585,11 +727,16 @@ function initPrestigeUpgrades(): Map<string, PrestigeUpgradeElements> {
     const descDiv = createElement("div", "upgrade-desc");
     descDiv.textContent = def.desc;
 
-    const ownedDiv = createElement("div", "upgrade-owned");
+    const metaDiv = createElement("div", "upgrade-meta");
+    const maxDiv = createElement("div", "upgrade-tag");
+    maxDiv.textContent = `Max ${def.maxLevel}`;
+    const ownedDiv = createElement("div", "upgrade-owned upgrade-tag");
 
     btn.appendChild(nameDiv);
     btn.appendChild(descDiv);
-    btn.appendChild(ownedDiv);
+    metaDiv.appendChild(maxDiv);
+    metaDiv.appendChild(ownedDiv);
+    btn.appendChild(metaDiv);
     btn.addEventListener("click", () => buyPrestigeUpgrade(def));
     list.appendChild(btn);
 
@@ -622,20 +769,50 @@ function initBreakdown(): BreakdownElements {
 
 function renderBreakdown(state: GameState): void {
   const mult = getTotalMultiplier();
+  const totalRate = getEffectivePassiveRate();
   let hasAny = false;
+  const rows: Array<{
+    defId: string;
+    name: string;
+    owned: number;
+    prod: number;
+  }> = [];
 
   for (const def of ARTIST_DEFS) {
     const owned = state.artists[def.id] ?? 0;
-    const line = dom.breakdown.lines.get(def.id)!;
     if (owned > 0) {
       hasAny = true;
       const prod = def.baseRate * owned * mult;
-      line.textContent = `${def.name} (${owned}): ${formatNumber(prod)}/sec`;
-      line.style.display = "";
-    } else {
-      line.style.display = "none";
+      rows.push({ defId: def.id, name: def.name, owned, prod });
     }
   }
 
+  rows.sort((a, b) => b.prod - a.prod);
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i]!;
+    const line = dom.breakdown.lines.get(row.defId)!;
+    const share = totalRate > 0 ? Math.round((row.prod / totalRate) * 100) : 0;
+    line.style.setProperty("--share", `${Math.max(4, share)}%`);
+    line.innerHTML = `<span class="breakdown-rank">#${i + 1}</span><span class="breakdown-name">${row.name}</span><span class="breakdown-owned">${row.owned} owned</span><span class="breakdown-share">${share}%</span><span class="breakdown-prod">${formatNumber(row.prod)}/sec</span><span class="breakdown-bar" aria-hidden="true"></span>`;
+    line.style.display = "";
+    dom.breakdown.container.appendChild(line);
+  }
+  for (const def of ARTIST_DEFS) {
+    if (rows.some((r) => r.defId === def.id)) continue;
+    const line = dom.breakdown.lines.get(def.id)!;
+    line.style.display = "none";
+  }
+
   dom.breakdown.empty.style.display = hasAny ? "none" : "";
+}
+
+
+function orderStatTiles(showMultiplier: boolean): void {
+  // Keep critical stats in a stable left-to-right order.
+  dom.statsContainer.appendChild(dom.strokesTile);
+  dom.statsContainer.appendChild(dom.secondTile);
+  dom.statsContainer.appendChild(dom.clickTile);
+  if (showMultiplier) {
+    dom.statsContainer.appendChild(dom.multiplierTile);
+  }
 }
