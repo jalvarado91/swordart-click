@@ -32,7 +32,7 @@ This repository already has `CLAUDE.md`. Treat it as the canonical engineering a
 
 ## Layout
 
-Full-viewport CSS Grid, no page-level scroll. Grid areas: `#top-bar`, `#panel-left` (media + click upgrades), `#stage` (canvas/hero + gallery), `#panel-right` (artists), `#bottom-bar` (tab buttons), `#drawer` (slides up for prestige/production/achievements/settings).
+Full-viewport CSS Grid, no page-level scroll. Grid areas (in CSS): `top-bar`, `left`, `stage`, `right`, `tabs`. Key element IDs: `#top-bar`, `#panel-left` (media + click upgrades), `#stage` (canvas/hero + gallery), `#panel-right` (artists), `#bottom-bar` (tab buttons). Secondary sections (prestige, production, achievements, settings) open in a **centered modal overlay** (`#drawer`, `position: fixed`) triggered by bottom-bar tab buttons — the modal is outside the grid flow.
 
 ## Change Checklist
 
@@ -48,9 +48,9 @@ Full-viewport CSS Grid, no page-level scroll. Grid areas: `#top-bar`, `#panel-le
 - Game rules/data: `src/data.ts`
 - State shape/defaults: `src/types.ts`, `src/state.ts`
 - State mutations: `src/logic.ts`
-- Rendering/DOM wiring/drawer/phase system: `src/render.ts`
+- Rendering/DOM wiring/modal/phase system: `src/render.ts`
 - Effects/audio: `src/effects.ts`, `src/audio.ts`
 - Layout structure: `index.html` (grid zones), `src/style.css` (grid + theme)
 - Visual assets: `assets/` (SVG borders, font)
 
-For complete implementation detail, extension patterns, and the drawer/phase system, read `CLAUDE.md`.
+For complete implementation detail, extension patterns, and the modal/phase system, read `CLAUDE.md`.

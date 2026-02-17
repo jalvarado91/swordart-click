@@ -29,8 +29,8 @@ src/
   audio.ts          — Web Audio sound system
   effects.ts        — imperative side effects (floating text, notifications, shake, erase)
   logic.ts          — all state-mutating functions (buy*, tick, prestige, save/load)
-  render.ts         — DOM cache, initDOM(), render(state), drawer/tab wiring, phase system
-  style.css         — all styles (sketchbook theme, grid layout, phase theming, drawer)
+  render.ts         — DOM cache, initDOM(), render(state), modal/tab wiring, phase system
+  style.css         — all styles (sketchbook theme, grid layout, phase theming, modals)
 assets/
   ShortStack.ttf    — handwritten font
   border.svg        — hand-drawn panel border (DoodleCSS-inspired)
@@ -65,16 +65,15 @@ The game fills the entire browser viewport with no page-level scrolling. Individ
 +------------------+------------------------+----------------------+
 | BOTTOM-BAR: [Production] [Achievements] [Ascend] [Settings]     |
 +------------------------------------------------------------------+
-| DRAWER (slides up from bottom when a tab is clicked):            |
-|   Production breakdown | Achievements | Prestige | Settings      |
-+------------------------------------------------------------------+
 ```
+
+The grid areas are: `top-bar`, `left`, `stage`, `right`, `tabs`.
 
 Key structural IDs: `#top-bar`, `#panel-left`, `#stage`, `#panel-right`, `#bottom-bar`, `#drawer`
 
-### Drawer Pattern
+### Modal Pattern
 
-Prestige, production breakdown, achievements, and settings live in a **drawer** that slides up from the bottom bar. Each bottom-bar button toggles its corresponding `.drawer-panel`. The drawer has a backdrop, close button, and responds to Escape. All wiring is in `render.ts` `initDOM()`.
+Prestige, production breakdown, achievements, and settings live in a **modal overlay** (`#drawer`) that opens when a bottom-bar tab button is clicked. The modal is `position: fixed` centered on screen with a backdrop — it is **not** part of the grid layout. Despite the `drawer` naming in HTML/CSS IDs, the actual UI behavior is a centered modal. Each `.tab-btn` toggles its corresponding `.drawer-panel` inside `#drawer-content`. The modal has a backdrop click-to-close, a close button, and responds to Escape. All wiring is in `render.ts` `initDOM()`.
 
 ## Architecture: Game Loop Pattern
 
@@ -98,7 +97,7 @@ Event handlers (clicks) just mutate state. The next frame picks up changes.
 `render.ts` is the largest file (~1200 lines). Key patterns:
 
 ### DOMCache
-All DOM elements are queried once in `initDOM()` and stored in a `DOMCache` object. The render loop uses only cached references. This includes upgrade/artist/sword/achievement element maps, stat tiles, drawer elements, hero area, and phase-related elements.
+All DOM elements are queried once in `initDOM()` and stored in a `DOMCache` object. The render loop uses only cached references. This includes upgrade/artist/sword/achievement element maps, stat tiles, modal elements, hero area, and phase-related elements.
 
 ### Run Phases
 The game has three visual phases based on progression: `early`, `mid`, `late`. Detected in `detectRunPhase()` based on media tier, total strokes, clicks, prestige count, and ascension availability. Each phase changes:
@@ -156,10 +155,12 @@ Sketchbook/pen-on-paper aesthetic:
 5. `logic.ts` — add any mutation functions
 6. Wire event listeners in `initDOM()`
 
-### New drawer panel (bottom bar section)
+### New modal panel (bottom bar tab)
 1. `index.html` — add a `.drawer-panel` inside `#drawer-content`, add a `.tab-btn` in `#bottom-bar`
-2. `render.ts` — the drawer open/close logic in `initDOM()` auto-discovers `.tab-btn` and `.drawer-panel` elements by `data-drawer` attribute. Just match the `data-drawer` value to the panel's `id` (pattern: `drawer-{name}`).
+2. `render.ts` — the modal open/close logic in `initDOM()` auto-discovers `.tab-btn` and `.drawer-panel` elements by `data-drawer` attribute. Just match the `data-drawer` value to the panel's `id` (pattern: `drawer-{name}`).
 3. Add any needed elements to `DOMCache` and update in `render()`
+
+Note: HTML/CSS still uses "drawer" naming (`#drawer`, `.drawer-panel`, etc.) but the UI pattern is a centered modal overlay.
 
 ### New effect (animation, sound, visual feedback)
 1. `effects.ts` — add function (these are imperative, outside the render loop)
