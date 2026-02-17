@@ -601,7 +601,7 @@ body.run-phase-late #draw-btn:hover {
 
 #canvas-area.hero-ascension-ready .hero-rune-ring {
     border-image: var(--sketch-btn-prestige) 8 stretch;
-    animation: hero-ring-drift 16s linear infinite;
+    opacity: 0.92;
 }
 
 .hero-frame {
@@ -619,15 +619,28 @@ body.run-phase-late #draw-btn:hover {
     width: min(320px, 62%);
     height: 112px;
     border: 5px solid transparent;
-    border-image: var(--sketch-btn-heavy) 8 stretch;
+    border-image: var(--sketch-btn) 8 stretch;
     border-radius: 46%;
-    opacity: 0.82;
+    opacity: 0.62;
     box-shadow: inset 0 0 0 1px var(--phase-hero-ring);
+    background:
+        radial-gradient(
+            ellipse at center,
+            rgba(255, 255, 255, 0.12),
+            transparent 64%
+        );
+    transition:
+        opacity 0.35s ease,
+        border-image 0.35s ease,
+        box-shadow 0.35s ease;
 }
 
 #canvas-area.hero-active .hero-rune-ring,
 #canvas-area.hero-milestone .hero-rune-ring {
-    animation: hero-ring-drift 18s linear infinite;
+    opacity: 0.86;
+    box-shadow:
+        inset 0 0 0 1px var(--phase-hero-ring),
+        0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .hero-core {
@@ -688,18 +701,6 @@ body.run-phase-late #draw-btn:hover {
 .hero-ornament-right {
     right: 24px;
     transform: translateY(-50%) rotate(8deg);
-}
-
-@keyframes hero-ring-drift {
-    from {
-        transform: rotate(0deg) scale(1);
-    }
-    50% {
-        transform: rotate(180deg) scale(1.012);
-    }
-    to {
-        transform: rotate(360deg) scale(1);
-    }
 }
 
 @keyframes hero-milestone-glow {
