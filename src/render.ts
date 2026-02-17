@@ -619,26 +619,65 @@ export function render(state: GameState): void {
   prevMediaTier = state.mediaTier;
 
   // Click upgrades
+  const historicalStrokes = state.lifetimeStrokes + state.totalStrokes;
+  let visibleUpgradeCount = 0;
+  let nextUpgradeEls: UpgradeElements | null = null;
+  let nextUpgradeScore = -1;
   for (const def of UPGRADE_DEFS) {
     const els = dom.upgrades.get(def.id)!;
     const cost = getUpgradeCost(def);
+    const owned = state.upgrades[def.id] ?? 0;
+    const isVisible = shouldShowProgressiveOption(
+      cost,
+      state.strokes,
+      historicalStrokes,
+      owned,
+    );
+    els.btn.classList.toggle("is-hidden-by-progression", !isVisible);
+    if (isVisible) visibleUpgradeCount++;
+    const progressScore = state.strokes / Math.max(1, cost);
+    if (progressScore > nextUpgradeScore) {
+      nextUpgradeScore = progressScore;
+      nextUpgradeEls = els;
+    }
     els.btn.disabled = state.strokes < cost;
     els.cost.textContent = formatNumber(cost) + " Strokes";
-    const owned = state.upgrades[def.id] ?? 0;
     els.owned.textContent = `Owned ${owned}`;
+  }
+  if (visibleUpgradeCount === 0 && nextUpgradeEls) {
+    nextUpgradeEls.btn.classList.remove("is-hidden-by-progression");
   }
 
   // Artists
+  let visibleArtistCount = 0;
+  let nextArtistEls: ArtistElements | null = null;
+  let nextArtistScore = -1;
   for (const def of ARTIST_DEFS) {
     const els = dom.artists.get(def.id)!;
     const cost = getArtistCost(def);
+    const owned = state.artists[def.id] ?? 0;
+    const isVisible = shouldShowProgressiveOption(
+      cost,
+      state.strokes,
+      historicalStrokes,
+      owned,
+    );
+    els.btn.classList.toggle("is-hidden-by-progression", !isVisible);
+    if (isVisible) visibleArtistCount++;
+    const progressScore = state.strokes / Math.max(1, cost);
+    if (progressScore > nextArtistScore) {
+      nextArtistScore = progressScore;
+      nextArtistEls = els;
+    }
     els.btn.disabled = state.strokes < cost;
     els.cost.textContent = formatNumber(cost) + " Strokes";
-    const owned = state.artists[def.id] ?? 0;
     els.count.textContent = owned > 0 ? `Owned: ${owned}` : "";
     const prod = getArtistProduction(def);
     els.prod.textContent =
       owned > 0 ? `Producing: ${formatNumber(prod)}/sec` : "";
+  }
+  if (visibleArtistCount === 0 && nextArtistEls) {
+    nextArtistEls.btn.classList.remove("is-hidden-by-progression");
   }
 
   // Production breakdown
@@ -1134,6 +1173,23 @@ function accumulateDelta(
 
 function formatDeltaValue(delta: number): string {
   return `${delta > 0 ? "+" : ""}${formatNumber(delta)}`;
+}
+
+function shouldShowProgressiveOption(
+  cost: number,
+  currentStrokes: number,
+  historicalStrokes: number,
+  owned: number,
+): boolean {
+  if (owned > 0) return true;
+  const safeCost = Math.max(1, cost);
+  const currentRatio = currentStrokes / safeCost;
+  const historicalRatio = historicalStrokes / safeCost;
+  const remaining = Math.max(0, cost - currentStrokes);
+  const almostAffordable =
+    currentRatio >= 0.72 || remaining <= Math.max(12, cost * 0.14);
+  const known = historicalRatio >= 0.72;
+  return almostAffordable || known;
 }
 
 

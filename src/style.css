@@ -319,30 +319,28 @@ body.run-phase-late {
 .stat-tile.stat-cue::after {
     content: attr(data-delta);
     position: absolute;
-    right: 7px;
-    top: 3px;
-    font-size: 0.69rem;
+    right: 6px;
+    top: 2px;
+    font-size: 0.77rem;
     font-weight: 700;
     opacity: 0;
-    letter-spacing: 0.25px;
+    letter-spacing: 0.3px;
     line-height: 1;
-    transform: translateY(4px) scale(0.96);
+    transform: translateY(6px) scale(0.92);
     pointer-events: none;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.stat-tile.stat-cue-burst {
-    animation: stat-cue-pop 0.38s cubic-bezier(0.24, 0.82, 0.32, 1);
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.45),
+        0 0 6px rgba(255, 255, 255, 0.22);
 }
 
 .stat-tile.stat-cue-burst::after {
-    animation: stat-delta-rise 0.62s ease-out both;
+    animation: stat-delta-rise 0.72s cubic-bezier(0.17, 0.84, 0.26, 1) both;
 }
 
 .stat-tile.stat-cue-up {
     box-shadow:
-        inset 0 0 0 1px rgba(74, 122, 58, 0.28),
-        0 0 0 1px rgba(74, 122, 58, 0.08);
+        inset 0 0 0 1px rgba(74, 122, 58, 0.36),
+        0 0 0 1px rgba(74, 122, 58, 0.14);
 }
 
 .stat-tile.stat-cue-up::after {
@@ -351,8 +349,8 @@ body.run-phase-late {
 
 .stat-tile.stat-cue-down {
     box-shadow:
-        inset 0 0 0 1px rgba(160, 64, 64, 0.28),
-        0 0 0 1px rgba(160, 64, 64, 0.08);
+        inset 0 0 0 1px rgba(160, 64, 64, 0.36),
+        0 0 0 1px rgba(160, 64, 64, 0.14);
 }
 
 .stat-tile.stat-cue-down::after {
@@ -363,8 +361,11 @@ body.run-phase-late {
     0% {
         transform: translateY(0) scale(1);
     }
-    38% {
-        transform: translateY(-1px) scale(1.016);
+    36% {
+        transform: translateY(-2px) scale(1.028);
+    }
+    62% {
+        transform: translateY(0) scale(0.995);
     }
     100% {
         transform: translateY(0) scale(1);
@@ -374,18 +375,18 @@ body.run-phase-late {
 @keyframes stat-delta-rise {
     0% {
         opacity: 0;
-        transform: translateY(4px) scale(0.96);
+        transform: translateY(6px) scale(0.92);
     }
-    20% {
+    16% {
         opacity: 1;
     }
-    70% {
-        opacity: 0.92;
-        transform: translateY(-6px) scale(1);
+    56% {
+        opacity: 1;
+        transform: translateY(-7px) scale(1.03);
     }
     100% {
         opacity: 0;
-        transform: translateY(-11px) scale(1.01);
+        transform: translateY(-16px) scale(1.05);
     }
 }
 
@@ -965,6 +966,7 @@ body.run-phase-late #draw-btn:hover {
     overflow-y: auto;
     padding-right: 4px;
     gap: var(--artists-list-gap);
+    align-content: start;
 }
 
 /* --- Upgrade buttons (shared) --- */
@@ -985,6 +987,7 @@ body.run-phase-late #draw-btn:hover {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 2px;
+    position: relative;
 }
 
 .upgrade-btn:hover:not(:disabled) {
@@ -1000,6 +1003,10 @@ body.run-phase-late #draw-btn:hover {
     opacity: 0.4;
     cursor: not-allowed;
     background: transparent;
+}
+
+.upgrade-btn.is-hidden-by-progression {
+    display: none;
 }
 
 .upgrade-name {
@@ -1121,6 +1128,7 @@ body.run-phase-late #draw-btn:hover {
 .artist-btn .upgrade-name {
     font-size: var(--artist-name-size);
 }
+
 
 body.ui-density-balanced {
     --panel-pad: 14px;
