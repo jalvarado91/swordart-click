@@ -220,7 +220,7 @@ body.run-phase-late {
    | left     | stage                      | right            |
    |          |                            |                  |
    +----------+----------------------------+------------------+
-   | drawer    drawer     drawer                               |
+   | modal     modal      modal                                |
    +----------------------------------------------------------+
    | tabs      tabs       tabs                                 |
    +----------------------------------------------------------+
@@ -1430,7 +1430,7 @@ body.ui-density-compact {
 
 /* --- Drawer: slides up from bottom bar --- */
 
-#drawer {
+#modal {
     position: fixed;
     inset: 0;
     z-index: 80;
@@ -1439,18 +1439,18 @@ body.ui-density-compact {
     transition: opacity 0.16s ease;
 }
 
-#drawer.drawer-closed {
+#modal.modal-closed {
     opacity: 0;
     pointer-events: none;
 }
 
-#drawer-backdrop {
+#modal-backdrop {
     position: absolute;
     inset: 0;
     background: rgba(20, 14, 8, 0.42);
 }
 
-#drawer-shell {
+#modal-shell {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -1465,7 +1465,7 @@ body.ui-density-compact {
     box-shadow: 0 16px 44px rgba(24, 15, 8, 0.22);
 }
 
-#drawer-top {
+#modal-top {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -1474,7 +1474,7 @@ body.ui-density-compact {
     border-image: var(--sketch-hr) 0 3 4 3 stretch;
 }
 
-#drawer-title {
+#modal-title {
     font-size: 1rem;
     color: var(--ink);
     letter-spacing: 1px;
@@ -1482,28 +1482,28 @@ body.ui-density-compact {
     font-weight: normal;
 }
 
-#drawer-close-btn {
+#modal-close-btn {
     margin-left: auto;
 }
 
-#drawer-content {
+#modal-content {
     min-height: 0;
     overflow-y: auto;
     padding: 14px 16px 16px;
 }
 
-.drawer-panel {
+.modal-panel {
     display: none;
 }
 
-.drawer-panel.active {
+.modal-panel.active {
     display: block;
     max-width: 1120px;
     margin: 0 auto;
 }
 
-#drawer-achievements,
-#drawer-settings {
+#modal-achievements,
+#modal-settings {
     border: 5px solid transparent;
     border-image: var(--sketch-border) 10 stretch;
     background: rgba(255, 255, 255, 0.22);
@@ -1554,12 +1554,12 @@ body.ui-density-compact {
     color: var(--ink);
 }
 
-.tab-btn[data-drawer="prestige"] {
+.tab-btn[data-modal="prestige"] {
     color: var(--prestige);
 }
 
-.tab-btn[data-drawer="prestige"]:hover,
-.tab-btn[data-drawer="prestige"].active {
+.tab-btn[data-modal="prestige"]:hover,
+.tab-btn[data-modal="prestige"].active {
     color: var(--prestige);
     background: rgba(106, 58, 138, 0.04);
 }
@@ -1577,7 +1577,7 @@ body.ui-density-compact {
     color: var(--text-dim);
 }
 
-.tab-btn[data-drawer="prestige"] .tab-stat {
+.tab-btn[data-modal="prestige"] .tab-stat {
     color: var(--prestige-light);
 }
 
@@ -1585,16 +1585,16 @@ body.ui-density-compact {
     color: var(--accent);
 }
 
-.tab-btn[data-drawer="prestige"].active .tab-stat {
+.tab-btn[data-modal="prestige"].active .tab-stat {
     color: var(--prestige);
 }
 
-.tab-btn.tab-ready[data-drawer="prestige"] {
+.tab-btn.tab-ready[data-modal="prestige"] {
     background: rgba(106, 58, 138, 0.12);
     border-image: var(--sketch-btn-prestige) 8 stretch;
 }
 
-.tab-btn.tab-ready[data-drawer="prestige"] .tab-stat {
+.tab-btn.tab-ready[data-modal="prestige"] .tab-stat {
     color: var(--prestige);
     font-weight: 700;
 }
@@ -1822,7 +1822,7 @@ body.ui-density-compact {
 
 /* --- Prestige --- */
 
-#drawer-prestige #prestige-panel {
+#modal-prestige #prestige-panel {
     display: grid;
     gap: 12px;
     padding: 14px;
@@ -1835,7 +1835,7 @@ body.ui-density-compact {
         rgba(255, 255, 255, 0.24);
 }
 
-#drawer-prestige .prestige-header {
+#modal-prestige .prestige-header {
     display: grid;
     gap: 6px;
     padding: 10px;
@@ -1844,7 +1844,7 @@ body.ui-density-compact {
     background: rgba(255, 255, 255, 0.32);
 }
 
-#drawer-prestige .prestige-title {
+#modal-prestige .prestige-title {
     font-size: 0.95rem;
     color: var(--prestige);
     text-transform: uppercase;
@@ -1852,63 +1852,63 @@ body.ui-density-compact {
     font-weight: normal;
 }
 
-#drawer-prestige .prestige-subtitle {
+#modal-prestige .prestige-subtitle {
     font-size: 0.78rem;
     color: var(--text-dim);
     line-height: 1.3;
 }
 
-#drawer-prestige #prestige-phases {
+#modal-prestige #prestige-phases {
     margin-bottom: 0;
 }
 
-#drawer-prestige #prestige-phases .panel-pill {
+#modal-prestige #prestige-phases .panel-pill {
     opacity: 0.45;
 }
 
-#drawer-prestige #prestige-phases .panel-pill.is-active {
+#modal-prestige #prestige-phases .panel-pill.is-active {
     opacity: 1;
     border-image: var(--sketch-btn-prestige) 8 stretch;
     color: var(--prestige);
 }
 
-#drawer-prestige #prestige-phases .panel-pill.is-complete {
+#modal-prestige #prestige-phases .panel-pill.is-complete {
     opacity: 0.9;
     color: var(--success);
 }
 
-#drawer-prestige .prestige-main {
+#modal-prestige .prestige-main {
     display: grid;
     grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
     gap: 10px;
 }
 
-#drawer-prestige .prestige-status-card,
-#drawer-prestige .prestige-action-card {
+#modal-prestige .prestige-status-card,
+#modal-prestige .prestige-action-card {
     border: 4px solid transparent;
     border-image: var(--sketch-btn-prestige) 8 stretch;
     background: rgba(255, 255, 255, 0.3);
     padding: 10px;
 }
 
-#drawer-prestige #prestige-stats {
+#modal-prestige #prestige-stats {
     font-size: 0.86rem;
     color: var(--text-dim);
     line-height: 1.6;
     margin-bottom: 9px;
 }
 
-#drawer-prestige #prestige-stats strong {
+#modal-prestige #prestige-stats strong {
     color: var(--prestige);
 }
 
-#drawer-prestige .prestige-note {
+#modal-prestige .prestige-note {
     font-size: 0.76rem;
     color: var(--text-dim);
     line-height: 1.32;
 }
 
-#drawer-prestige .prestige-action-btn {
+#modal-prestige .prestige-action-btn {
     width: 100%;
     background: var(--paper);
     border: 5px solid transparent;
@@ -1925,7 +1925,7 @@ body.ui-density-compact {
     line-height: 1.35;
 }
 
-#drawer-prestige .prestige-action-btn:hover:not(:disabled) {
+#modal-prestige .prestige-action-btn:hover:not(:disabled) {
     background: var(--paper);
     filter: drop-shadow(0 0 2px rgba(106, 58, 138, 0.2));
 }
@@ -1935,46 +1935,46 @@ body.run-phase-mid #media-upgrade-btn:not(:disabled) {
     background: rgba(255, 250, 236, 0.9);
 }
 
-body.run-phase-late #drawer-prestige .prestige-action-btn:not(:disabled) {
+body.run-phase-late #modal-prestige .prestige-action-btn:not(:disabled) {
     box-shadow: 0 0 0 1px rgba(106, 58, 138, 0.2);
 }
 
-#drawer-prestige .prestige-action-btn:active:not(:disabled) {
+#modal-prestige .prestige-action-btn:active:not(:disabled) {
     transform: translate(1px, 1px);
 }
 
-#drawer-prestige .prestige-action-btn:disabled {
+#modal-prestige .prestige-action-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
 }
 
-#drawer-prestige .prestige-action-btn.confirming {
+#modal-prestige .prestige-action-btn.confirming {
     border-image: var(--sketch-btn-danger) 8 stretch;
     color: #a04040;
     background: rgba(160, 64, 64, 0.05);
 }
 
-#drawer-prestige .prestige-ep-gain {
+#modal-prestige .prestige-ep-gain {
     font-size: var(--text-xs);
     font-weight: normal;
     opacity: 0.8;
 }
 
-#drawer-prestige .prestige-action-hint {
+#modal-prestige .prestige-action-hint {
     font-size: 0.74rem;
     color: var(--text-dim);
     margin-top: 8px;
     line-height: 1.28;
 }
 
-#drawer-prestige .prestige-upgrades-block {
+#modal-prestige .prestige-upgrades-block {
     margin-top: 2px;
     border-top: 4px solid transparent;
     border-image: var(--sketch-hr-prestige) 4 3 0 3 stretch;
     padding-top: 10px;
 }
 
-#drawer-prestige .prestige-upgrades-block h3 {
+#modal-prestige .prestige-upgrades-block h3 {
     font-size: 0.9rem;
     color: var(--prestige);
     text-transform: uppercase;
@@ -1983,21 +1983,21 @@ body.run-phase-late #drawer-prestige .prestige-action-btn:not(:disabled) {
     margin-bottom: 9px;
 }
 
-#drawer-prestige #prestige-upgrades-list {
+#modal-prestige #prestige-upgrades-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 7px;
 }
 
-#drawer-prestige #prestige-panel[data-state="ready"] {
+#modal-prestige #prestige-panel[data-state="ready"] {
     box-shadow: 0 0 0 1px rgba(106, 58, 138, 0.18);
 }
 
-#drawer-prestige #prestige-panel[data-state="confirm"] {
+#modal-prestige #prestige-panel[data-state="confirm"] {
     box-shadow: 0 0 0 1px rgba(160, 64, 64, 0.24);
 }
 
-#drawer-prestige .prestige-upgrade-btn {
+#modal-prestige .prestige-upgrade-btn {
     border-image: var(--sketch-btn-prestige) 8 stretch;
     padding: 8px 10px;
     min-height: 0;
@@ -2006,23 +2006,23 @@ body.run-phase-late #drawer-prestige .prestige-action-btn:not(:disabled) {
     border-width: 4px;
 }
 
-#drawer-prestige .prestige-upgrade-btn:hover:not(:disabled) {
+#modal-prestige .prestige-upgrade-btn:hover:not(:disabled) {
     border-image: var(--sketch-btn-prestige) 8 stretch;
     background: rgba(255, 255, 255, 0.8);
 }
 
-#drawer-prestige .prestige-upgrade-btn .upgrade-cost {
+#modal-prestige .prestige-upgrade-btn .upgrade-cost {
     color: var(--prestige);
     font-size: 0.82rem;
     font-weight: 700;
 }
 
-#drawer-prestige .prestige-upgrade-btn .upgrade-name {
+#modal-prestige .prestige-upgrade-btn .upgrade-name {
     font-size: 0.88rem;
     gap: 6px;
 }
 
-#drawer-prestige .prestige-upgrade-btn .upgrade-desc {
+#modal-prestige .prestige-upgrade-btn .upgrade-desc {
     font-size: 0.7rem;
     line-height: 1.15;
     color: #7f6f8f;
@@ -2030,24 +2030,24 @@ body.run-phase-late #drawer-prestige .prestige-action-btn:not(:disabled) {
     font-style: normal;
 }
 
-#drawer-prestige .prestige-upgrade-btn .upgrade-meta {
+#modal-prestige .prestige-upgrade-btn .upgrade-meta {
     margin-top: 4px;
     gap: 4px;
 }
 
-#drawer-prestige .prestige-upgrade-btn .upgrade-tag,
-#drawer-prestige .prestige-upgrade-btn .upgrade-owned {
+#modal-prestige .prestige-upgrade-btn .upgrade-tag,
+#modal-prestige .prestige-upgrade-btn .upgrade-owned {
     font-size: 0.68rem;
     padding: 1px 6px 2px;
     letter-spacing: 0;
 }
 
 @media (max-width: 1080px) {
-    #drawer-prestige .prestige-main {
+    #modal-prestige .prestige-main {
         grid-template-columns: 1fr;
     }
 
-    #drawer-prestige #prestige-upgrades-list {
+    #modal-prestige #prestige-upgrades-list {
         grid-template-columns: 1fr;
     }
 }
@@ -2200,7 +2200,7 @@ body.run-phase-late #drawer-prestige .prestige-action-btn:not(:disabled) {
         max-width: 700px;
     }
 
-    .drawer-panel.active {
+    .modal-panel.active {
         max-width: 1260px;
     }
 

@@ -32,7 +32,7 @@ This repository already has `CLAUDE.md`. Treat it as the canonical engineering a
 
 ## Layout
 
-Full-viewport CSS Grid, no page-level scroll. Grid areas (in CSS): `top-bar`, `left`, `stage`, `right`, `tabs`. Key element IDs: `#top-bar`, `#panel-left` (media + click upgrades), `#stage` (canvas/hero + gallery), `#panel-right` (artists), `#bottom-bar` (tab buttons). Secondary sections (prestige, production, achievements, settings) open in a **centered modal overlay** (`#drawer`, `position: fixed`) triggered by bottom-bar tab buttons — the modal is outside the grid flow.
+Full-viewport CSS Grid, no page-level scroll. Grid areas (in CSS): `top-bar`, `left`, `stage`, `right`, `tabs`. Key element IDs: `#top-bar`, `#panel-left` (media + click upgrades), `#stage` (canvas/hero + gallery), `#panel-right` (artists), `#bottom-bar` (tab buttons). Secondary sections (prestige, production, achievements, settings) open in a **centered modal overlay** (`#modal`, `position: fixed`) triggered by bottom-bar tab buttons — the modal is outside the grid flow.
 
 ## Change Checklist
 

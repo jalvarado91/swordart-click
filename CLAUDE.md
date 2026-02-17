@@ -69,11 +69,11 @@ The game fills the entire browser viewport with no page-level scrolling. Individ
 
 The grid areas are: `top-bar`, `left`, `stage`, `right`, `tabs`.
 
-Key structural IDs: `#top-bar`, `#panel-left`, `#stage`, `#panel-right`, `#bottom-bar`, `#drawer`
+Key structural IDs: `#top-bar`, `#panel-left`, `#stage`, `#panel-right`, `#bottom-bar`, `#modal`
 
 ### Modal Pattern
 
-Prestige, production breakdown, achievements, and settings live in a **modal overlay** (`#drawer`) that opens when a bottom-bar tab button is clicked. The modal is `position: fixed` centered on screen with a backdrop — it is **not** part of the grid layout. Despite the `drawer` naming in HTML/CSS IDs, the actual UI behavior is a centered modal. Each `.tab-btn` toggles its corresponding `.drawer-panel` inside `#drawer-content`. The modal has a backdrop click-to-close, a close button, and responds to Escape. All wiring is in `render.ts` `initDOM()`.
+Prestige, production breakdown, achievements, and settings live in a **modal overlay** (`#modal`) that opens when a bottom-bar tab button is clicked. The modal is `position: fixed` centered on screen with a backdrop — it is **not** part of the grid layout. Each `.tab-btn` toggles its corresponding `.modal-panel` inside `#modal-content`. The modal has a backdrop click-to-close, a close button, and responds to Escape. All wiring is in `render.ts` `initDOM()`.
 
 ## Architecture: Game Loop Pattern
 
@@ -156,11 +156,9 @@ Sketchbook/pen-on-paper aesthetic:
 6. Wire event listeners in `initDOM()`
 
 ### New modal panel (bottom bar tab)
-1. `index.html` — add a `.drawer-panel` inside `#drawer-content`, add a `.tab-btn` in `#bottom-bar`
-2. `render.ts` — the modal open/close logic in `initDOM()` auto-discovers `.tab-btn` and `.drawer-panel` elements by `data-drawer` attribute. Just match the `data-drawer` value to the panel's `id` (pattern: `drawer-{name}`).
+1. `index.html` — add a `.modal-panel` inside `#modal-content`, add a `.tab-btn` in `#bottom-bar`
+2. `render.ts` — the modal open/close logic in `initDOM()` auto-discovers `.tab-btn` and `.modal-panel` elements by `data-modal` attribute. Just match the `data-modal` value to the panel's `id` (pattern: `modal-{name}`).
 3. Add any needed elements to `DOMCache` and update in `render()`
-
-Note: HTML/CSS still uses "drawer" naming (`#drawer`, `.drawer-panel`, etc.) but the UI pattern is a centered modal overlay.
 
 ### New effect (animation, sound, visual feedback)
 1. `effects.ts` — add function (these are imperative, outside the render loop)

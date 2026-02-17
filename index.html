@@ -112,17 +112,17 @@
                 </div>
             </div>
 
-            <div id="drawer" class="drawer-closed">
-                <div id="drawer-backdrop"></div>
-                <div id="drawer-shell">
-                    <div id="drawer-top">
-                        <h2 id="drawer-title">Production</h2>
-                        <button id="drawer-close-btn" class="settings-btn">
+            <div id="modal" class="modal-closed">
+                <div id="modal-backdrop"></div>
+                <div id="modal-shell">
+                    <div id="modal-top">
+                        <h2 id="modal-title">Production</h2>
+                        <button id="modal-close-btn" class="settings-btn">
                             Close
                         </button>
                     </div>
-                    <div id="drawer-content">
-                        <div id="drawer-prestige" class="drawer-panel">
+                    <div id="modal-content">
+                        <div id="modal-prestige" class="modal-panel">
                         <div
                             id="prestige-panel"
                             class="panel-card panel-card-prestige"
@@ -176,7 +176,7 @@
                             </div>
                         </div>
                         </div>
-                        <div id="drawer-production" class="drawer-panel">
+                        <div id="modal-production" class="modal-panel">
                             <div id="breakdown-panel" class="panel-card">
                                 <div
                                     id="production-summary"
@@ -196,13 +196,13 @@
                             <div id="production-breakdown"></div>
                         </div>
                     </div>
-                    <div id="drawer-achievements" class="drawer-panel">
+                    <div id="modal-achievements" class="modal-panel">
                         <p class="achievement-note">
                             Newly unlocked achievements glow briefly.
                         </p>
                         <div id="achievements-list"></div>
                     </div>
-                    <div id="drawer-settings" class="drawer-panel">
+                    <div id="modal-settings" class="modal-panel">
                         <div id="settings-controls">
                                 <button id="mute-btn" class="settings-btn">
                                     Mute
@@ -231,21 +231,21 @@
             </div>
 
             <div id="bottom-bar">
-                <button class="tab-btn" data-drawer="production">
+                <button class="tab-btn" data-modal="production">
                     <span class="tab-label">Production</span>
                     <span class="tab-stat" id="tab-production">0 active</span>
                 </button>
-                <button class="tab-btn" data-drawer="achievements">
+                <button class="tab-btn" data-modal="achievements">
                     <span class="tab-label">Achievements</span>
                     <span class="tab-stat" id="tab-achievements"
                         ><span id="achievement-counter">0/11</span></span
                     >
                 </button>
-                <button class="tab-btn" data-drawer="prestige">
+                <button class="tab-btn" data-modal="prestige">
                     <span class="tab-label">Ascend</span>
                     <span class="tab-stat" id="tab-ep">0 LP</span>
                 </button>
-                <button class="tab-btn" data-drawer="settings">
+                <button class="tab-btn" data-modal="settings">
                     <span class="tab-label">Settings</span>
                 </button>
             </div>

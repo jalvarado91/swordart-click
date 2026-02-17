@@ -33,7 +33,7 @@ Full-viewport CSS Grid with internal scrolling. Key areas:
 - `#panel-left`: media panel + click upgrades
 - `#stage`: canvas/hero area + sword gallery
 - `#panel-right`: artist hire buttons
-- `#bottom-bar` + `#drawer`: production, achievements, prestige, settings (modal overlay, not in grid flow)
+- `#bottom-bar` + `#modal`: production, achievements, prestige, settings (modal overlay, not in grid flow)
 
 ## Quality Bar
 

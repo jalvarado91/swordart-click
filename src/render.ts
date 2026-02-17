@@ -140,11 +140,11 @@ interface DOMCache {
   muteBtn: HTMLButtonElement;
   resetBtn: HTMLButtonElement;
   saveDataTextarea: HTMLTextAreaElement;
-  // Drawer
-  drawer: HTMLElement;
-  drawerBackdrop: HTMLElement;
-  drawerTitle: HTMLElement;
-  drawerCloseBtn: HTMLButtonElement;
+  // Modal
+  modal: HTMLElement;
+  modalBackdrop: HTMLElement;
+  modalTitle: HTMLElement;
+  modalCloseBtn: HTMLButtonElement;
   tabEP: HTMLElement;
   tabProduction: HTMLElement;
   prestigeTabBtn: HTMLButtonElement;
@@ -316,16 +316,16 @@ export function initDOM(): void {
     saveDataTextarea: document.getElementById(
       "save-data",
     )! as HTMLTextAreaElement,
-    drawer: document.getElementById("drawer")!,
-    drawerBackdrop: document.getElementById("drawer-backdrop")!,
-    drawerTitle: document.getElementById("drawer-title")!,
-    drawerCloseBtn: document.getElementById(
-      "drawer-close-btn",
+    modal: document.getElementById("modal")!,
+    modalBackdrop: document.getElementById("modal-backdrop")!,
+    modalTitle: document.getElementById("modal-title")!,
+    modalCloseBtn: document.getElementById(
+      "modal-close-btn",
     )! as HTMLButtonElement,
     tabEP: document.getElementById("tab-ep")!,
     tabProduction: document.getElementById("tab-production")!,
     prestigeTabBtn: document.querySelector<HTMLButtonElement>(
-      '.tab-btn[data-drawer="prestige"]',
+      '.tab-btn[data-modal="prestige"]',
     )!,
     productionArtistPill: document.getElementById("production-artist-pill")!,
     productionTopPill: document.getElementById("production-top-pill")!,
@@ -408,54 +408,54 @@ export function initDOM(): void {
     });
   }
 
-  // Drawer tab buttons
-  let activeDrawer: string | null = null;
+  // Modal tab buttons
+  let activeModal: string | null = null;
   const tabBtns = Array.from(
     document.querySelectorAll<HTMLButtonElement>(".tab-btn"),
   );
-  const drawerPanels = Array.from(
-    document.querySelectorAll<HTMLElement>(".drawer-panel"),
+  const modalPanels = Array.from(
+    document.querySelectorAll<HTMLElement>(".modal-panel"),
   );
-  const drawerTitles: Record<string, string> = {
+  const modalTitles: Record<string, string> = {
     production: "Production",
     achievements: "Achievements",
     prestige: "Ascension",
     settings: "Settings",
   };
 
-  const closeDrawer = () => {
-    activeDrawer = null;
-    dom.drawer.classList.add("drawer-closed");
+  const closeModal = () => {
+    activeModal = null;
+    dom.modal.classList.add("modal-closed");
     for (const b of tabBtns) b.classList.remove("active");
-    for (const p of drawerPanels) p.classList.remove("active");
+    for (const p of modalPanels) p.classList.remove("active");
   };
 
-  const openDrawer = (target: string) => {
-    activeDrawer = target;
-    dom.drawer.classList.remove("drawer-closed");
-    dom.drawerTitle.textContent = drawerTitles[target] ?? "Panel";
+  const openModal = (target: string) => {
+    activeModal = target;
+    dom.modal.classList.remove("modal-closed");
+    dom.modalTitle.textContent = modalTitles[target] ?? "Panel";
     for (const b of tabBtns) b.classList.remove("active");
-    const activeTab = tabBtns.find((b) => b.dataset.drawer === target);
+    const activeTab = tabBtns.find((b) => b.dataset.modal === target);
     activeTab?.classList.add("active");
-    for (const p of drawerPanels)
-      p.classList.toggle("active", p.id === `drawer-${target}`);
+    for (const p of modalPanels)
+      p.classList.toggle("active", p.id === `modal-${target}`);
   };
 
   for (const btn of tabBtns) {
     btn.addEventListener("click", () => {
-      const target = btn.dataset.drawer!;
-      if (activeDrawer === target) {
-        closeDrawer();
+      const target = btn.dataset.modal!;
+      if (activeModal === target) {
+        closeModal();
       } else {
-        openDrawer(target);
+        openModal(target);
       }
     });
   }
 
-  dom.drawerCloseBtn.addEventListener("click", closeDrawer);
-  dom.drawerBackdrop.addEventListener("click", closeDrawer);
+  dom.modalCloseBtn.addEventListener("click", closeModal);
+  dom.modalBackdrop.addEventListener("click", closeModal);
   window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && activeDrawer) closeDrawer();
+    if (e.key === "Escape" && activeModal) closeModal();
   });
 
   // Force initial render of lists that depend on tracking previous state
