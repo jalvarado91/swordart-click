@@ -81,6 +81,7 @@ interface BreakdownElements {
 }
 
 interface DOMCache {
+  game: HTMLElement;
   // Stats
   strokesCount: HTMLElement;
   perClick: HTMLElement;
@@ -108,6 +109,18 @@ interface DOMCache {
   artists: Map<string, ArtistElements>;
   // Canvas
   canvasArea: HTMLElement;
+  heroTitle: HTMLElement;
+  heroStatus: HTMLElement;
+  mediaHeading: HTMLElement;
+  mediaPhaseTone: HTMLElement;
+  upgradesHeading: HTMLElement;
+  upgradesPhaseTone: HTMLElement;
+  artistsHeading: HTMLElement;
+  artistsPhaseTone: HTMLElement;
+  galleryHeading: HTMLElement;
+  galleryHeadingLabel: HTMLElement;
+  galleryPhaseTone: HTMLElement;
+  drawBtnLabel: HTMLElement;
   // Swords
   swords: Map<string, SwordElements>;
   // Achievements
@@ -143,12 +156,78 @@ interface DOMCache {
 
 let dom: DOMCache;
 
+type RunPhase = "early" | "mid" | "late";
+
+interface PhaseContent {
+  mediaHeading: string;
+  mediaTone: string;
+  upgradesHeading: string;
+  upgradesTone: string;
+  artistsHeading: string;
+  artistsTone: string;
+  galleryHeading: string;
+  galleryTone: string;
+  drawLabel: string;
+  heroTitle: string;
+}
+
+const PHASE_CONTENT: Record<RunPhase, PhaseContent> = {
+  early: {
+    mediaHeading: "Sketchbook Desk",
+    mediaTone: "Minimal tools. Build rhythm with deliberate strokes.",
+    upgradesHeading: "Hand Techniques",
+    upgradesTone: "Tighten fundamentals before scaling up.",
+    artistsHeading: "Apprentices",
+    artistsTone: "A few helping hands keep the ink flowing.",
+    galleryHeading: "Sword Sketches",
+    galleryTone: "New blades appear as your total Strokes climb.",
+    drawLabel: "Draw!",
+    heroTitle: "Blank Forge",
+  },
+  mid: {
+    mediaHeading: "Production Workshop",
+    mediaTone: "The floor is busy. Throughput matters now.",
+    upgradesHeading: "Tooling Line",
+    upgradesTone: "Tune click power and flow for consistent output.",
+    artistsHeading: "Workshop Crew",
+    artistsTone: "Specialists keep production steady between clicks.",
+    galleryHeading: "Workshop Armory",
+    galleryTone: "Milestones now unlock faster, heavier designs.",
+    drawLabel: "Forge Stroke",
+    heroTitle: "Active Forge",
+  },
+  late: {
+    mediaHeading: "Ascension Atelier",
+    mediaTone: "The run bends toward ritual and transcendence.",
+    upgradesHeading: "Ritual Instruments",
+    upgradesTone: "Every upgrade sharpens the final ascent.",
+    artistsHeading: "Ritual Circle",
+    artistsTone: "Your crew sustains the chant of production.",
+    galleryHeading: "Relic Archive",
+    galleryTone: "Legendary forms gather before ascension.",
+    drawLabel: "Invoke Stroke",
+    heroTitle: "Ascendant Sigil",
+  },
+};
+
 // Track previous state to avoid unnecessary DOM writes for lists
 let prevMediaTier = -1;
+let prevCanvasMediaClass = "";
+let prevPhase: RunPhase | null = null;
 let prevSwordCount = -1;
 let prevAchievementCount = -1;
 let prevUnlockedAchievements = new Set<string>();
 let achievementsInitialized = false;
+let prevTotalClicks = -1;
+let prevHeroSwordCount = -1;
+let prevHeroAchievementCount = -1;
+let prevCanPrestige = false;
+let prevPrestigeCount = -1;
+let heroActiveUntil = 0;
+let heroMilestoneUntil = 0;
+let prevHeroActiveClass = false;
+let prevHeroMilestoneClass = false;
+let prevHeroAscensionClass = false;
 
 // --- Init: create all DOM elements once ---
 
@@ -165,6 +244,7 @@ export function initDOM(): void {
   if (collapsed["settings"] === undefined) collapsed["settings"] = true;
 
   dom = {
+    game: document.getElementById("game")!,
     strokesCount: document.getElementById("strokes-count")!,
     perClick: document.getElementById("per-click")!,
     perSecond: document.getElementById("per-second")!,
@@ -188,6 +268,18 @@ export function initDOM(): void {
     upgrades: initUpgrades(),
     artists: initArtists(),
     canvasArea: document.getElementById("canvas-area")!,
+    heroTitle: document.getElementById("hero-title")!,
+    heroStatus: document.getElementById("hero-status")!,
+    mediaHeading: document.getElementById("media-heading")!,
+    mediaPhaseTone: document.getElementById("media-phase-tone")!,
+    upgradesHeading: document.getElementById("upgrades-heading")!,
+    upgradesPhaseTone: document.getElementById("upgrades-phase-tone")!,
+    artistsHeading: document.getElementById("artists-heading")!,
+    artistsPhaseTone: document.getElementById("artists-phase-tone")!,
+    galleryHeading: document.getElementById("gallery-heading")!,
+    galleryHeadingLabel: document.getElementById("gallery-heading-label")!,
+    galleryPhaseTone: document.getElementById("gallery-phase-tone")!,
+    drawBtnLabel: document.getElementById("draw-btn-label")!,
     swords: initSwords(),
     achievements: initAchievements(),
     achievementCounter: document.getElementById("achievement-counter")!,
@@ -349,15 +441,36 @@ export function initDOM(): void {
 
   // Force initial render of lists that depend on tracking previous state
   prevMediaTier = -1;
+  prevCanvasMediaClass = "";
+  prevPhase = null;
   prevSwordCount = -1;
   prevAchievementCount = -1;
   prevUnlockedAchievements = new Set<string>();
   achievementsInitialized = false;
+  prevTotalClicks = -1;
+  prevHeroSwordCount = -1;
+  prevHeroAchievementCount = -1;
+  prevCanPrestige = false;
+  prevPrestigeCount = -1;
+  heroActiveUntil = 0;
+  heroMilestoneUntil = 0;
+  prevHeroActiveClass = false;
+  prevHeroMilestoneClass = false;
+  prevHeroAscensionClass = false;
 }
 
 // --- Render: pure function of state, writes to DOM, never reads ---
 
 export function render(state: GameState): void {
+  const canAscend = canPrestige();
+  const phase = detectRunPhase(state, canAscend);
+  if (phase !== prevPhase) {
+    applyPhaseClasses(phase);
+    applyPhaseCopy(phase);
+    dom.game.dataset.runPhase = phase;
+    prevPhase = phase;
+  }
+
   // Stats bar
   dom.strokesCount.textContent = formatNumber(state.strokes);
   dom.perClick.textContent = formatNumber(getEffectiveClickPower());
@@ -398,7 +511,11 @@ export function render(state: GameState): void {
   }
   // Canvas area theming — update when tier changes
   if (prevMediaTier !== state.mediaTier) {
-    dom.canvasArea.className = `canvas-${tier.id}`;
+    const mediaClass = `canvas-${tier.id}`;
+    if (prevCanvasMediaClass) dom.canvasArea.classList.remove(prevCanvasMediaClass);
+    dom.canvasArea.classList.add(mediaClass);
+    prevCanvasMediaClass = mediaClass;
+    heroMilestoneUntil = performance.now() + 1_800;
   }
   prevMediaTier = state.mediaTier;
 
@@ -472,6 +589,42 @@ export function render(state: GameState): void {
     prevAchievementCount = currentAchCount;
   }
 
+  const now = performance.now();
+  const clickDelta = prevTotalClicks < 0 ? 0 : state.totalClicks - prevTotalClicks;
+  if (clickDelta > 0) {
+    heroActiveUntil = now + 420;
+  }
+  const unlockedMilestone =
+    (prevHeroSwordCount >= 0 && currentSwordCount > prevHeroSwordCount) ||
+    (prevHeroAchievementCount >= 0 && currentAchCount > prevHeroAchievementCount) ||
+    (prevPrestigeCount >= 0 && state.prestigeCount > prevPrestigeCount) ||
+    (!prevCanPrestige && canAscend);
+  if (unlockedMilestone) {
+    heroMilestoneUntil = now + 2_200;
+  }
+  const heroActiveClass = now < heroActiveUntil;
+  const heroMilestoneClass = now < heroMilestoneUntil;
+  const heroAscensionClass = canAscend;
+  if (heroActiveClass !== prevHeroActiveClass) {
+    dom.canvasArea.classList.toggle("hero-active", heroActiveClass);
+    prevHeroActiveClass = heroActiveClass;
+  }
+  if (heroMilestoneClass !== prevHeroMilestoneClass) {
+    dom.canvasArea.classList.toggle("hero-milestone", heroMilestoneClass);
+    prevHeroMilestoneClass = heroMilestoneClass;
+  }
+  if (heroAscensionClass !== prevHeroAscensionClass) {
+    dom.canvasArea.classList.toggle("hero-ascension-ready", heroAscensionClass);
+    prevHeroAscensionClass = heroAscensionClass;
+  }
+  dom.heroStatus.textContent = getHeroStatus(state, canAscend);
+  dom.drawBtnLabel.textContent = PHASE_CONTENT[phase].drawLabel;
+  prevTotalClicks = state.totalClicks;
+  prevHeroSwordCount = currentSwordCount;
+  prevHeroAchievementCount = currentAchCount;
+  prevCanPrestige = canAscend;
+  prevPrestigeCount = state.prestigeCount;
+
   // Prestige stats
   dom.prestigeStats.innerHTML = [
     `Legacy Points: <strong>${state.erasurePoints}</strong>`,
@@ -489,9 +642,8 @@ export function render(state: GameState): void {
     dom.prestigeBtn.classList.add("confirming");
   } else {
     dom.prestigeBtn.classList.remove("confirming");
-    const canDo = canPrestige();
-    dom.prestigeBtn.disabled = !canDo;
-    if (canDo) {
+    dom.prestigeBtn.disabled = !canAscend;
+    if (canAscend) {
       const ep = calculateErasurePoints(state.totalStrokes);
       dom.prestigeBtnLabel.textContent = "Ascend";
       dom.prestigeBtnSub.textContent = `Gain +${ep} Legacy Point${ep !== 1 ? "s" : ""}`;
@@ -502,7 +654,7 @@ export function render(state: GameState): void {
   }
   const prestigeState = state.prestigeConfirming
     ? "confirm"
-    : canPrestige()
+    : canAscend
       ? "ready"
       : "locked";
   dom.prestigePanel.dataset.state = prestigeState;
@@ -544,7 +696,7 @@ export function render(state: GameState): void {
 
   // Tab bar inline stats
   dom.tabEP.textContent = `${state.erasurePoints} LP`;
-  dom.prestigeTabBtn.classList.toggle("tab-ready", canPrestige());
+  dom.prestigeTabBtn.classList.toggle("tab-ready", canAscend);
   const passiveRate = getEffectivePassiveRate();
   let activeArtistTypes = 0;
   let topArtistName = "none";
@@ -804,6 +956,58 @@ function renderBreakdown(state: GameState): void {
   }
 
   dom.breakdown.empty.style.display = hasAny ? "none" : "";
+}
+
+function detectRunPhase(state: GameState, canAscend: boolean): RunPhase {
+  const lateRun =
+    canAscend ||
+    state.prestigeCount > 0 ||
+    state.mediaTier >= 4 ||
+    state.totalStrokes >= 1_000_000;
+  if (lateRun) return "late";
+
+  const midRun =
+    state.mediaTier >= 2 || state.totalStrokes >= 20_000 || state.totalClicks >= 250;
+  if (midRun) return "mid";
+
+  return "early";
+}
+
+function applyPhaseClasses(phase: RunPhase): void {
+  document.body.classList.remove("run-phase-early", "run-phase-mid", "run-phase-late");
+  document.body.classList.add(`run-phase-${phase}`);
+}
+
+function applyPhaseCopy(phase: RunPhase): void {
+  const content = PHASE_CONTENT[phase];
+  dom.mediaHeading.textContent = content.mediaHeading;
+  dom.mediaPhaseTone.textContent = content.mediaTone;
+  dom.upgradesHeading.textContent = content.upgradesHeading;
+  dom.upgradesPhaseTone.textContent = content.upgradesTone;
+  dom.artistsHeading.textContent = content.artistsHeading;
+  dom.artistsPhaseTone.textContent = content.artistsTone;
+  dom.galleryHeadingLabel.textContent = content.galleryHeading;
+  dom.galleryPhaseTone.textContent = content.galleryTone;
+  dom.heroTitle.textContent = content.heroTitle;
+}
+
+function getHeroStatus(state: GameState, canAscend: boolean): string {
+  if (state.prestigeCount > 0) {
+    return `Ascended ${state.prestigeCount} time${state.prestigeCount === 1 ? "" : "s"} · Legacy ${state.erasurePoints} LP`;
+  }
+  if (canAscend) {
+    return "Ascension available. Seal this run and begin stronger.";
+  }
+  if (state.mediaTier >= 5) {
+    return "Late-run pressure building. The sigil is almost complete.";
+  }
+  if (state.mediaTier >= 2) {
+    return "Workshop cadence established. Keep the line moving.";
+  }
+  if (state.totalClicks > 0) {
+    return "First drafts in motion. Every click leaves a mark.";
+  }
+  return "Awaiting your next stroke.";
 }
 
 

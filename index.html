@@ -36,7 +36,10 @@
 
             <div id="panel-left">
                 <div id="media-panel" class="panel-card panel-card-accent">
-                    <h2>Art Media</h2>
+                    <h2 id="media-heading">Art Media</h2>
+                    <p id="media-phase-tone" class="section-subtext">
+                        Simple tools, steady hands.
+                    </p>
                     <div id="current-media-label">
                         Current:
                         <span id="current-media">Pencil Sketch (1x)</span>
@@ -44,27 +47,54 @@
                     <div id="media-interaction">
                         <button id="draw-btn">
                             <span class="sword-icon">&#x2694;</span>
-                            <span class="btn-label">Draw!</span>
+                            <span id="draw-btn-label" class="btn-label">Draw!</span>
                         </button>
                         <button id="media-upgrade-btn" class="upgrade-btn"></button>
                     </div>
                 </div>
 
                 <div id="upgrades-panel" class="panel-card">
-                    <h2>Click Upgrades</h2>
+                    <h2 id="upgrades-heading">Click Upgrades</h2>
+                    <p id="upgrades-phase-tone" class="section-subtext">
+                        Refine your linework one tool at a time.
+                    </p>
                     <div id="upgrades-list"></div>
                 </div>
             </div>
 
             <div id="stage">
-                <div id="canvas-area"></div>
+                <div id="canvas-area">
+                    <div class="hero-frame">
+                        <div class="hero-rune-ring" aria-hidden="true"></div>
+                        <div class="hero-core">
+                            <div id="hero-title" class="hero-title">
+                                Blank Forge
+                            </div>
+                            <div id="hero-status" class="hero-status">
+                                Awaiting your next stroke.
+                            </div>
+                        </div>
+                        <div
+                            class="hero-ornament hero-ornament-left"
+                            aria-hidden="true"
+                        ></div>
+                        <div
+                            class="hero-ornament hero-ornament-right"
+                            aria-hidden="true"
+                        ></div>
+                    </div>
+                </div>
                 <div id="gallery-section" class="collapsible">
-                    <h2 class="collapsible-toggle" data-section="gallery">
-                        Sword Gallery
+                    <h2
+                        id="gallery-heading"
+                        class="collapsible-toggle"
+                        data-section="gallery"
+                    >
+                        <span id="gallery-heading-label">Sword Gallery</span>
                         <span class="toggle-indicator">&#x25BC;</span>
                     </h2>
                     <div class="collapsible-content" id="gallery-content">
-                        <p class="gallery-note">
+                        <p id="gallery-phase-tone" class="gallery-note">
                             Unlocks automatically as your total Strokes increase.
                         </p>
                         <div id="sword-gallery"></div>
@@ -74,7 +104,10 @@
 
             <div id="panel-right">
                 <div id="artists-panel">
-                    <h2>Artists</h2>
+                    <h2 id="artists-heading">Artists</h2>
+                    <p id="artists-phase-tone" class="section-subtext">
+                        Each helper adds a steady hand to your craft.
+                    </p>
                     <div id="artists-list"></div>
                 </div>
             </div>
