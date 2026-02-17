@@ -234,11 +234,12 @@ Footer bar polish:
 
 **Scope:** Explore what feels right once sessions 2-3 are done and we can see the layout in practice. This session is intentionally underspecified — we'll figure out the design when we get here.
 
-### Session 5: Layout sizing and QOL tweaks
+### Session 5: Layout sizing and QOL tweaks — Completed
 
 **Goal:** Fine-tune the layout proportions, text sizing, and info placement now that the full grid + drawer structure is in place. The bones are right but the details need a pass.
 
 **Tweaks:**
+- **Switch font to Caveat**: Replace Short Stack with Caveat (variable font, 400-700 weight range). Load via Google Fonts (`https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap`). Remove the local `@font-face` for Short Stack and the `ShortStack.ttf` asset reference. Update all `font-family` declarations from `"Short Stack"` to `"Caveat"`. The variable weight axis gives us more typographic control — can use heavier weights for headings and stats, lighter for descriptions.
 - **Side panels wider**: Bump `#panel-left` from 240px to ~280px and `#panel-right` from 260px to ~300px. The upgrade/artist buttons need more breathing room, especially with cost text.
 - **Top bar stats grouping**: Move the per-click/per-second rates next to the stroke count instead of pushed to the far right. The rates are closely related to the count — they shouldn't feel disconnected. Consider stacking them below the stroke count or placing them immediately after.
 - **Text sizing pass**: Review font sizes across the layout for consistency at full viewport width. Panel headings, upgrade button text, tab labels — make sure nothing feels too small or too large relative to the space it has.
