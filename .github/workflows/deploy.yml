@@ -34,6 +34,7 @@ jobs:
           cp index.html _site/
           cp -r src _site/src
           cp -r dist _site/dist
+          cp -r assets _site/assets
 
       - uses: actions/configure-pages@v5
 
