@@ -500,15 +500,21 @@ function initArtists(): Map<string, ArtistElements> {
     nameDiv.appendChild(costSpan);
 
     const descDiv = createElement("div", "upgrade-desc");
-    descDiv.textContent = `${def.desc} — ${formatNumber(def.baseRate)} Strokes/sec each`;
+    descDiv.textContent = def.desc;
+
+    const metaDiv = createElement("div", "artist-meta");
+    const rateDiv = createElement("div", "artist-rate");
+    rateDiv.textContent = `Base ${formatNumber(def.baseRate)}/sec each`;
 
     const countDiv = createElement("div", "artist-count");
     const prodDiv = createElement("div", "artist-production");
 
     btn.appendChild(nameDiv);
     btn.appendChild(descDiv);
-    btn.appendChild(countDiv);
-    btn.appendChild(prodDiv);
+    metaDiv.appendChild(rateDiv);
+    metaDiv.appendChild(countDiv);
+    metaDiv.appendChild(prodDiv);
+    btn.appendChild(metaDiv);
     btn.addEventListener("click", () => buyArtist(def));
     list.appendChild(btn);
 

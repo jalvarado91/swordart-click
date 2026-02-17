@@ -10,7 +10,7 @@
         />
         <link rel="stylesheet" href="src/style.css" />
     </head>
-    <body>
+    <body class="artist-density-compact">
         <div id="game">
             <div id="top-bar">
                 <h1>Sword Art Click</h1>
@@ -27,7 +27,7 @@
             </div>
 
             <div id="panel-left">
-                <div id="media-panel">
+                <div id="media-panel" class="panel-card panel-card-accent">
                     <h2>Art Media</h2>
                     <div id="current-media-label">
                         Current:
@@ -36,7 +36,7 @@
                     <button id="media-upgrade-btn" class="upgrade-btn"></button>
                 </div>
 
-                <div id="upgrades-panel">
+                <div id="upgrades-panel" class="panel-card">
                     <h2>Click Upgrades</h2>
                     <div id="upgrades-list"></div>
                 </div>
@@ -71,7 +71,10 @@
             <div id="drawer" class="drawer-closed">
                 <div id="drawer-content">
                     <div id="drawer-prestige" class="drawer-panel">
-                        <div id="prestige-panel">
+                        <div
+                            id="prestige-panel"
+                            class="panel-card panel-card-prestige"
+                        >
                             <div id="prestige-stats"></div>
                             <button
                                 id="prestige-btn"
@@ -88,15 +91,17 @@
                         </div>
                     </div>
                     <div id="drawer-production" class="drawer-panel">
-                        <div id="breakdown-panel">
+                        <div id="breakdown-panel" class="panel-card">
                             <h2>Production</h2>
                             <div id="production-breakdown"></div>
                         </div>
                     </div>
                     <div id="drawer-achievements" class="drawer-panel">
+                        <h2 class="drawer-heading">Achievements</h2>
                         <div id="achievements-list"></div>
                     </div>
                     <div id="drawer-settings" class="drawer-panel">
+                        <h2 class="drawer-heading">Settings</h2>
                         <div id="settings-controls">
                             <button id="mute-btn" class="settings-btn">
                                 Mute
