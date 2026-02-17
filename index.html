@@ -127,18 +127,33 @@
                             id="prestige-panel"
                             class="panel-card panel-card-prestige"
                         >
-                            <div id="prestige-phases" class="panel-inline-meta">
-                                <span id="prestige-phase-build" class="panel-pill"
-                                    >1. Build</span
-                                >
-                                <span id="prestige-phase-qualify" class="panel-pill"
-                                    >2. Qualify</span
-                                >
-                                <span id="prestige-phase-confirm" class="panel-pill"
-                                    >3. Confirm</span
-                                >
+                            <div class="prestige-header">
+                                <h3 class="prestige-title">Ascension Rite</h3>
+                                <p class="prestige-subtitle">
+                                    End this run, keep your legacy, return stronger.
+                                </p>
+                                <div id="prestige-phases" class="panel-inline-meta">
+                                    <span id="prestige-phase-build" class="panel-pill"
+                                        >1. Build</span
+                                    >
+                                    <span id="prestige-phase-qualify" class="panel-pill"
+                                        >2. Qualify</span
+                                    >
+                                    <span id="prestige-phase-confirm" class="panel-pill"
+                                        >3. Confirm</span
+                                    >
+                                </div>
                             </div>
-                            <div id="prestige-stats"></div>
+                            <div class="prestige-main">
+                                <div class="prestige-status-card">
+                                    <div id="prestige-stats"></div>
+                                    <p class="prestige-note">
+                                        Ascension resets this run but preserves Legacy
+                                        Points, purchased ascension upgrades, and your
+                                        ascension count.
+                                    </p>
+                                </div>
+                                <div class="prestige-action-card">
                                 <button
                                     id="prestige-btn"
                                     class="prestige-action-btn"
@@ -149,14 +164,17 @@
                                         >Reach 10M total Strokes to unlock</span
                                     >
                                 </button>
-                                <p class="prestige-note">
-                                    Ascending starts a stronger new run. Legacy
-                                    upgrades and milestones carry your progress
-                                    forward.
-                                </p>
-                                <h3>Legacy Upgrades</h3>
+                                    <p class="prestige-action-hint">
+                                        Confirm appears for a short window to prevent
+                                        accidental resets.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="prestige-upgrades-block">
+                                <h3>Ascension Upgrades</h3>
                                 <div id="prestige-upgrades-list"></div>
                             </div>
+                        </div>
                         </div>
                         <div id="drawer-production" class="drawer-panel">
                             <div id="breakdown-panel" class="panel-card">
