@@ -228,6 +228,25 @@ let heroMilestoneUntil = 0;
 let prevHeroActiveClass = false;
 let prevHeroMilestoneClass = false;
 let prevHeroAscensionClass = false;
+let prevPerClickValue = -1;
+let prevPerSecondValue = -1;
+let prevMultValue = -1;
+let prevShowMultiplier: boolean | null = null;
+let statStrokesCueUntil = 0;
+let statClickCueUntil = 0;
+let statSecondCueUntil = 0;
+let statMultCueUntil = 0;
+let statClickCueDir: "up" | "down" = "up";
+let statSecondCueDir: "up" | "down" = "up";
+let statMultCueDir: "up" | "down" = "up";
+let statStrokesAccum = 0;
+let statClickAccum = 0;
+let statSecondAccum = 0;
+let statMultAccum = 0;
+let statStrokesMergeUntil = 0;
+let statClickMergeUntil = 0;
+let statSecondMergeUntil = 0;
+let statMultMergeUntil = 0;
 
 // --- Init: create all DOM elements once ---
 
@@ -457,11 +476,32 @@ export function initDOM(): void {
   prevHeroActiveClass = false;
   prevHeroMilestoneClass = false;
   prevHeroAscensionClass = false;
+  prevPerClickValue = -1;
+  prevPerSecondValue = -1;
+  prevMultValue = -1;
+  prevShowMultiplier = null;
+  statStrokesCueUntil = 0;
+  statClickCueUntil = 0;
+  statSecondCueUntil = 0;
+  statMultCueUntil = 0;
+  statClickCueDir = "up";
+  statSecondCueDir = "up";
+  statMultCueDir = "up";
+  statStrokesAccum = 0;
+  statClickAccum = 0;
+  statSecondAccum = 0;
+  statMultAccum = 0;
+  statStrokesMergeUntil = 0;
+  statClickMergeUntil = 0;
+  statSecondMergeUntil = 0;
+  statMultMergeUntil = 0;
 }
 
 // --- Render: pure function of state, writes to DOM, never reads ---
 
 export function render(state: GameState): void {
+  const now = performance.now();
+  const clickDelta = prevTotalClicks < 0 ? 0 : state.totalClicks - prevTotalClicks;
   const canAscend = canPrestige();
   const phase = detectRunPhase(state, canAscend);
   if (phase !== prevPhase) {
@@ -472,14 +512,73 @@ export function render(state: GameState): void {
   }
 
   // Stats bar
+  const perClickValue = getEffectiveClickPower();
+  const perSecondValue = getEffectivePassiveRate();
   dom.strokesCount.textContent = formatNumber(state.strokes);
-  dom.perClick.textContent = formatNumber(getEffectiveClickPower());
-  dom.perSecond.textContent = formatNumber(getEffectivePassiveRate());
+  dom.perClick.textContent = formatNumber(perClickValue);
+  dom.perSecond.textContent = formatNumber(perSecondValue);
 
   const mult = getTotalMultiplier();
+  const showMultiplier = mult > 1;
   dom.multiplier.textContent = mult > 1 ? `${mult.toFixed(1)}x` : "";
-  dom.multiplierTile.style.display = mult > 1 ? "" : "none";
-  orderStatTiles(mult > 1);
+  dom.multiplierTile.style.display = showMultiplier ? "" : "none";
+  if (prevShowMultiplier === null || prevShowMultiplier !== showMultiplier) {
+    orderStatTiles(showMultiplier);
+    prevShowMultiplier = showMultiplier;
+  }
+  if (clickDelta > 0) {
+    statStrokesCueUntil = now + 380;
+    const delta = perClickValue * clickDelta;
+    statStrokesAccum = accumulateDelta(
+      statStrokesAccum,
+      delta,
+      now,
+      statStrokesMergeUntil,
+    );
+    statStrokesMergeUntil = now + 260;
+    dom.strokesTile.dataset.delta = formatDeltaValue(statStrokesAccum);
+    restartStatCueBurst(dom.strokesTile);
+  }
+  if (prevPerClickValue >= 0 && perClickValue !== prevPerClickValue) {
+    statClickCueUntil = now + 620;
+    const delta = perClickValue - prevPerClickValue;
+    statClickAccum = accumulateDelta(statClickAccum, delta, now, statClickMergeUntil);
+    statClickMergeUntil = now + 260;
+    statClickCueDir = statClickAccum >= 0 ? "up" : "down";
+    dom.clickTile.dataset.delta = formatDeltaValue(statClickAccum);
+    restartStatCueBurst(dom.clickTile);
+  }
+  if (prevPerSecondValue >= 0 && perSecondValue !== prevPerSecondValue) {
+    statSecondCueUntil = now + 620;
+    const delta = perSecondValue - prevPerSecondValue;
+    statSecondAccum = accumulateDelta(
+      statSecondAccum,
+      delta,
+      now,
+      statSecondMergeUntil,
+    );
+    statSecondMergeUntil = now + 260;
+    statSecondCueDir = statSecondAccum >= 0 ? "up" : "down";
+    dom.secondTile.dataset.delta = formatDeltaValue(statSecondAccum);
+    restartStatCueBurst(dom.secondTile);
+  }
+  if (prevMultValue >= 0 && mult !== prevMultValue) {
+    statMultCueUntil = now + 620;
+    const delta = mult - prevMultValue;
+    statMultAccum = accumulateDelta(statMultAccum, delta, now, statMultMergeUntil);
+    statMultMergeUntil = now + 260;
+    statMultCueDir = statMultAccum >= 0 ? "up" : "down";
+    dom.multiplierTile.dataset.delta =
+      `${statMultAccum > 0 ? "+" : ""}${statMultAccum.toFixed(1)}x`;
+    restartStatCueBurst(dom.multiplierTile);
+  }
+  applyStatCue(dom.strokesTile, now < statStrokesCueUntil, "up");
+  applyStatCue(dom.clickTile, now < statClickCueUntil, statClickCueDir);
+  applyStatCue(dom.secondTile, now < statSecondCueUntil, statSecondCueDir);
+  applyStatCue(dom.multiplierTile, now < statMultCueUntil, statMultCueDir);
+  prevPerClickValue = perClickValue;
+  prevPerSecondValue = perSecondValue;
+  prevMultValue = mult;
 
   // Media panel
   const tier = MEDIA_TIERS[state.mediaTier]!;
@@ -589,8 +688,6 @@ export function render(state: GameState): void {
     prevAchievementCount = currentAchCount;
   }
 
-  const now = performance.now();
-  const clickDelta = prevTotalClicks < 0 ? 0 : state.totalClicks - prevTotalClicks;
   if (clickDelta > 0) {
     heroActiveUntil = now + 420;
   }
@@ -1008,6 +1105,35 @@ function getHeroStatus(state: GameState, canAscend: boolean): string {
     return "First drafts in motion. Every click leaves a mark.";
   }
   return "Awaiting your next stroke.";
+}
+
+function applyStatCue(
+  tile: HTMLElement,
+  active: boolean,
+  dir: "up" | "down",
+): void {
+  tile.classList.toggle("stat-cue", active);
+  tile.classList.toggle("stat-cue-up", active && dir === "up");
+  tile.classList.toggle("stat-cue-down", active && dir === "down");
+}
+
+function restartStatCueBurst(tile: HTMLElement): void {
+  tile.classList.remove("stat-cue-burst");
+  void tile.offsetWidth;
+  tile.classList.add("stat-cue-burst");
+}
+
+function accumulateDelta(
+  current: number,
+  delta: number,
+  now: number,
+  mergeUntil: number,
+): number {
+  return now <= mergeUntil ? current + delta : delta;
+}
+
+function formatDeltaValue(delta: number): string {
+  return `${delta > 0 ? "+" : ""}${formatNumber(delta)}`;
 }
 
 
