@@ -14,7 +14,7 @@ export const SAVE_KEY = "swordArtClick_save";
 export const SAVE_INTERVAL = 30_000;
 export const TICK_RATE = 100;
 export const COST_SCALE = 1.12;
-export const ARTIST_COST_SCALE = 1.17;
+export const ARTIST_COST_SCALE = 1.15;
 export const MAX_OFFLINE_HOURS = 8;
 export const COLLAPSE_KEY = "swordArtClick_collapsed";
 export const PRESTIGE_THRESHOLD = 500_000_000;
@@ -150,70 +150,70 @@ export const ARTIST_DEFS: ArtistDef[] = [
     name: "Doodler",
     desc: "Scribbles in the margins",
     baseCost: 15,
-    baseRate: 0.8,
+    baseRate: 0.5,
   },
   {
     id: "sketchArtist",
     name: "Sketch Artist",
     desc: "Quick hands, quick lines",
     baseCost: 100,
-    baseRate: 4,
+    baseRate: 2.5,
   },
   {
     id: "caricaturist",
     name: "Caricaturist",
     desc: "Exaggerates every detail",
     baseCost: 750,
-    baseRate: 18,
+    baseRate: 11,
   },
   {
     id: "storyboarder",
     name: "Storyboarder",
     desc: "Panel by panel, blade by blade",
     baseCost: 3_500,
-    baseRate: 40,
+    baseRate: 25,
   },
   {
     id: "illustrator",
     name: "Illustrator",
     desc: "Turns words into blades",
     baseCost: 12_000,
-    baseRate: 70,
+    baseRate: 42,
   },
   {
     id: "artDirector",
     name: "Art Director",
     desc: "Points at things and calls it work",
     baseCost: 35_000,
-    baseRate: 175,
+    baseRate: 105,
   },
   {
     id: "courtPainter",
     name: "Court Painter",
     desc: "By royal appointment",
     baseCost: 150_000,
-    baseRate: 350,
+    baseRate: 210,
   },
   {
     id: "renaissanceMaster",
     name: "Renaissance Master",
     desc: "A true polymath of pointy things",
     baseCost: 1_500_000,
-    baseRate: 2_000,
+    baseRate: 1_200,
   },
   {
     id: "swordSwallower",
     name: "Sword Swallower",
     desc: "Draws swords differently",
     baseCost: 20_000_000,
-    baseRate: 10_000,
+    baseRate: 6_000,
   },
   {
     id: "bobRoss",
     name: "Bob Ross",
     desc: "Happy little swords",
     baseCost: 500_000_000,
-    baseRate: 65_000,
+    baseRate: 38_000,
   },
 ];
 
