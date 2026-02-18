@@ -13,15 +13,21 @@
 import type { GameState } from "../src/types.ts";
 import {
   ACHIEVEMENT_DEFS,
-  ARTIST_COST_SCALE,
   ARTIST_DEFS,
-  COST_SCALE,
   MEDIA_TIERS,
   PRESTIGE_THRESHOLD,
   PRESTIGE_UPGRADE_DEFS,
   SWORD_DEFS,
   UPGRADE_DEFS,
 } from "../src/data.ts";
+import {
+  calculateErasurePoints,
+  getArtistCost,
+  getEffectiveClickPower,
+  getEffectivePassiveRate,
+  getTotalMultiplier,
+  getUpgradeCost,
+} from "../src/helpers.ts";
 
 // ─── CLI Args ─────────────────────────────────────────────────────────────────
 
@@ -120,43 +126,9 @@ function createState(): GameState {
   };
 }
 
-// ─── Stateless Helpers (parameterized on state, not global) ──────────────────
-
-function getSwordBonus(s: GameState): number {
-  let bonus = 0;
-  for (const id of s.unlockedSwords) {
-    const def = SWORD_DEFS.find((d) => d.id === id);
-    if (def) bonus += def.bonus;
-  }
-  return bonus;
-}
-
-function getTotalMultiplier(s: GameState): number {
-  const mediaMult = MEDIA_TIERS[s.mediaTier]?.multiplier ?? 1;
-  const swordBonus = 1 + getSwordBonus(s) / 100;
-  const speedSketch = 1 + (s.prestigeUpgrades["speedSketch"] ?? 0) * 0.5;
-  return mediaMult * swordBonus * speedSketch;
-}
-
-function getEffectiveClickPower(s: GameState): number {
-  const muscleMemory = 1 + (s.prestigeUpgrades["muscleMemory"] ?? 0) * 0.1;
-  return s.clickPower * getTotalMultiplier(s) * muscleMemory;
-}
-
-function getEffectivePassiveRate(s: GameState): number {
-  const artSchool = 1 + (s.prestigeUpgrades["artSchool"] ?? 0) * 0.25;
-  return s.passiveRate * getTotalMultiplier(s) * artSchool;
-}
-
-function getUpgradeCost(def: (typeof UPGRADE_DEFS)[0], s: GameState): number {
-  const owned = s.upgrades[def.id] ?? 0;
-  return Math.floor(def.baseCost * Math.pow(COST_SCALE, owned));
-}
-
-function getArtistCost(def: (typeof ARTIST_DEFS)[0], s: GameState): number {
-  const owned = s.artists[def.id] ?? 0;
-  return Math.floor(def.baseCost * Math.pow(ARTIST_COST_SCALE, owned));
-}
+// ─── Simulation-specific helpers ──────────────────────────────────────────────
+// Core math (getTotalMultiplier, getEffectiveClickPower, etc.) is imported from
+// src/helpers.ts — no duplication.
 
 function totalIncomeRate(s: GameState, cps: number): number {
   return getEffectivePassiveRate(s) + getEffectiveClickPower(s) * cps;
@@ -166,10 +138,6 @@ function passiveFraction(s: GameState, cps: number): number {
   const total = totalIncomeRate(s, cps);
   if (total === 0) return 0;
   return getEffectivePassiveRate(s) / total;
-}
-
-function calcErasurePoints(totalStrokes: number): number {
-  return Math.floor(Math.sqrt(totalStrokes / 1_000_000));
 }
 
 function getRunPhase(s: GameState): RunPhase {
@@ -323,7 +291,7 @@ function spendPrestigePoints(s: GameState): void {
 }
 
 function doPrestige(s: GameState, events: SimEvent[], simTime: number): void {
-  const earned = calcErasurePoints(s.totalStrokes);
+  const earned = calculateErasurePoints(s.totalStrokes);
   s.lifetimeStrokes += s.totalStrokes;
   s.erasurePoints += earned;
   s.totalErasurePoints += earned;

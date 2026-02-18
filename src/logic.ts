@@ -45,7 +45,7 @@ export function recalcPassiveRate(): void {
 // --- Click handler ---
 
 export function handleClick(x?: number, y?: number): void {
-  const gain = getEffectiveClickPower();
+  const gain = getEffectiveClickPower(state);
   state.strokes += gain;
   state.totalStrokes += gain;
   state.totalClicks++;
@@ -59,7 +59,7 @@ export function handleClick(x?: number, y?: number): void {
 
 export function tick(): void {
   if (state.passiveRate > 0) {
-    const gain = getEffectivePassiveRate() * (TICK_RATE / 1000);
+    const gain = getEffectivePassiveRate(state) * (TICK_RATE / 1000);
     state.strokes += gain;
     state.totalStrokes += gain;
     checkSwordUnlocks();
@@ -85,7 +85,7 @@ export function update(): void {
 // --- Upgrade purchase ---
 
 export function buyUpgrade(def: UpgradeDef): void {
-  const cost = getUpgradeCost(def);
+  const cost = getUpgradeCost(def, state);
   if (state.strokes < cost) return;
 
   state.strokes -= cost;
@@ -102,7 +102,7 @@ export function buyUpgrade(def: UpgradeDef): void {
 // --- Artist purchase ---
 
 export function buyArtist(def: ArtistDef): void {
-  const cost = getArtistCost(def);
+  const cost = getArtistCost(def, state);
   if (state.strokes < cost) return;
 
   state.strokes -= cost;
@@ -164,7 +164,7 @@ export function checkAchievements(): void {
 // --- Prestige ---
 
 export function requestPrestige(): void {
-  if (!canPrestige()) return;
+  if (!canPrestige(state)) return;
   if (state.prestigeConfirming) {
     state.prestigeConfirming = false;
     doPrestige();
@@ -177,7 +177,7 @@ export function requestPrestige(): void {
 export function buyPrestigeUpgrade(def: PrestigeUpgradeDef): void {
   const owned = state.prestigeUpgrades[def.id] ?? 0;
   if (owned >= def.maxLevel) return;
-  const cost = getPrestigeUpgradeCost(def);
+  const cost = getPrestigeUpgradeCost(def, state);
   if (state.erasurePoints < cost) return;
 
   state.erasurePoints -= cost;
@@ -200,7 +200,7 @@ function doPrestige(): void {
     playStartTime: state.playStartTime,
   };
 
-  const keepSwords = getPrestigeBonus("portfolio") >= 1;
+  const keepSwords = getPrestigeBonus(state, "portfolio") >= 1;
   const preservedSwords = keepSwords
     ? [...state.unlockedSwords]
     : ["butterKnife"];
@@ -305,7 +305,7 @@ export function loadGame(): void {
     if (state.lastSave && state.passiveRate > 0) {
       const elapsed = Date.now() - state.lastSave;
       if (elapsed > 1000) {
-        const offlineGain = calculateOfflineProgress(elapsed);
+        const offlineGain = calculateOfflineProgress(state, elapsed);
         if (offlineGain > 0) {
           state.strokes += offlineGain;
           state.totalStrokes += offlineGain;
