@@ -79,3 +79,8 @@ Event handlers (clicks) just mutate state. The next frame picks up changes.
 ### New effect (animation, sound, visual feedback)
 1. `effects.ts` — add function (these are imperative, outside the render loop)
 2. Call it from `logic.ts` where needed
+
+## Balance Documentation
+
+- Current balance/capability snapshot: `docs/balance.md`
+- Rebalance timeline (2026-02-18): `docs/history/rebalance-2026-02-18.md`
