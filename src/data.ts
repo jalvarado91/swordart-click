@@ -14,10 +14,10 @@ export const SAVE_KEY = "swordArtClick_save";
 export const SAVE_INTERVAL = 30_000;
 export const TICK_RATE = 100;
 export const COST_SCALE = 1.12;
-export const ARTIST_COST_SCALE = 1.15;
+export const ARTIST_COST_SCALE = 1.17;
 export const MAX_OFFLINE_HOURS = 8;
 export const COLLAPSE_KEY = "swordArtClick_collapsed";
-export const PRESTIGE_THRESHOLD = 10_000_000;
+export const PRESTIGE_THRESHOLD = 500_000_000;
 
 export const MEDIA_TIERS: MediaTier[] = [
   {
@@ -31,42 +31,42 @@ export const MEDIA_TIERS: MediaTier[] = [
     id: "charcoal",
     name: "Charcoal",
     multiplier: 3,
-    cost: 100,
+    cost: 500,
     desc: "Smudgy but soulful",
   },
   {
     id: "ink",
     name: "Ink & Quill",
     multiplier: 10,
-    cost: 1_000,
+    cost: 10_000,
     desc: "Permanent and precise",
   },
   {
     id: "watercolor",
     name: "Watercolor",
     multiplier: 50,
-    cost: 25_000,
+    cost: 150_000,
     desc: "Flowing and unpredictable",
   },
   {
     id: "oil",
     name: "Oil Painting",
     multiplier: 250,
-    cost: 500_000,
+    cost: 3_000_000,
     desc: "Rich, layered masterwork",
   },
   {
     id: "digital",
     name: "Digital Art",
     multiplier: 2_000,
-    cost: 10_000_000,
+    cost: 75_000_000,
     desc: "Ctrl+Z is your best friend",
   },
   {
     id: "ai",
     name: "AI-Generated",
     multiplier: 50_000,
-    cost: 1_000_000_000,
+    cost: 5_000_000_000,
     desc: "You've become what you swore to destroy",
   },
 ];
@@ -83,63 +83,63 @@ export const SWORD_DEFS: SwordDef[] = [
     id: "letterOpener",
     name: "Letter Opener",
     desc: "The pen is... adjacent to the sword",
-    threshold: 50,
+    threshold: 100,
     bonus: 2,
   },
   {
     id: "broadsword",
     name: "Broadsword",
     desc: "Wide strokes",
-    threshold: 500,
+    threshold: 2_000,
     bonus: 5,
   },
   {
     id: "swordfish",
     name: "Swordfish",
     desc: "Something smells fishy about this one",
-    threshold: 5_000,
+    threshold: 20_000,
     bonus: 5,
   },
   {
     id: "crosswordSword",
     name: "Crossword Sword",
     desc: "4 across: pointy weapon",
-    threshold: 25_000,
+    threshold: 150_000,
     bonus: 8,
   },
   {
     id: "passwordSword",
     name: "Password Sword",
     desc: "Must contain 1 uppercase, 1 number, and 1 hilt",
-    threshold: 100_000,
+    threshold: 750_000,
     bonus: 10,
   },
   {
     id: "swordOfDamocles",
     name: "Sword of Damocles",
     desc: "Hangs over your head while you draw",
-    threshold: 500_000,
+    threshold: 4_000_000,
     bonus: 12,
   },
   {
     id: "excalibur",
     name: "Excalibur",
     desc: "Pulled from a pencil case",
-    threshold: 5_000_000,
+    threshold: 30_000_000,
     bonus: 15,
   },
   {
     id: "lightsaber",
     name: "Lightsaber",
     desc: "Technically not a sword. We'll allow it.",
-    threshold: 50_000_000,
+    threshold: 250_000_000,
     bonus: 18,
   },
   {
     id: "penSword",
     name: "Pen Sword",
     desc: "Mightier than itself. A paradox.",
-    threshold: 500_000_000,
+    threshold: 2_500_000_000,
     bonus: 25,
   },
 ];
@@ -150,56 +150,56 @@ export const ARTIST_DEFS: ArtistDef[] = [
     name: "Doodler",
     desc: "Scribbles in the margins",
     baseCost: 15,
-    baseRate: 1,
+    baseRate: 0.8,
   },
   {
     id: "sketchArtist",
     name: "Sketch Artist",
     desc: "Quick hands, quick lines",
     baseCost: 100,
-    baseRate: 5,
+    baseRate: 4,
   },
   {
     id: "caricaturist",
     name: "Caricaturist",
     desc: "Exaggerates every detail",
     baseCost: 750,
-    baseRate: 25,
+    baseRate: 18,
   },
   {
     id: "illustrator",
     name: "Illustrator",
     desc: "Turns words into blades",
     baseCost: 5_000,
-    baseRate: 100,
+    baseRate: 70,
   },
   {
     id: "courtPainter",
     name: "Court Painter",
     desc: "By royal appointment",
     baseCost: 50_000,
-    baseRate: 500,
+    baseRate: 350,
   },
   {
     id: "renaissanceMaster",
     name: "Renaissance Master",
     desc: "A true polymath of pointy things",
     baseCost: 500_000,
-    baseRate: 3_000,
+    baseRate: 2_000,
   },
   {
     id: "swordSwallower",
     name: "Sword Swallower",
     desc: "Draws swords differently",
     baseCost: 5_000_000,
-    baseRate: 15_000,
+    baseRate: 10_000,
   },
   {
     id: "bobRoss",
     name: "Bob Ross",
     desc: "Happy little swords",
     baseCost: 100_000_000,
-    baseRate: 100_000,
+    baseRate: 65_000,
   },
 ];
 
@@ -297,6 +297,37 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     name: "I, For One, Welcome Our AI Overlords",
     desc: "Reach AI-Generated",
     check: (s: GameState) => s.mediaTier >= 6,
+  },
+  {
+    id: "workshopForeman",
+    name: "Workshop Foreman",
+    desc: "Hire at least 5 different types of artists",
+    check: (s: GameState) => {
+      let types = 0;
+      for (const id in s.artists) {
+        if ((s.artists[id] ?? 0) >= 1) types++;
+      }
+      return types >= 5;
+    },
+  },
+  {
+    id: "longForm",
+    name: "Long-Form",
+    desc: "Earn 1,000,000 Strokes in a single run without prestiging",
+    check: (s: GameState) =>
+      s.totalStrokes >= 1_000_000 && s.prestigeCount === 0,
+  },
+  {
+    id: "committed",
+    name: "Committed",
+    desc: "Click 1,000 times",
+    check: (s: GameState) => s.totalClicks >= 1_000,
+  },
+  {
+    id: "theLongGame",
+    name: "The Long Game",
+    desc: "Reach the prestige threshold",
+    check: (s: GameState) => s.totalStrokes >= PRESTIGE_THRESHOLD,
   },
 ];
 

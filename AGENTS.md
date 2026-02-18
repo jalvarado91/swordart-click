@@ -163,3 +163,85 @@ Look for:
 ### Branch
 Work on `claude/game-evaluation-system-DUqHy` (same branch, already checked out).
 Run `bunx tsc --noEmit` before committing.
+
+---
+
+## Rebalance Pass 1 — Results (2026-02-18)
+
+**Changes applied to `src/data.ts`:**
+- `PRESTIGE_THRESHOLD`: 10M → 500M
+- `ARTIST_COST_SCALE`: 1.15 → 1.17
+- Media costs: Charcoal 100→500, Ink 1K→10K, Watercolor 25K→150K, Oil 500K→3M, Digital 10M→75M, AI 1B→5B
+- Artist base rates reduced ~20-25% across all 8 artists
+- Sword thresholds re-anchored to new income curve
+- 4 new achievements: Workshop Foreman, Long-Form, Committed, The Long Game
+
+**Evaluation results after rebalance:**
+
+| Metric | Before | After (Optimal) | After (Idle) | Target |
+|---|---|---|---|---|
+| First prestige | 2:01 | 7:08 | 15:53 | 35–50 min |
+| Charcoal (tier 1) | 0:37 | 1:31 | 5:46 | 2–4 min |
+| Ink & Quill (tier 2) | 2:55 | 3:07 | 10:09 | 6–10 min |
+| Watercolor (tier 3) | 2:55 | 5:10 | 13:36 | 12–18 min |
+| Oil Painting (tier 4) | 2:55 | 6:55 | 15:39 | 20–28 min |
+| Decision moments | 11 | 26 | 26 | 25+ |
+| Early phase | 1:38 | 1:34 | 5:58 | 4–8 min |
+| Mid phase | 0:41 | 1:48 | 4:43 | 10–15 min |
+
+**Progress:** Progression is now ~3.5× slower for optimal play and ~3× slower for idle play. Decision moments doubled from 11 to 26. The rebalance is a meaningful improvement but hasn't yet reached the 35–50 min prestige target.
+
+**Remaining gap:** Optimal play still reaches prestige at 7 min (5× too fast). The core bottleneck is the media tier multiplier cascade — going from ×1 to ×250 in 7 minutes collapses the mid-game. Once Ink & Quill (×10) lands at 3 min, income 10-folds; Watercolor (×50) at 5 min 5-folds again; Oil (×250) at 7 min 5-folds again. These explosive jumps pull prestige forward even with higher costs.
+
+---
+
+## Next Agent: Rebalance Pass 2
+
+**Goal:** Push first prestige from 7 min → 30–45 min for optimal play; from 15 min → 45–60 min for idle play.
+
+**Root cause to address:** Media tier multipliers are too strong relative to their costs. The ×10/×50/×250/×2000 jumps create exponential income cliffs that can't be balanced by raising flat costs alone. Two complementary fixes:
+
+### Recommended changes
+
+**A. Raise artist base costs (not rates)**
+The rates have been reduced enough; income is now cost-gated, not rate-gated. Double the `baseCost` for mid-to-late artists:
+
+| Artist | Current baseCost | Target baseCost |
+|---|---|---|
+| Illustrator | 5,000 | 12,000 |
+| Court Painter | 50,000 | 150,000 |
+| Renaissance Master | 500,000 | 1,500,000 |
+| Sword Swallower | 5,000,000 | 20,000,000 |
+| Bob Ross | 100,000,000 | 500,000,000 |
+
+**B. Reduce media tier multipliers (moderate reduction)**
+The ×10 → ×50 → ×250 chain is too steep. Flatten the curve:
+
+| Tier | Current multiplier | Target multiplier |
+|---|---|---|
+| Charcoal | ×3 | ×2 |
+| Ink & Quill | ×10 | ×6 |
+| Watercolor | ×50 | ×25 |
+| Oil Painting | ×250 | ×100 |
+| Digital Art | ×2,000 | ×800 |
+| AI-Generated | ×50,000 | ×20,000 |
+
+Note: Reducing multipliers means reducing the total income ceiling, which is fine — the goal is pacing, not numbers.
+
+**C. Optionally add a 4th click upgrade** costing ~5,000 to give players a mid-game click investment sink.
+
+### Validation targets (after pass 2)
+Run `bun run evaluate:optimal` and `bun run evaluate:idle`. Look for:
+- Optimal: first prestige 30–45 min
+- Idle: first prestige 45–60 min
+- Oil Painting reached 20–28 min with optimal
+- Bob Ross first hire before prestige with optimal
+- Mid phase lasting 10+ min with optimal
+
+### Files to change
+- `src/data.ts` — `ARTIST_DEFS` baseCost values, `MEDIA_TIERS` multipliers
+- Run `bun run evaluate:optimal` and `bun run evaluate:idle` to validate
+- Run `bunx tsc --noEmit` before committing
+
+### Branch
+`claude/game-evaluation-system-DUqHy` (same branch)
