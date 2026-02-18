@@ -46,7 +46,7 @@ const MAX_PRESTIGES = Number(getArg("--prestiges", "1"));
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Strategy = "optimal" | "cheapest" | "idle";
+type Strategy = "optimal" | "cheapest" | "idle" | "human";
 type RunPhase = "early" | "mid" | "late";
 type PurchaseType = "upgrade" | "artist" | "media";
 
@@ -93,9 +93,14 @@ interface SimResult {
   finalState: GameState;
   durationSecs: number;
   totalDecisionMoments: number;
+  totalCloseCallMoments: number;
   totalPurchases: number;
   prestigeTimes: number[];
 }
+
+const CLOSE_CALL_ROI_DELTA = 0.15;
+const HUMAN_REACTION_DELAY_MIN = 0.35;
+const HUMAN_REACTION_DELAY_MAX = 1.2;
 
 // ─── State Management ─────────────────────────────────────────────────────────
 
@@ -156,6 +161,25 @@ function totalArtists(s: GameState): number {
   return Object.values(s.artists).reduce((a, b) => a + b, 0);
 }
 
+function createDeterministicRng(seed = 0x5eed1234): () => number {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
+
+function getCpsForStrategy(strategy: Strategy, simTime: number): number {
+  if (strategy === "idle") return 0.5;
+  const base = CLICKS_PER_SEC > 0 ? CLICKS_PER_SEC : 3;
+  if (strategy === "human") {
+    // Mild deterministic rhythm variance around the target CPS.
+    const factor = 0.9 + 0.2 * Math.sin(simTime / 45);
+    return Math.max(0.1, base * factor);
+  }
+  return base;
+}
+
 // ─── Purchase Candidates ──────────────────────────────────────────────────────
 
 function getCandidates(s: GameState, cps: number): Candidate[] {
@@ -206,9 +230,29 @@ function getCandidates(s: GameState, cps: number): Candidate[] {
   return candidates;
 }
 
-function selectBest(affordable: Candidate[], strategy: Strategy): Candidate {
+function selectBest(
+  affordable: Candidate[],
+  strategy: Strategy,
+  rng: () => number
+): Candidate {
   if (strategy === "cheapest") {
     return affordable.reduce((a, b) => (a.cost < b.cost ? a : b));
+  }
+  if (strategy === "human") {
+    const ranked = [...affordable].sort((a, b) => {
+      if (a.roi === b.roi) return a.cost - b.cost;
+      return b.roi - a.roi;
+    });
+    const best = ranked[0]!;
+    const roiFloor =
+      best.roi <= 0 ? Number.NEGATIVE_INFINITY : best.roi * (1 - CLOSE_CALL_ROI_DELTA);
+    const nearBest = ranked.filter((c) => c.roi >= roiFloor);
+    if (nearBest.length === 1) return nearBest[0]!;
+
+    const roll = rng();
+    if (roll < 0.6) return nearBest[0]!;
+    if (roll < 0.85) return nearBest[Math.min(1, nearBest.length - 1)]!;
+    return nearBest.reduce((a, b) => (a.cost < b.cost ? a : b));
   }
   // "optimal": highest ROI (strokes/sec gained per stroke spent)
   return affordable.reduce((a, b) => (a.roi > b.roi ? a : b));
@@ -323,13 +367,20 @@ function doPrestige(s: GameState, events: SimEvent[], simTime: number): void {
   s.clickPower = 1;
   s.passiveRate = 0;
   s.upgrades = {};
-  // Artists persist
+  s.artists = {};
+  // Media tier resets (betterPaper -> tier 1, inkReserves -> tier 2)
+  s.mediaTier = 0;
+  if ((s.prestigeUpgrades["betterPaper"] ?? 0) >= 1) s.mediaTier = 1;
+  if ((s.prestigeUpgrades["inkReserves"] ?? 0) >= 1) s.mediaTier = 2;
+  // Sketch head start grants free Doodlers each run
+  const headStart = s.prestigeUpgrades["sketchHeadStart"] ?? 0;
+  if (headStart > 0) {
+    s.artists["doodler"] = headStart;
+  }
   for (const def of ARTIST_DEFS) {
     const owned = s.artists[def.id] ?? 0;
     s.passiveRate += def.baseRate * owned;
   }
-  // Media tier resets (keep tier 1 if betterPaper)
-  s.mediaTier = (s.prestigeUpgrades["betterPaper"] ?? 0) >= 1 ? 1 : 0;
   // Swords reset (keep if portfolio)
   if ((s.prestigeUpgrades["portfolio"] ?? 0) < 1) {
     s.unlockedSwords = ["butterKnife"];
@@ -398,24 +449,24 @@ function simulate(): SimResult {
   const snapshots: Snapshot[] = [];
   const deadZones: DeadZone[] = [];
   const prestigeTimes: number[] = [];
+  const rng = createDeterministicRng();
 
   let simTime = 0;
   const maxTime = DURATION_MINUTES * 60;
-  // idle = minimal clicking (1 click every 2s) — represents going idle after initial setup
-  // active strategies use the configured clicks/sec
-  const cps = STRATEGY === "idle" ? 0.5 : CLICKS_PER_SEC;
 
   let prevPhase: RunPhase = "early";
   let deadZoneStart: number | null = null;
   let deadZoneTarget = "";
   let totalDecisionMoments = 0;
+  let totalCloseCallMoments = 0;
   let totalPurchases = 0;
   let lastSnapshotTime = -Infinity;
 
-  const cpsLabel =
-    STRATEGY === "idle"
-      ? "0.5 clicks/sec (idle — minimal engagement)"
-      : `${cps} clicks/sec`;
+  let cpsLabel = `${CLICKS_PER_SEC} clicks/sec`;
+  if (STRATEGY === "idle") cpsLabel = "0.5 clicks/sec (idle — minimal engagement)";
+  if (STRATEGY === "human") {
+    cpsLabel = `${CLICKS_PER_SEC} clicks/sec target (human profile: variance + reaction delay + near-best ROI)`;
+  }
   events.push({
     simTime: 0,
     tag: "START",
@@ -427,6 +478,7 @@ function simulate(): SimResult {
   checkSwords(s, events, simTime);
 
   while (simTime < maxTime) {
+    const cpsNow = getCpsForStrategy(STRATEGY, simTime);
     // Snapshot every 5 minutes
     if (simTime - lastSnapshotTime >= 300) {
       snapshots.push({
@@ -436,8 +488,8 @@ function simulate(): SimResult {
         effectiveClickPower: getEffectiveClickPower(s),
         passiveRate: s.passiveRate,
         effectivePassiveRate: getEffectivePassiveRate(s),
-        totalIncome: totalIncomeRate(s, cps),
-        passiveFraction: passiveFraction(s, cps),
+        totalIncome: totalIncomeRate(s, cpsNow),
+        passiveFraction: passiveFraction(s, cpsNow),
         mediaTier: s.mediaTier,
         artistCount: totalArtists(s),
         phase: getRunPhase(s),
@@ -459,7 +511,7 @@ function simulate(): SimResult {
     }
 
     // Get all candidates and find affordable ones
-    const candidates = getCandidates(s, cps);
+    const candidates = getCandidates(s, cpsNow);
     const affordable = candidates.filter((c) => c.cost <= s.strokes);
 
     if (affordable.length > 0) {
@@ -477,11 +529,32 @@ function simulate(): SimResult {
       }
 
       // Count decision moments (>= 2 affordable options)
-      if (affordable.length >= 2) totalDecisionMoments++;
+      if (affordable.length >= 2) {
+        totalDecisionMoments++;
+        const ranked = [...affordable].sort((a, b) => b.roi - a.roi);
+        const top = ranked[0];
+        const second = ranked[1];
+        if (top && second) {
+          const denom = Math.max(Math.abs(top.roi), 1e-9);
+          const relativeGap = Math.abs(top.roi - second.roi) / denom;
+          if (relativeGap <= CLOSE_CALL_ROI_DELTA) totalCloseCallMoments++;
+        }
+      }
       totalPurchases++;
 
-      const best = selectBest(affordable, STRATEGY);
+      const best = selectBest(affordable, STRATEGY, rng);
       applyPurchase(best, s, events, simTime);
+      if (STRATEGY === "human") {
+        const reactionDelay =
+          HUMAN_REACTION_DELAY_MIN +
+          rng() * (HUMAN_REACTION_DELAY_MAX - HUMAN_REACTION_DELAY_MIN);
+        const cappedDelay = Math.min(reactionDelay, Math.max(0, maxTime - simTime));
+        if (cappedDelay > 0) {
+          const cpsDuringDelay = getCpsForStrategy(STRATEGY, simTime);
+          advanceTime(s, cappedDelay, cpsDuringDelay);
+          simTime += cappedDelay;
+        }
+      }
     } else {
       // Nothing affordable — find cheapest reachable target and fast-forward
       const reachable = candidates.filter((c) => c.cost > 0);
@@ -492,7 +565,7 @@ function simulate(): SimResult {
 
       const cheapest = reachable.reduce((a, b) => (a.cost < b.cost ? a : b));
       const needed = cheapest.cost - s.strokes;
-      const rate = totalIncomeRate(s, cps);
+      const rate = totalIncomeRate(s, cpsNow);
 
       if (rate <= 0) {
         // Completely stuck (no income, no clicking)
@@ -515,7 +588,7 @@ function simulate(): SimResult {
 
       // Advance by the wait time (capped to avoid huge jumps for readability)
       const step = Math.min(waitSecs, maxTime - simTime, 600);
-      advanceTime(s, step, cps);
+      advanceTime(s, step, cpsNow);
       simTime += step;
 
       if (step < waitSecs) continue; // didn't reach the target yet
@@ -538,6 +611,7 @@ function simulate(): SimResult {
   }
 
   // Final snapshot
+  const finalCps = getCpsForStrategy(STRATEGY, simTime);
   snapshots.push({
     time: simTime,
     strokes: s.strokes,
@@ -545,8 +619,8 @@ function simulate(): SimResult {
     effectiveClickPower: getEffectiveClickPower(s),
     passiveRate: s.passiveRate,
     effectivePassiveRate: getEffectivePassiveRate(s),
-    totalIncome: totalIncomeRate(s, cps),
-    passiveFraction: passiveFraction(s, cps),
+    totalIncome: totalIncomeRate(s, finalCps),
+    passiveFraction: passiveFraction(s, finalCps),
     mediaTier: s.mediaTier,
     artistCount: totalArtists(s),
     phase: getRunPhase(s),
@@ -560,6 +634,7 @@ function simulate(): SimResult {
     finalState: s,
     durationSecs: simTime,
     totalDecisionMoments,
+    totalCloseCallMoments,
     totalPurchases,
     prestigeTimes,
   };
@@ -604,10 +679,262 @@ function fmtPct(n: number): string {
   return `${Math.round(n * 100)}%`;
 }
 
+function getMediaTierFromEventLabel(label: string): number | null {
+  const match = label.match(/\(tier (\d+)\)$/);
+  if (match) return Number(match[1] ?? 0);
+  const idx = MEDIA_TIERS.findIndex((tier) => label.includes(tier.name));
+  return idx >= 0 ? idx : null;
+}
+
+type MajorBeatTag = "MEDIA" | "SWORD" | "ACHIEVE";
+
+interface MajorBeat {
+  simTime: number;
+  tag: MajorBeatTag;
+  label: string;
+  key: string;
+}
+
+interface CadenceSummary {
+  beatCount: number;
+  firstBeatTime: number | null;
+  avgGap: number | null;
+  medianGap: number | null;
+  longestDrought: number;
+  droughtStart: number;
+  droughtEnd: number;
+  burstWindowSecs: number;
+  peakBurstCount: number;
+  peakBurstStart: number | null;
+  peakBurstEnd: number | null;
+}
+
+interface RecoverySummary {
+  firstPrestigeTime: number | null;
+  prePrestigeMaxMediaTier: number;
+  prePrestigeMaxSwordIdx: number;
+  keepsSwords: boolean;
+  postPrestigeStartMediaTier: number;
+  mediaRecoverySecs: number | null;
+  swordRecoverySecs: number | null;
+}
+
+function median(nums: number[]): number | null {
+  if (nums.length === 0) return null;
+  const sorted = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 1) return sorted[mid] ?? null;
+  const a = sorted[mid - 1] ?? 0;
+  const b = sorted[mid] ?? 0;
+  return (a + b) / 2;
+}
+
+function getFirstTimeMajorBeats(events: SimEvent[]): MajorBeat[] {
+  const beats: MajorBeat[] = [];
+  const seen = new Set<string>();
+  for (const e of events) {
+    if (e.tag !== "MEDIA" && e.tag !== "SWORD" && e.tag !== "ACHIEVE") continue;
+
+    let key = `${e.tag}:${e.label}`;
+    if (e.tag === "MEDIA") {
+      const tier = getMediaTierFromEventLabel(e.label);
+      key = `MEDIA:${tier ?? e.label}`;
+    }
+
+    if (seen.has(key)) continue;
+    seen.add(key);
+    beats.push({
+      simTime: e.simTime,
+      tag: e.tag as MajorBeatTag,
+      label: e.label,
+      key,
+    });
+  }
+  return beats.sort((a, b) => a.simTime - b.simTime);
+}
+
+function summarizeCadence(
+  beats: MajorBeat[],
+  sessionEnd: number,
+  burstWindowSecs = 120
+): CadenceSummary {
+  if (beats.length === 0) {
+    return {
+      beatCount: 0,
+      firstBeatTime: null,
+      avgGap: null,
+      medianGap: null,
+      longestDrought: sessionEnd,
+      droughtStart: 0,
+      droughtEnd: sessionEnd,
+      burstWindowSecs,
+      peakBurstCount: 0,
+      peakBurstStart: null,
+      peakBurstEnd: null,
+    };
+  }
+
+  const firstBeatTime = beats[0]?.simTime ?? null;
+  const gaps: number[] = [];
+  for (let i = 1; i < beats.length; i++) {
+    const prev = beats[i - 1];
+    const curr = beats[i];
+    if (prev && curr) gaps.push(curr.simTime - prev.simTime);
+  }
+
+  let droughtStart = 0;
+  let droughtEnd = beats[0]?.simTime ?? sessionEnd;
+  let longestDrought = droughtEnd - droughtStart;
+  for (let i = 1; i < beats.length; i++) {
+    const prev = beats[i - 1];
+    const curr = beats[i];
+    if (!prev || !curr) continue;
+    const gap = curr.simTime - prev.simTime;
+    if (gap > longestDrought) {
+      longestDrought = gap;
+      droughtStart = prev.simTime;
+      droughtEnd = curr.simTime;
+    }
+  }
+  const lastBeatTime = beats[beats.length - 1]?.simTime ?? 0;
+  const tailGap = Math.max(0, sessionEnd - lastBeatTime);
+  if (tailGap > longestDrought) {
+    longestDrought = tailGap;
+    droughtStart = lastBeatTime;
+    droughtEnd = sessionEnd;
+  }
+
+  let peakBurstCount = 1;
+  let peakBurstStart = beats[0]?.simTime ?? null;
+  let peakBurstEnd = beats[0]?.simTime ?? null;
+  for (let i = 0; i < beats.length; i++) {
+    const start = beats[i]?.simTime ?? 0;
+    let count = 0;
+    let end = start;
+    for (let j = i; j < beats.length; j++) {
+      const t = beats[j]?.simTime ?? start;
+      if (t <= start + burstWindowSecs) {
+        count++;
+        end = t;
+      } else {
+        break;
+      }
+    }
+    if (count > peakBurstCount) {
+      peakBurstCount = count;
+      peakBurstStart = start;
+      peakBurstEnd = end;
+    }
+  }
+
+  const avgGap = gaps.length > 0 ? gaps.reduce((a, b) => a + b, 0) / gaps.length : null;
+  const medianGap = median(gaps);
+
+  return {
+    beatCount: beats.length,
+    firstBeatTime,
+    avgGap,
+    medianGap,
+    longestDrought,
+    droughtStart,
+    droughtEnd,
+    burstWindowSecs,
+    peakBurstCount,
+    peakBurstStart,
+    peakBurstEnd,
+  };
+}
+
+function summarizePostPrestigeRecovery(events: SimEvent[]): RecoverySummary {
+  const prestigeEvent = events.find((e) => e.tag === "PRESTIGE");
+  if (!prestigeEvent) {
+    return {
+      firstPrestigeTime: null,
+      prePrestigeMaxMediaTier: 0,
+      prePrestigeMaxSwordIdx: 0,
+      keepsSwords: false,
+      postPrestigeStartMediaTier: 0,
+      mediaRecoverySecs: null,
+      swordRecoverySecs: null,
+    };
+  }
+
+  const firstPrestigeTime = prestigeEvent.simTime;
+  const beforePrestige = events.filter((e) => e.simTime < firstPrestigeTime);
+  const afterPrestige = events.filter((e) => e.simTime > firstPrestigeTime);
+
+  let prePrestigeMaxMediaTier = 0;
+  for (const e of beforePrestige) {
+    if (e.tag !== "MEDIA") continue;
+    const tier = getMediaTierFromEventLabel(e.label);
+    if (tier !== null) prePrestigeMaxMediaTier = Math.max(prePrestigeMaxMediaTier, tier);
+  }
+
+  let prePrestigeMaxSwordIdx = 0;
+  for (const e of beforePrestige) {
+    if (e.tag !== "SWORD") continue;
+    const idx = SWORD_DEFS.findIndex((d) => d.name === e.label);
+    if (idx >= 0) prePrestigeMaxSwordIdx = Math.max(prePrestigeMaxSwordIdx, idx);
+  }
+
+  const detail = prestigeEvent.detail ?? "";
+  const keepsSwords = detail.includes("Portfolio");
+  let postPrestigeStartMediaTier = 0;
+  if (detail.includes("Better Paper")) postPrestigeStartMediaTier = 1;
+  if (detail.includes("Ink Reserves")) postPrestigeStartMediaTier = 2;
+
+  let mediaRecoverySecs: number | null = null;
+  if (prePrestigeMaxMediaTier <= postPrestigeStartMediaTier) {
+    mediaRecoverySecs = 0;
+  } else {
+    for (const e of afterPrestige) {
+      if (e.tag !== "MEDIA") continue;
+      const tier = getMediaTierFromEventLabel(e.label);
+      if (tier !== null && tier >= prePrestigeMaxMediaTier) {
+        mediaRecoverySecs = e.simTime - firstPrestigeTime;
+        break;
+      }
+    }
+  }
+
+  let swordRecoverySecs: number | null = null;
+  if (prePrestigeMaxSwordIdx <= 0 || keepsSwords) {
+    swordRecoverySecs = 0;
+  } else {
+    for (const e of afterPrestige) {
+      if (e.tag !== "SWORD") continue;
+      const idx = SWORD_DEFS.findIndex((d) => d.name === e.label);
+      if (idx >= prePrestigeMaxSwordIdx) {
+        swordRecoverySecs = e.simTime - firstPrestigeTime;
+        break;
+      }
+    }
+  }
+
+  return {
+    firstPrestigeTime,
+    prePrestigeMaxMediaTier,
+    prePrestigeMaxSwordIdx,
+    keepsSwords,
+    postPrestigeStartMediaTier,
+    mediaRecoverySecs,
+    swordRecoverySecs,
+  };
+}
+
 // ─── Report Output ────────────────────────────────────────────────────────────
 
 function printReport(result: SimResult): void {
-  const { events, snapshots, deadZones, finalState: s, totalDecisionMoments, totalPurchases, prestigeTimes } = result;
+  const {
+    events,
+    snapshots,
+    deadZones,
+    finalState: s,
+    totalDecisionMoments,
+    totalCloseCallMoments,
+    totalPurchases,
+    prestigeTimes,
+  } = result;
   const hr = "─".repeat(60);
   const hr2 = "═".repeat(60);
 
@@ -618,6 +945,8 @@ function printReport(result: SimResult): void {
   const stratLabel =
     STRATEGY === "idle"
       ? "idle (0.5 cps — minimal engagement)"
+      : STRATEGY === "human"
+        ? `human (~${CLICKS_PER_SEC} cps target, imperfect choices, reaction delays)`
       : `${STRATEGY} · ${CLICKS_PER_SEC} clicks/sec`;
   console.log(`  Strategy : ${stratLabel}`);
   console.log(`  Duration : ${DURATION_MINUTES} min simulated`);
@@ -667,14 +996,21 @@ function printReport(result: SimResult): void {
   console.log("  CONTENT REACHED");
   console.log(hr);
 
-  const mediaTiersReached = Array.from(new Set(snapshots.map((s) => s.mediaTier)));
+  const mediaTierEvents = events
+    .filter((e) => e.tag === "MEDIA")
+    .map((e) => ({ event: e, tier: getMediaTierFromEventLabel(e.label) }))
+    .filter((x): x is { event: SimEvent; tier: number } => x.tier !== null);
+  const mediaTiersReached = Array.from(
+    new Set([0, ...mediaTierEvents.map((x) => x.tier)])
+  ).sort((a, b) => a - b);
   console.log("  Media tiers:");
   for (const tierIdx of mediaTiersReached) {
     const def = MEDIA_TIERS[tierIdx];
     if (!def) continue;
-    const reachEvent = events.find(
-      (e) => e.tag === "MEDIA" && e.label.includes(def.name)
-    );
+    const reachEvent =
+      tierIdx === 0
+        ? undefined
+        : mediaTierEvents.find((x) => x.tier === tierIdx)?.event;
     const when = reachEvent ? `@ ${fmtTime(reachEvent.simTime)}` : "@ start";
     console.log(`    Tier ${tierIdx}: ${def.name.padEnd(18)} ${when}  ×${def.multiplier} multiplier`);
   }
@@ -757,7 +1093,7 @@ function printReport(result: SimResult): void {
     0
   );
   const deadPct = result.durationSecs > 0 ? totalDeadTime / result.durationSecs : 0;
-  console.log(`  Dead zones (waiting >20s with nothing to buy): ${deadZones.length}`);
+  console.log(`  Dead zones (waiting >120s with nothing to buy): ${deadZones.length}`);
   if (deadZones.length > 0) {
     for (const dz of deadZones) {
       const dur = dz.end - dz.start;
@@ -780,6 +1116,77 @@ function printReport(result: SimResult): void {
   if (result.durationSecs > 0 && totalDecisionMoments > 0) {
     const avgFreq = result.durationSecs / totalDecisionMoments;
     console.log(`  Avg decision frequency   : every ${fmtTime(avgFreq)}`);
+  }
+  console.log(
+    `  Close-call moments (top-2 ROI within ${Math.round(CLOSE_CALL_ROI_DELTA * 100)}%): ${totalCloseCallMoments}`
+  );
+  if (totalDecisionMoments > 0) {
+    const share = totalCloseCallMoments / totalDecisionMoments;
+    console.log(`  Close-call share         : ${fmtPct(share)}`);
+  }
+  console.log();
+
+  // ── Experience Cadence ────────────────────────────────────────────────────
+  console.log(hr);
+  console.log("  EXPERIENCE CADENCE");
+  console.log(hr);
+
+  const firstTimeBeats = getFirstTimeMajorBeats(events);
+  const cadence = summarizeCadence(firstTimeBeats, result.durationSecs);
+  console.log(`  First-time major beats  : ${cadence.beatCount}`);
+  if (cadence.firstBeatTime !== null) {
+    console.log(`  Time to first major beat: ${fmtTime(cadence.firstBeatTime)}`);
+  } else {
+    console.log("  Time to first major beat: none");
+  }
+  if (cadence.avgGap !== null) {
+    console.log(`  Avg beat gap            : ${fmtTime(cadence.avgGap)}`);
+  } else {
+    console.log("  Avg beat gap            : n/a");
+  }
+  if (cadence.medianGap !== null) {
+    console.log(`  Median beat gap         : ${fmtTime(cadence.medianGap)}`);
+  } else {
+    console.log("  Median beat gap         : n/a");
+  }
+  console.log(
+    `  Longest novelty drought : ${fmtTime(cadence.longestDrought)} (${fmtTime(cadence.droughtStart)} -> ${fmtTime(cadence.droughtEnd)})`
+  );
+  if (cadence.peakBurstCount > 0 && cadence.peakBurstStart !== null && cadence.peakBurstEnd !== null) {
+    console.log(
+      `  Peak novelty burst      : ${cadence.peakBurstCount} beats in ${fmtTime(cadence.burstWindowSecs)} window (${fmtTime(cadence.peakBurstStart)} -> ${fmtTime(cadence.peakBurstEnd)})`
+    );
+  } else {
+    console.log("  Peak novelty burst      : none");
+  }
+
+  const recovery = summarizePostPrestigeRecovery(events);
+  if (recovery.firstPrestigeTime !== null) {
+    const mediaName =
+      MEDIA_TIERS[recovery.prePrestigeMaxMediaTier]?.name ?? `Tier ${recovery.prePrestigeMaxMediaTier}`;
+    const swordName =
+      SWORD_DEFS[recovery.prePrestigeMaxSwordIdx]?.name ?? `Sword #${recovery.prePrestigeMaxSwordIdx}`;
+    console.log(
+      `  Pre-prestige peaks      : media ${mediaName}, sword ${swordName}`
+    );
+    if (recovery.mediaRecoverySecs === 0) {
+      console.log("  Post-prestige media recovery: instant");
+    } else if (recovery.mediaRecoverySecs !== null) {
+      console.log(`  Post-prestige media recovery: ${fmtTime(recovery.mediaRecoverySecs)}`);
+    } else {
+      console.log("  Post-prestige media recovery: not recovered this run");
+    }
+
+    if (recovery.swordRecoverySecs === 0) {
+      const reason = recovery.keepsSwords ? "instant (Portfolio kept swords)" : "instant";
+      console.log(`  Post-prestige sword recovery: ${reason}`);
+    } else if (recovery.swordRecoverySecs !== null) {
+      console.log(`  Post-prestige sword recovery: ${fmtTime(recovery.swordRecoverySecs)}`);
+    } else {
+      console.log("  Post-prestige sword recovery: not recovered this run");
+    }
+  } else {
+    console.log("  Post-prestige recovery  : no prestige in this session");
   }
   console.log();
 
@@ -845,7 +1252,16 @@ function printReport(result: SimResult): void {
   } else if (MAX_PRESTIGES > 0) {
     flags.push({
       warn: true,
-      msg: `Prestige not reached in ${DURATION_MINUTES} min — may need balance pass to reach 10M strokes`,
+      msg: `Prestige not reached in ${DURATION_MINUTES} min — threshold is ${fmtNum(PRESTIGE_THRESHOLD)} total strokes`,
+    });
+  }
+
+  if (STRATEGY === "optimal" || STRATEGY === "idle") {
+    const share =
+      totalDecisionMoments > 0 ? fmtPct(totalCloseCallMoments / totalDecisionMoments) : "0%";
+    flags.push({
+      warn: false,
+      msg: `ROI strategy note: decision moments are constrained by immediate spending; close-call share is ${share}`,
     });
   }
 

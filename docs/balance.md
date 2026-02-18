@@ -20,6 +20,32 @@ This branch contains the following progression/content capabilities.
 - Because of this, `decision moments` is constrained and should not be treated as a hard balancing target for ROI modes.
 - If evaluating choice density, include `cheapest` strategy as an accumulation-oriented proxy.
 
+## Evaluator Standards
+
+### Authoritative Metrics
+
+- Milestone timing (media tiers, swords, prestige access)
+- Phase durations (early/mid/late)
+- Experience cadence:
+  - first-time major beat count and timing
+  - average/median beat gap
+  - longest novelty drought
+  - post-prestige recovery timing
+
+### Diagnostic Metrics
+
+- Raw `decision moments` count (strategy-sensitive)
+- `close-call moments` and close-call share (helps interpret choice pressure)
+- End-of-run passive/click split (build-style indicator, not strict pass/fail)
+- Dead-zone count/time (sensitive to strategy and pacing target)
+
+### Required Evaluation Matrix for Balance Changes
+
+- `bun run evaluate:optimal`
+- `bun run evaluate:idle`
+- `bun run evaluate:human`
+- `bun run evaluate:prestige`
+
 ## Validation Commands
 
 - `bun run evaluate:optimal`
