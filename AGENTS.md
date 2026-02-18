@@ -245,3 +245,78 @@ Run `bun run evaluate:optimal` and `bun run evaluate:idle`. Look for:
 
 ### Branch
 `claude/game-evaluation-system-DUqHy` (same branch)
+
+---
+
+## Rebalance Pass 2 — Results (2026-02-18)
+
+**Changes applied to `src/data.ts`:**
+- Media multipliers flattened: Charcoal ×3→×2, Ink ×10→×6, Watercolor ×50→×25, Oil ×250→×100, Digital ×2000→×800, AI ×50000→×20000
+- Mid-to-late artist `baseCost` raised: Illustrator 5K→12K, Court Painter 50K→150K, Renaissance 500K→1.5M, Sword Swallower 5M→20M, Bob Ross 100M→500M
+
+**Evaluation results after pass 2:**
+
+| Metric | Pass 1 (Optimal) | Pass 2 (Optimal) | Pass 1 (Idle) | Pass 2 (Idle) | Target |
+|---|---|---|---|---|---|
+| First prestige | 7:08 | 15:16 | 15:53 | 30:34 | 35–50 min |
+| Charcoal (tier 1) | 1:31 | 1:31 | 5:46 | 5:46 | 2–4 min |
+| Ink & Quill (tier 2) | 3:07 | 3:53 | 10:09 | 12:39 | 6–10 min |
+| Watercolor (tier 3) | 5:10 | 8:12 | 13:36 | 21:24 | 12–18 min |
+| Oil Painting (tier 4) | 6:55 | 14:19 | 15:39 | 29:31 | 20–28 min |
+| Decision moments | 26 | 9 | 26 | 9 | 25+ |
+| Early phase | 1:34 | 1:36 | 5:58 | 6:04 | 4–8 min |
+| Mid phase | 1:48 | 2:49 | 4:43 | 7:56 | 10–15 min |
+
+**Progress:** Idle play first prestige is now 30:34 — within striking distance of the 35 min target. Optimal play is at 15:16, about 2× too fast. Media tiers are now spread across the session for idle play. Oil Painting lands at 29:31 with idle (right at target), Watercolor at 21:24 (close).
+
+**Critical new problem:** Decision moments collapsed from 26 → 9. Raising costs without adding more purchasable items creates longer gaps between choices. The session now has one decision every 13 minutes (idle) instead of every 4.6 min. This makes the game feel passive, not engaging.
+
+---
+
+## Next Agent: Rebalance Pass 3
+
+**Goal:** Fix the decision moment collapse (9 → 25+) while holding the prestige timing gains from pass 2.
+
+**Root cause:** Raising baseCosts reduced purchase frequency without adding new decision points. The fix is to add more things to buy, not to further adjust costs.
+
+### Recommended changes
+
+**A. Add a 4th click upgrade** in `src/data.ts`, `UPGRADE_DEFS`:
+```typescript
+{
+  id: "inkBrush",
+  name: "Ink Brush",
+  desc: "Broad, confident strokes. +25 per click.",
+  baseCost: 5_000,
+  effect: { type: "click", value: 25 },
+},
+```
+This creates a meaningful mid-game investment decision (~5 min for optimal, ~18 min for idle).
+
+**B. Add 2–3 intermediate artist types** between Caricaturist (750 base) and Illustrator (12K base).
+The current cost gap between Caricaturist and Illustrator is 16× — nothing to buy in that window. Consider adding:
+- A new artist at baseCost ~3,000–4,000 (fills the gap, creates a decision moment)
+- A new artist at baseCost ~25,000–35,000 (between Illustrator and Court Painter, which is 12.5× gap)
+
+Or alternatively: add milestone-based bonuses (e.g., owning 10 of a type unlocks a small permanent boost) to create micro-decisions at artist counts.
+
+**C. Add more prestige upgrades** (to give EP something meaningful to spend on in later runs):
+- "Sharp Eye" — +5% all production per prestige level owned (cheap, scales with prestige count)
+- "Collector's Edition" — start with one free Doodler after prestige
+
+**D. Optionally lower the PRESTIGE_THRESHOLD slightly** back toward 200–300M (from 500M) to bring optimal first prestige to 25–35 min rather than 15 min, which would be a more natural sweet spot.
+
+### Validation targets (after pass 3)
+Run `bun run evaluate:optimal` and `bun run evaluate:idle`. Look for:
+- Decision moments: 20+ for both strategies
+- Optimal: first prestige 25–40 min
+- Idle: first prestige 40–60 min
+- Mid phase lasting 8+ min with optimal, 12+ min with idle
+
+### Files to change
+- `src/data.ts` — `UPGRADE_DEFS` (new upgrade), `ARTIST_DEFS` (new artists), `PRESTIGE_UPGRADE_DEFS` (new upgrades), `PRESTIGE_THRESHOLD` (optional tweak)
+- `src/logic.ts` — no changes needed if new upgrade uses existing `click` effect type
+- Run `bunx tsc --noEmit` before committing
+
+### Branch
+`claude/game-evaluation-system-DUqHy` (same branch)
