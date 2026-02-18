@@ -219,6 +219,14 @@ function doPrestige(): void {
   if ((newState.prestigeUpgrades["betterPaper"] ?? 0) >= 1) {
     newState.mediaTier = 1;
   }
+  if ((newState.prestigeUpgrades["inkReserves"] ?? 0) >= 1) {
+    newState.mediaTier = 2;
+  }
+
+  const headStart = newState.prestigeUpgrades["sketchHeadStart"] ?? 0;
+  if (headStart > 0) {
+    newState.artists["doodler"] = headStart;
+  }
 
   replaceState(newState);
   recalcPassiveRate();

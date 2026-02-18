@@ -17,7 +17,7 @@ export const COST_SCALE = 1.12;
 export const ARTIST_COST_SCALE = 1.15;
 export const MAX_OFFLINE_HOURS = 8;
 export const COLLAPSE_KEY = "swordArtClick_collapsed";
-export const PRESTIGE_THRESHOLD = 500_000_000;
+export const PRESTIGE_THRESHOLD = 2_000_000_000;
 
 export const MEDIA_TIERS: MediaTier[] = [
   {
@@ -61,6 +61,13 @@ export const MEDIA_TIERS: MediaTier[] = [
     multiplier: 800,
     cost: 75_000_000,
     desc: "Ctrl+Z is your best friend",
+  },
+  {
+    id: "neural",
+    name: "Neural Art",
+    multiplier: 4_000,
+    cost: 800_000_000,
+    desc: "The model learned from your swords",
   },
   {
     id: "ai",
@@ -246,6 +253,13 @@ export const UPGRADE_DEFS: UpgradeDef[] = [
     baseCost: 5_000,
     effect: { type: "click", value: 25 },
   },
+  {
+    id: "precisionBlade",
+    name: "Precision Blade",
+    desc: "A single perfect edge. +75 per click.",
+    baseCost: 100_000,
+    effect: { type: "click", value: 75 },
+  },
 ];
 
 export const ACHIEVEMENT_DEFS: AchievementDef[] = [
@@ -280,8 +294,8 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
   {
     id: "sketchyBusiness",
     name: "Sketchy Business",
-    desc: "Click 10,000 times",
-    check: (s: GameState) => s.totalClicks >= 10_000,
+    desc: "Click 5,000 times",
+    check: (s: GameState) => s.totalClicks >= 5_000,
   },
   {
     id: "drawnOut",
@@ -314,10 +328,16 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     check: (s: GameState) => s.mediaTier >= 5,
   },
   {
+    id: "neuralPathways",
+    name: "Neural Pathways",
+    desc: "Reach Neural Art",
+    check: (s: GameState) => s.mediaTier >= 6,
+  },
+  {
     id: "aiOverlords",
     name: "I, For One, Welcome Our AI Overlords",
     desc: "Reach AI-Generated",
-    check: (s: GameState) => s.mediaTier >= 6,
+    check: (s: GameState) => s.mediaTier >= 7,
   },
   {
     id: "workshopForeman",
@@ -349,6 +369,12 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     name: "The Long Game",
     desc: "Reach the prestige threshold",
     check: (s: GameState) => s.totalStrokes >= PRESTIGE_THRESHOLD,
+  },
+  {
+    id: "retirementPlan",
+    name: "Retirement Plan",
+    desc: "Accumulate 1 Trillion lifetime Strokes",
+    check: (s: GameState) => s.lifetimeStrokes + s.totalStrokes >= 1_000_000_000_000,
   },
 ];
 
@@ -401,5 +427,19 @@ export const PRESTIGE_UPGRADE_DEFS: PrestigeUpgradeDef[] = [
     desc: "+5% click power per level",
     baseCost: 1,
     maxLevel: 30,
+  },
+  {
+    id: "inkReserves",
+    name: "Ink Reserves",
+    desc: "Start each run at Ink & Quill (tier 2) instead of Pencil",
+    baseCost: 15,
+    maxLevel: 1,
+  },
+  {
+    id: "sketchHeadStart",
+    name: "Sketch Head Start",
+    desc: "+1 free Doodler at the start of each run per level",
+    baseCost: 3,
+    maxLevel: 20,
   },
 ];
