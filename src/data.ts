@@ -167,11 +167,25 @@ export const ARTIST_DEFS: ArtistDef[] = [
     baseRate: 18,
   },
   {
+    id: "storyboarder",
+    name: "Storyboarder",
+    desc: "Panel by panel, blade by blade",
+    baseCost: 3_500,
+    baseRate: 40,
+  },
+  {
     id: "illustrator",
     name: "Illustrator",
     desc: "Turns words into blades",
     baseCost: 12_000,
     baseRate: 70,
+  },
+  {
+    id: "artDirector",
+    name: "Art Director",
+    desc: "Points at things and calls it work",
+    baseCost: 35_000,
+    baseRate: 175,
   },
   {
     id: "courtPainter",
@@ -224,6 +238,13 @@ export const UPGRADE_DEFS: UpgradeDef[] = [
     desc: "Every stroke is deliberate. +10 per click.",
     baseCost: 400,
     effect: { type: "click", value: 10 },
+  },
+  {
+    id: "inkBrush",
+    name: "Ink Brush",
+    desc: "Broad, confident strokes. +25 per click.",
+    baseCost: 5_000,
+    effect: { type: "click", value: 25 },
   },
 ];
 
@@ -301,13 +322,13 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
   {
     id: "workshopForeman",
     name: "Workshop Foreman",
-    desc: "Hire at least 5 different types of artists",
+    desc: "Hire at least 6 different types of artists",
     check: (s: GameState) => {
       let types = 0;
       for (const id in s.artists) {
         if ((s.artists[id] ?? 0) >= 1) types++;
       }
-      return types >= 5;
+      return types >= 6;
     },
   },
   {
@@ -366,5 +387,19 @@ export const PRESTIGE_UPGRADE_DEFS: PrestigeUpgradeDef[] = [
     desc: "+50% all production per level",
     baseCost: 25,
     maxLevel: 20,
+  },
+  {
+    id: "sharpEye",
+    name: "Sharp Eye",
+    desc: "+5% all production per level",
+    baseCost: 3,
+    maxLevel: 40,
+  },
+  {
+    id: "steadyHand",
+    name: "Steady Hand",
+    desc: "+5% click power per level",
+    baseCost: 1,
+    maxLevel: 30,
   },
 ];

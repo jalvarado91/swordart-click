@@ -50,12 +50,14 @@ export function getTotalMultiplier(s: GameState): number {
   const mediaMultiplier = getMediaMultiplier(s);
   const swordBonus = 1 + getSwordBonus(s) / 100;
   const speedSketchBonus = 1 + getPrestigeBonus(s, "speedSketch") * 0.5;
-  return mediaMultiplier * swordBonus * speedSketchBonus;
+  const sharpEyeBonus = 1 + getPrestigeBonus(s, "sharpEye") * 0.05;
+  return mediaMultiplier * swordBonus * speedSketchBonus * sharpEyeBonus;
 }
 
 export function getEffectiveClickPower(s: GameState): number {
   const muscleMemoryBonus = 1 + getPrestigeBonus(s, "muscleMemory") * 0.1;
-  return s.clickPower * getTotalMultiplier(s) * muscleMemoryBonus;
+  const steadyHandBonus = 1 + getPrestigeBonus(s, "steadyHand") * 0.05;
+  return s.clickPower * getTotalMultiplier(s) * muscleMemoryBonus * steadyHandBonus;
 }
 
 export function getEffectivePassiveRate(s: GameState): number {

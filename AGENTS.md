@@ -320,3 +320,85 @@ Run `bun run evaluate:optimal` and `bun run evaluate:idle`. Look for:
 
 ### Branch
 `claude/game-evaluation-system-DUqHy` (same branch)
+
+---
+
+## Rebalance Pass 3 — Results (2026-02-18)
+
+**Changes applied:**
+- `UPGRADE_DEFS`: Added "Ink Brush" (baseCost 5K, +25/click)
+- `ARTIST_DEFS`: Added "Storyboarder" (baseCost 3.5K, 40/s) between Caricaturist and Illustrator
+- `ARTIST_DEFS`: Added "Art Director" (baseCost 35K, 175/s) between Illustrator and Court Painter
+- `PRESTIGE_UPGRADE_DEFS`: Added "Sharp Eye" (+5% all production/level, baseCost 3, maxLevel 40)
+- `PRESTIGE_UPGRADE_DEFS`: Added "Steady Hand" (+5% click power/level, baseCost 1, maxLevel 30)
+- `helpers.ts`: Wired both new prestige upgrades into `getTotalMultiplier` and `getEffectiveClickPower`
+- Updated "Workshop Foreman" achievement to require 6 types (was 5, now there are 10 total)
+
+**Evaluation results after pass 3:**
+
+| Metric | Pass 2 (Optimal) | Pass 3 (Optimal) | Pass 2 (Idle) | Pass 3 (Idle) | Target |
+|---|---|---|---|---|---|
+| First prestige | 15:16 | 12:28 | 30:34 | 26:07 | 35–50 min |
+| Watercolor (tier 3) | 8:12 | 7:11 | 21:24 | 18:56 | 12–18 min |
+| Oil Painting (tier 4) | 14:19 | 11:53 | 29:31 | 25:26 | 20–28 min |
+| Decision moments | 9 | 9 | 9 | 9 | 25+ |
+| Mid phase (idle) | 7:56 | 7:16 | — | — | 10–15 min |
+
+**Key insight about decision moments:** Adding more purchasable items does NOT raise this metric. The evaluator counts moments where ≥2 items are simultaneously affordable. With high artist base costs (from pass 2), the income curve means only one item is affordable at a time for most of the session. The metric was 26 in pass 1 (lower costs, 1.15 scale) because multiple artists were affordable simultaneously. It dropped to 9 in pass 2 when base costs were raised and scale went to 1.17.
+
+**New content is still valuable:** The 2 new artists, new click upgrade, and new prestige upgrades make the session richer with more progress moments. All 10 artist types appear in both evals, swords unlock more evenly across the timeline.
+
+**Regression:** The new artists accelerated progression slightly (idle prestige 30:34 → 26:07) because Storyboarder and Art Director fill income gaps, raising passive rate sooner.
+
+---
+
+## Next Agent: Rebalance Pass 4
+
+**State of the game:**
+- Idle first prestige: ~26 min (target 35–50 min, gap ~1.4×)
+- Optimal first prestige: ~12 min (target 35–50 min, gap ~3×)
+- Decision moments: 9 (target 25+, gap ~3×)
+- All 10 artist types, 4 click upgrades, 7 prestige upgrades working correctly
+- Media tiers spread reasonably for idle play (Charcoal 5:46, Ink 12:35, Water 18:56, Oil 25:26)
+
+**Root cause of remaining gaps:**
+
+The "decision moments" metric and the "prestige too fast" problem share the same root cause: `ARTIST_COST_SCALE = 1.17` causes costs to diverge fast, meaning at any given moment only 1 item is affordable. The fix needs to come from **reducing income rate** (so players wait longer before affording each next tier) while **keeping costs clustered** (so multiple things stay affordable at once).
+
+### Recommended changes
+
+**A. Reduce artist base rates by another 30–40%** (income-side fix)
+This directly slows the income curve without changing the cost structure. Current rates are already reduced from originals, but the total income (rates × multipliers × count) is still too high.
+
+Suggested new base rates:
+| Artist | Current baseRate | Target baseRate |
+|---|---|---|
+| Doodler | 0.8/s | 0.5/s |
+| Sketch Artist | 4/s | 2.5/s |
+| Caricaturist | 18/s | 11/s |
+| Storyboarder | 40/s | 25/s |
+| Illustrator | 70/s | 42/s |
+| Art Director | 175/s | 105/s |
+| Court Painter | 350/s | 210/s |
+| Renaissance Master | 2,000/s | 1,200/s |
+| Sword Swallower | 10,000/s | 6,000/s |
+| Bob Ross | 65,000/s | 38,000/s |
+
+**B. Lower ARTIST_COST_SCALE back toward 1.15** to restore decision moments
+This makes each successive artist of the same type cheaper relative to current income, creating windows where multiple artists are simultaneously affordable.
+- Change `ARTIST_COST_SCALE` from `1.17` → `1.15`
+- This alone won't slow progression (income comes from rates not scale), but restores purchase variety
+
+**C. Run evaluate:optimal and evaluate:idle after changes**
+Look for:
+- Decision moments: 20+
+- Optimal first prestige: 25–40 min
+- Idle first prestige: 40–60 min
+- Oil Painting (idle): 20–28 min
+
+### Files to change
+- `src/data.ts` — `ARTIST_DEFS` baseRate values, `ARTIST_COST_SCALE` constant
+- Run `bunx tsc --noEmit` before committing
+
+### Branch
+`claude/game-evaluation-system-DUqHy` (same branch)
