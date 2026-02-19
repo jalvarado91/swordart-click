@@ -42,6 +42,7 @@ Goals for this pass:
 | 5 | Small prestige-threshold calibration to `2.3B` | `23:24` | `24:02` | `40:54` | `11:07` | `14:25` | `25:36` |
 | 6 | Prestige-cadence follow-up: add ultra-late achievements (`1,360` to `1,440` artists) | `23:24` | `24:02` | `40:54` | `11:07` | `14:25` | `25:36` |
 | 7 | Diversify late cadence beats with high lifetime-strokes milestones | `23:24` | `24:02` | `40:54` | `11:07` | `14:25` | `20:59` |
+| 8 | Re-anchor non-achievement late beats (`Pen Sword`, `Digital`, `Neural`, `AI`) later in post-prestige windows | `23:24` | `24:02` | `40:54` | `11:07` | `14:19` | `20:59` |
 
 ## Final Validation Matrix
 
@@ -87,6 +88,11 @@ Goals for this pass:
 - `Calligraphy Set`: `baseCost 400` -> `700`; click value `+10` -> `+8`
 - `Ink Brush`: `baseCost 5_000` -> `16_000`; click value `+25` -> `+14`
 - `Precision Blade`: `baseCost 100_000` -> `900_000`; click value `+75` -> `+25`
+- `Pen Sword` threshold: `2.5B` -> `5.5B` total strokes
+- Late media costs re-anchored:
+  - `Digital Art`: `75M` -> `125M`
+  - `Neural Art`: `800M` -> `1.5B`
+  - `AI-Generated`: `5B` -> `10B`
 - Added late-run achievements:
   - `Studio Machine` (1,050 total artists)
   - `Gallery Empire` (1,180 total artists)
@@ -101,8 +107,8 @@ Goals for this pass:
 
 ### Top 2 remaining issues for next pass
 
-1. Late progression cadence still depends mostly on achievements; a future pass could add non-achievement late beats (e.g., additional media/sword milestones) for variety.
-2. Achievement cadence in prestige-depth runs is improved but still clustered in late windows; further spreading could reduce repeat “count threshold” feel.
+1. Prestige-depth late cadence is improved but still has one long segment (~14 minutes) in 120m runs; further smoothing would likely require additional non-achievement systems beyond threshold milestones.
+2. Late achievement pacing is more mixed now (artists + lifetime strokes), but content variety could improve further by introducing new mechanic beats rather than additional achievement gates.
 
 ## Post-Pass Evaluator Alignment
 

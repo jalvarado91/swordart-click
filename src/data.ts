@@ -59,21 +59,21 @@ export const MEDIA_TIERS: MediaTier[] = [
     id: "digital",
     name: "Digital Art",
     multiplier: 800,
-    cost: 75_000_000,
+    cost: 125_000_000,
     desc: "Ctrl+Z is your best friend",
   },
   {
     id: "neural",
     name: "Neural Art",
     multiplier: 4_000,
-    cost: 800_000_000,
+    cost: 1_500_000_000,
     desc: "The model learned from your swords",
   },
   {
     id: "ai",
     name: "AI-Generated",
     multiplier: 20_000,
-    cost: 5_000_000_000,
+    cost: 10_000_000_000,
     desc: "You've become what you swore to destroy",
   },
 ];
@@ -146,7 +146,7 @@ export const SWORD_DEFS: SwordDef[] = [
     id: "penSword",
     name: "Pen Sword",
     desc: "Mightier than itself. A paradox.",
-    threshold: 2_500_000_000,
+    threshold: 5_500_000_000,
     bonus: 25,
   },
 ];
