@@ -13,11 +13,11 @@ import type {
 export const SAVE_KEY = "swordArtClick_save";
 export const SAVE_INTERVAL = 30_000;
 export const TICK_RATE = 100;
-export const COST_SCALE = 1.12;
+export const COST_SCALE = 1.155;
 export const ARTIST_COST_SCALE = 1.15;
 export const MAX_OFFLINE_HOURS = 8;
 export const COLLAPSE_KEY = "swordArtClick_collapsed";
-export const PRESTIGE_THRESHOLD = 2_000_000_000;
+export const PRESTIGE_THRESHOLD = 2_300_000_000;
 
 export const MEDIA_TIERS: MediaTier[] = [
   {
@@ -242,23 +242,23 @@ export const UPGRADE_DEFS: UpgradeDef[] = [
   {
     id: "calligraphy",
     name: "Calligraphy Set",
-    desc: "Every stroke is deliberate. +10 per click.",
-    baseCost: 400,
-    effect: { type: "click", value: 10 },
+    desc: "Every stroke is deliberate. +8 per click.",
+    baseCost: 700,
+    effect: { type: "click", value: 8 },
   },
   {
     id: "inkBrush",
     name: "Ink Brush",
-    desc: "Broad, confident strokes. +25 per click.",
-    baseCost: 5_000,
-    effect: { type: "click", value: 25 },
+    desc: "Broad, confident strokes. +14 per click.",
+    baseCost: 16_000,
+    effect: { type: "click", value: 14 },
   },
   {
     id: "precisionBlade",
     name: "Precision Blade",
-    desc: "A single perfect edge. +75 per click.",
-    baseCost: 100_000,
-    effect: { type: "click", value: 75 },
+    desc: "A single perfect edge. +25 per click.",
+    baseCost: 900_000,
+    effect: { type: "click", value: 25 },
   },
 ];
 
@@ -375,6 +375,96 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     name: "Retirement Plan",
     desc: "Accumulate 1 Trillion lifetime Strokes",
     check: (s: GameState) => s.lifetimeStrokes + s.totalStrokes >= 1_000_000_000_000,
+  },
+  {
+    id: "studioMachine",
+    name: "Studio Machine",
+    desc: "Own 1,050 artists total",
+    check: (s: GameState) => {
+      let total = 0;
+      for (const id in s.artists) total += s.artists[id] ?? 0;
+      return total >= 1_050;
+    },
+  },
+  {
+    id: "galleryEmpire",
+    name: "Gallery Empire",
+    desc: "Own 1,180 artists total",
+    check: (s: GameState) => {
+      let total = 0;
+      for (const id in s.artists) total += s.artists[id] ?? 0;
+      return total >= 1_180;
+    },
+  },
+  {
+    id: "atelierLegion",
+    name: "Atelier Legion",
+    desc: "Own 1,275 artists total",
+    check: (s: GameState) => {
+      let total = 0;
+      for (const id in s.artists) total += s.artists[id] ?? 0;
+      return total >= 1_275;
+    },
+  },
+  {
+    id: "productionLine",
+    name: "Production Line",
+    desc: "Own 1,360 artists total",
+    check: (s: GameState) => {
+      let total = 0;
+      for (const id in s.artists) total += s.artists[id] ?? 0;
+      return total >= 1_360;
+    },
+  },
+  {
+    id: "guildNetwork",
+    name: "Guild Network",
+    desc: "Own 1,385 artists total",
+    check: (s: GameState) => {
+      let total = 0;
+      for (const id in s.artists) total += s.artists[id] ?? 0;
+      return total >= 1_385;
+    },
+  },
+  {
+    id: "grandCollective",
+    name: "Grand Collective",
+    desc: "Own 1,400 artists total",
+    check: (s: GameState) => {
+      let total = 0;
+      for (const id in s.artists) total += s.artists[id] ?? 0;
+      return total >= 1_400;
+    },
+  },
+  {
+    id: "atelierAssembly",
+    name: "Atelier Assembly",
+    desc: "Own 1,412 artists total",
+    check: (s: GameState) => {
+      let total = 0;
+      for (const id in s.artists) total += s.artists[id] ?? 0;
+      return total >= 1_412;
+    },
+  },
+  {
+    id: "livingArchive",
+    name: "Living Archive",
+    desc: "Own 1,425 artists total",
+    check: (s: GameState) => {
+      let total = 0;
+      for (const id in s.artists) total += s.artists[id] ?? 0;
+      return total >= 1_425;
+    },
+  },
+  {
+    id: "endlessStudio",
+    name: "Endless Studio",
+    desc: "Own 1,440 artists total",
+    check: (s: GameState) => {
+      let total = 0;
+      for (const id in s.artists) total += s.artists[id] ?? 0;
+      return total >= 1_440;
+    },
   },
 ];
 
