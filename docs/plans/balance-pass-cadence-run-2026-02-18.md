@@ -41,6 +41,7 @@ Goals for this pass:
 | 2-4 | Additional click-band tuning (`COST_SCALE`, `Ink Brush`, `Precision Blade`, `Calligraphy`) | `22:54` | `23:32` | `40:21` | `11:41` | `14:25` | `23:44` |
 | 5 | Small prestige-threshold calibration to `2.3B` | `23:24` | `24:02` | `40:54` | `11:07` | `14:25` | `25:36` |
 | 6 | Prestige-cadence follow-up: add ultra-late achievements (`1,360` to `1,440` artists) | `23:24` | `24:02` | `40:54` | `11:07` | `14:25` | `25:36` |
+| 7 | Diversify late cadence beats with high lifetime-strokes milestones | `23:24` | `24:02` | `40:54` | `11:07` | `14:25` | `20:59` |
 
 ## Final Validation Matrix
 
@@ -59,8 +60,8 @@ Goals for this pass:
 |---|---:|---:|---:|---:|
 | `optimal` (60m) | `23:24` | `11:07` | `8 beats / 2:00` | `0` |
 | `human` (60m) | `24:02` | `14:25` | `8 beats / 2:00` | `0` |
-| `idle` (120m) | `40:54` | `25:36` | `6 beats / 2:00` | `0` |
-| `prestige` (120m, max 2) | `#1 23:24`, `#2 32:57` | `14:59` | `8 beats / 2:00` | `0` |
+| `idle` (120m) | `40:54` | `20:59` | `6 beats / 2:00` | `0` |
+| `prestige` (120m, max 2) | `#1 23:24`, `#2 32:57` | `13:54` | `8 beats / 2:00` | `0` |
 
 ## Target Table (Hit/Miss)
 
@@ -72,7 +73,7 @@ Goals for this pass:
 | `idle` first prestige not below `35:00` | `40:54` | hit |
 | `optimal` longest novelty drought `<= 15:00` | `11:07` | hit |
 | `human` longest novelty drought `<= 18:00` | `14:25` | hit |
-| `idle` longest novelty drought `<= 30:00` | `25:36` | hit |
+| `idle` longest novelty drought `<= 30:00` | `20:59` | hit |
 | no unreachable artists (`optimal`/`idle`) | all 10 artist types hired in both runs | hit |
 | at least one prestige in `optimal` 60m and `idle` 120m | yes in both | hit |
 | no >10 major beats in 2-minute burst windows | peak `8` | hit |
@@ -91,13 +92,14 @@ Goals for this pass:
   - `Gallery Empire` (1,180 total artists)
   - `Atelier Legion` (1,275 total artists)
   - `Production Line` (1,360 total artists)
-  - `Guild Network` (1,385 total artists)
+  - `Guild Network` (500 trillion lifetime strokes)
   - `Grand Collective` (1,400 total artists)
-  - `Atelier Assembly` (1,412 total artists)
+  - `Legacy Vault` (1.2 quadrillion lifetime strokes)
+  - `Atelier Assembly` (900 trillion lifetime strokes)
   - `Living Archive` (1,425 total artists)
   - `Endless Studio` (1,440 total artists)
 
 ### Top 2 remaining issues for next pass
 
 1. First prestige feel flags remain percentage-based in evaluator output (still prints warning at ~39-40% session share), despite timing now matching per-strategy targets.
-2. Late achievement chain is currently artist-count-heavy; consider diversifying with mixed condition types (strokes, playtime, prestige-depth) to avoid monotony.
+2. Late progression cadence still depends mostly on achievements; a future pass could add non-achievement late beats (e.g., additional media/sword milestones) for variety.

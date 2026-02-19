@@ -419,12 +419,8 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
   {
     id: "guildNetwork",
     name: "Guild Network",
-    desc: "Own 1,385 artists total",
-    check: (s: GameState) => {
-      let total = 0;
-      for (const id in s.artists) total += s.artists[id] ?? 0;
-      return total >= 1_385;
-    },
+    desc: "Accumulate 500 Trillion lifetime Strokes",
+    check: (s: GameState) => s.lifetimeStrokes + s.totalStrokes >= 500_000_000_000_000,
   },
   {
     id: "grandCollective",
@@ -437,14 +433,16 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     },
   },
   {
+    id: "legacyVault",
+    name: "Legacy Vault",
+    desc: "Accumulate 1.2 Quadrillion lifetime Strokes",
+    check: (s: GameState) => s.lifetimeStrokes + s.totalStrokes >= 1_200_000_000_000_000,
+  },
+  {
     id: "atelierAssembly",
     name: "Atelier Assembly",
-    desc: "Own 1,412 artists total",
-    check: (s: GameState) => {
-      let total = 0;
-      for (const id in s.artists) total += s.artists[id] ?? 0;
-      return total >= 1_412;
-    },
+    desc: "Accumulate 900 Trillion lifetime Strokes",
+    check: (s: GameState) => s.lifetimeStrokes + s.totalStrokes >= 900_000_000_000_000,
   },
   {
     id: "livingArchive",

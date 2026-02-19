@@ -13,7 +13,7 @@ This branch contains the following progression/content capabilities.
 - Artists: 10 total, including `Storyboarder` and `Art Director`
 - Click upgrades: 5 total, including `Ink Brush` and `Precision Blade`
 - Prestige upgrades: 9 total, including `Sharp Eye`, `Steady Hand`, `Ink Reserves`, `Sketch Head Start`
-- Achievements include deeper-session goals: `Workshop Foreman`, `Long-Form`, `Committed`, `The Long Game`, `Retirement Plan`, `Studio Machine`, `Gallery Empire`, `Atelier Legion`, `Production Line`, `Guild Network`, `Grand Collective`, `Atelier Assembly`, `Living Archive`, `Endless Studio`
+- Achievements include deeper-session goals: `Workshop Foreman`, `Long-Form`, `Committed`, `The Long Game`, `Retirement Plan`, `Studio Machine`, `Gallery Empire`, `Atelier Legion`, `Production Line`, `Guild Network`, `Grand Collective`, `Legacy Vault`, `Atelier Assembly`, `Living Archive`, `Endless Studio`
 
 ## Evaluation Notes
 
