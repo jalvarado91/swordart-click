@@ -26,6 +26,10 @@ This branch contains the following progression/content capabilities.
 ### Authoritative Metrics
 
 - Milestone timing (media tiers, swords, prestige access)
+- Strategy-aware first prestige timing windows:
+  - `optimal` / `cheapest`: `22:00-30:00`
+  - `human`: `24:00-34:00`
+  - `idle`: `38:00-55:00`
 - Phase durations (early/mid/late)
 - Experience cadence:
   - first-time major beat count and timing

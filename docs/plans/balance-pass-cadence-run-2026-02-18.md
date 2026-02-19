@@ -101,5 +101,17 @@ Goals for this pass:
 
 ### Top 2 remaining issues for next pass
 
-1. First prestige feel flags remain percentage-based in evaluator output (still prints warning at ~39-40% session share), despite timing now matching per-strategy targets.
-2. Late progression cadence still depends mostly on achievements; a future pass could add non-achievement late beats (e.g., additional media/sword milestones) for variety.
+1. Late progression cadence still depends mostly on achievements; a future pass could add non-achievement late beats (e.g., additional media/sword milestones) for variety.
+2. Achievement cadence in prestige-depth runs is improved but still clustered in late windows; further spreading could reduce repeat “count threshold” feel.
+
+## Post-Pass Evaluator Alignment
+
+- Updated `scripts/evaluate.ts` prestige timing flags to be strategy-window based:
+  - `optimal` / `cheapest`: `22:00-30:00`
+  - `human`: `24:00-34:00`
+  - `idle`: `38:00-55:00`
+- Replaced the prior percentage-of-session warning path for known strategies.
+- Verified output now reports:
+  - `optimal`: `First prestige at 23:24 — within 22:00-30:00 target`
+  - `human`: `First prestige at 24:02 — within 24:00-34:00 target`
+  - `idle`: `First prestige at 40:54 — within 38:00-55:00 target`

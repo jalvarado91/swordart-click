@@ -102,6 +102,24 @@ const CLOSE_CALL_ROI_DELTA = 0.15;
 const HUMAN_REACTION_DELAY_MIN = 0.35;
 const HUMAN_REACTION_DELAY_MAX = 1.2;
 
+interface PrestigeTimingTarget {
+  minSecs: number;
+  maxSecs: number;
+}
+
+function getPrestigeTimingTarget(strategy: Strategy): PrestigeTimingTarget | null {
+  if (strategy === "optimal" || strategy === "cheapest") {
+    return { minSecs: 22 * 60, maxSecs: 30 * 60 };
+  }
+  if (strategy === "human") {
+    return { minSecs: 24 * 60, maxSecs: 34 * 60 };
+  }
+  if (strategy === "idle") {
+    return { minSecs: 38 * 60, maxSecs: 55 * 60 };
+  }
+  return null;
+}
+
 // ─── State Management ─────────────────────────────────────────────────────────
 
 function createState(): GameState {
@@ -1239,21 +1257,48 @@ function printReport(result: SimResult): void {
   if (prestigeTimes.length > 0) {
     const firstPrestige = prestigeTimes[0]!;
     const pctOfSession = firstPrestige / result.durationSecs;
-    if (pctOfSession < 0.4)
+    const prestigeTarget = getPrestigeTimingTarget(STRATEGY);
+    if (prestigeTarget) {
+      if (firstPrestige < prestigeTarget.minSecs) {
+        flags.push({
+          warn: true,
+          msg: `First prestige at ${fmtTime(firstPrestige)} — earlier than ${fmtTime(prestigeTarget.minSecs)} target for ${STRATEGY} runs`,
+        });
+      } else if (firstPrestige > prestigeTarget.maxSecs) {
+        flags.push({
+          warn: true,
+          msg: `First prestige at ${fmtTime(firstPrestige)} — later than ${fmtTime(prestigeTarget.maxSecs)} target for ${STRATEGY} runs`,
+        });
+      } else {
+        flags.push({
+          warn: false,
+          msg: `First prestige at ${fmtTime(firstPrestige)} — within ${fmtTime(prestigeTarget.minSecs)}-${fmtTime(prestigeTarget.maxSecs)} target for ${STRATEGY} runs`,
+        });
+      }
+    } else if (pctOfSession < 0.4) {
       flags.push({
         warn: true,
         msg: `First prestige at ${fmtPct(pctOfSession)} of session (${fmtTime(firstPrestige)}) — may feel rushed`,
       });
-    else
+    } else {
       flags.push({
         warn: false,
         msg: `First prestige at ${fmtTime(firstPrestige)} (${fmtPct(pctOfSession)} of session) — feels paced`,
       });
+    }
   } else if (MAX_PRESTIGES > 0) {
-    flags.push({
-      warn: true,
-      msg: `Prestige not reached in ${DURATION_MINUTES} min — threshold is ${fmtNum(PRESTIGE_THRESHOLD)} total strokes`,
-    });
+    const prestigeTarget = getPrestigeTimingTarget(STRATEGY);
+    if (prestigeTarget) {
+      flags.push({
+        warn: true,
+        msg: `Prestige not reached in ${DURATION_MINUTES} min — expected first prestige around ${fmtTime(prestigeTarget.minSecs)}-${fmtTime(prestigeTarget.maxSecs)} for ${STRATEGY} runs`,
+      });
+    } else {
+      flags.push({
+        warn: true,
+        msg: `Prestige not reached in ${DURATION_MINUTES} min — threshold is ${fmtNum(PRESTIGE_THRESHOLD)} total strokes`,
+      });
+    }
   }
 
   if (STRATEGY === "optimal" || STRATEGY === "idle") {
