@@ -9,7 +9,8 @@ This branch contains the following progression/content capabilities.
 - `PRESTIGE_THRESHOLD`: `2_300_000_000`
 - `COST_SCALE`: `1.155`
 - `ARTIST_COST_SCALE`: `1.15`
-- Late sword threshold re-anchor: `Pen Sword` at `5_500_000_000` total strokes
+- Swords: 11 total (`Butter Knife` -> `Mythic Monoblade`)
+- Late sword threshold re-anchors: `Pen Sword` at `5_500_000_000`, `Mythic Monoblade` at `1_350_000_000_000_000` total strokes
 - Late media cost anchors: `Digital 125M`, `Neural 1.5B`, `AI 10B`
 - Media tiers: 8 total (`Pencil` -> `AI-Generated`), including `Neural Art`
 - Artists: 10 total, including `Storyboarder` and `Art Director`

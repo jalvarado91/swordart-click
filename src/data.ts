@@ -149,6 +149,13 @@ export const SWORD_DEFS: SwordDef[] = [
     threshold: 5_500_000_000,
     bonus: 25,
   },
+  {
+    id: "mythicMonoblade",
+    name: "Mythic Monoblade",
+    desc: "Too sharp for canon, too late to matter to balance sheets.",
+    threshold: 1_350_000_000_000_000,
+    bonus: 6,
+  },
 ];
 
 export const ARTIST_DEFS: ArtistDef[] = [

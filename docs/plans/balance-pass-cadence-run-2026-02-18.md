@@ -43,6 +43,7 @@ Goals for this pass:
 | 6 | Prestige-cadence follow-up: add ultra-late achievements (`1,360` to `1,440` artists) | `23:24` | `24:02` | `40:54` | `11:07` | `14:25` | `25:36` |
 | 7 | Diversify late cadence beats with high lifetime-strokes milestones | `23:24` | `24:02` | `40:54` | `11:07` | `14:25` | `20:59` |
 | 8 | Re-anchor non-achievement late beats (`Pen Sword`, `Digital`, `Neural`, `AI`) later in post-prestige windows | `23:24` | `24:02` | `40:54` | `11:07` | `14:19` | `20:59` |
+| 9 | Add an ultra-late non-achievement sword beat (`Mythic Monoblade`) for prestige-depth cadence smoothing | `23:24` | `24:02` | `40:54` | `11:07` | `14:19` | `20:59` |
 
 ## Final Validation Matrix
 
@@ -60,9 +61,9 @@ Goals for this pass:
 | Run | First prestige | Longest novelty drought | Peak novelty burst | Dead zones |
 |---|---:|---:|---:|---:|
 | `optimal` (60m) | `23:24` | `11:07` | `8 beats / 2:00` | `0` |
-| `human` (60m) | `24:02` | `14:25` | `8 beats / 2:00` | `0` |
+| `human` (60m) | `24:02` | `14:19` | `8 beats / 2:00` | `0` |
 | `idle` (120m) | `40:54` | `20:59` | `6 beats / 2:00` | `0` |
-| `prestige` (120m, max 2) | `#1 23:24`, `#2 32:57` | `13:54` | `8 beats / 2:00` | `0` |
+| `prestige` (120m, max 2) | `#1 23:24`, `#2 32:57` | `12:27` | `8 beats / 2:00` | `0` |
 
 ## Target Table (Hit/Miss)
 
@@ -73,7 +74,7 @@ Goals for this pass:
 | `idle` first prestige `38:00`-`55:00` | `40:54` | hit |
 | `idle` first prestige not below `35:00` | `40:54` | hit |
 | `optimal` longest novelty drought `<= 15:00` | `11:07` | hit |
-| `human` longest novelty drought `<= 18:00` | `14:25` | hit |
+| `human` longest novelty drought `<= 18:00` | `14:19` | hit |
 | `idle` longest novelty drought `<= 30:00` | `20:59` | hit |
 | no unreachable artists (`optimal`/`idle`) | all 10 artist types hired in both runs | hit |
 | at least one prestige in `optimal` 60m and `idle` 120m | yes in both | hit |
@@ -89,6 +90,8 @@ Goals for this pass:
 - `Ink Brush`: `baseCost 5_000` -> `16_000`; click value `+25` -> `+14`
 - `Precision Blade`: `baseCost 100_000` -> `900_000`; click value `+75` -> `+25`
 - `Pen Sword` threshold: `2.5B` -> `5.5B` total strokes
+- Added ultra-late sword beat:
+  - `Mythic Monoblade` at `1.35 quadrillion` total strokes (`+6%` production)
 - Late media costs re-anchored:
   - `Digital Art`: `75M` -> `125M`
   - `Neural Art`: `800M` -> `1.5B`
@@ -107,8 +110,8 @@ Goals for this pass:
 
 ### Top 2 remaining issues for next pass
 
-1. Prestige-depth late cadence is improved but still has one long segment (~14 minutes) in 120m runs; further smoothing would likely require additional non-achievement systems beyond threshold milestones.
-2. Late achievement pacing is more mixed now (artists + lifetime strokes), but content variety could improve further by introducing new mechanic beats rather than additional achievement gates.
+1. Prestige-depth cadence is substantially improved, but still leans on milestone thresholds; richer late-game mechanics would give stronger variety than additional threshold beats.
+2. Late-run novelty still concentrates in `ACHIEVE`/`SWORD` categories; adding a non-achievement system-level beat (new mechanic or interaction) is the next meaningful quality step.
 
 ## Post-Pass Evaluator Alignment
 
