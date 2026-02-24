@@ -24,7 +24,7 @@ export function formatNumber(n: number): string {
   const suffix = suffixes[tier] ?? `e${tier * 3}`;
   const scale = Math.pow(10, tier * 3);
   const scaled = n / scale;
-  return scaled.toFixed(scaled < 10 ? 2 : scaled < 100 ? 1 : 0) + suffix;
+  return scaled.toFixed(scaled < 10 ? 2 : 1) + suffix;
 }
 
 // --- Multiplier calculation ---

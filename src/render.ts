@@ -247,6 +247,7 @@ let statStrokesMergeUntil = 0;
 let statClickMergeUntil = 0;
 let statSecondMergeUntil = 0;
 let statMultMergeUntil = 0;
+let strokesBurstCount = 0;
 
 // --- Init: create all DOM elements once ---
 
@@ -495,6 +496,7 @@ export function initDOM(): void {
   statClickMergeUntil = 0;
   statSecondMergeUntil = 0;
   statMultMergeUntil = 0;
+  strokesBurstCount = 0;
 }
 
 // --- Render: pure function of state, writes to DOM, never reads ---
@@ -527,7 +529,8 @@ export function render(state: GameState): void {
     prevShowMultiplier = showMultiplier;
   }
   if (clickDelta > 0) {
-    statStrokesCueUntil = now + 380;
+    strokesBurstCount = now <= statStrokesMergeUntil ? Math.min(4, strokesBurstCount + 1) : 0;
+    statStrokesCueUntil = now + 700;
     const delta = perClickValue * clickDelta;
     statStrokesAccum = accumulateDelta(
       statStrokesAccum,
@@ -536,7 +539,9 @@ export function render(state: GameState): void {
       statStrokesMergeUntil,
     );
     statStrokesMergeUntil = now + 260;
+    dom.strokesTile.style.setProperty("--burst", String(strokesBurstCount));
     dom.strokesTile.dataset.delta = formatDeltaValue(statStrokesAccum);
+    dom.strokesTile.classList.add("stat-cue", "stat-cue-up");
     restartStatCueBurst(dom.strokesTile);
   }
   if (prevPerClickValue >= 0 && perClickValue !== prevPerClickValue) {
@@ -546,6 +551,9 @@ export function render(state: GameState): void {
     statClickMergeUntil = now + 260;
     statClickCueDir = statClickAccum >= 0 ? "up" : "down";
     dom.clickTile.dataset.delta = formatDeltaValue(statClickAccum);
+    dom.clickTile.classList.add("stat-cue");
+    dom.clickTile.classList.toggle("stat-cue-up", statClickCueDir === "up");
+    dom.clickTile.classList.toggle("stat-cue-down", statClickCueDir === "down");
     restartStatCueBurst(dom.clickTile);
   }
   if (prevPerSecondValue >= 0 && perSecondValue !== prevPerSecondValue) {
@@ -560,6 +568,9 @@ export function render(state: GameState): void {
     statSecondMergeUntil = now + 260;
     statSecondCueDir = statSecondAccum >= 0 ? "up" : "down";
     dom.secondTile.dataset.delta = formatDeltaValue(statSecondAccum);
+    dom.secondTile.classList.add("stat-cue");
+    dom.secondTile.classList.toggle("stat-cue-up", statSecondCueDir === "up");
+    dom.secondTile.classList.toggle("stat-cue-down", statSecondCueDir === "down");
     restartStatCueBurst(dom.secondTile);
   }
   if (prevMultValue >= 0 && mult !== prevMultValue) {
@@ -570,6 +581,9 @@ export function render(state: GameState): void {
     statMultCueDir = statMultAccum >= 0 ? "up" : "down";
     dom.multiplierTile.dataset.delta =
       `${statMultAccum > 0 ? "+" : ""}${statMultAccum.toFixed(1)}x`;
+    dom.multiplierTile.classList.add("stat-cue");
+    dom.multiplierTile.classList.toggle("stat-cue-up", statMultCueDir === "up");
+    dom.multiplierTile.classList.toggle("stat-cue-down", statMultCueDir === "down");
     restartStatCueBurst(dom.multiplierTile);
   }
   applyStatCue(dom.strokesTile, now < statStrokesCueUntil, "up");
