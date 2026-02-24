@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <title>Sword Art Click (Mobile Test)</title>
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x2694;</text></svg>"
+        />
+        <link rel="stylesheet" href="src/style.css" />
+        <link rel="stylesheet" href="src/style-mobile.css" />
+    </head>
+    <body class="ui-density-compact mobile-view" data-mobile-tab="draw">
+        <div id="game">
+            <div id="top-bar">
+                <h1>Sword Art Click</h1>
+                <div id="stats">
+                    <div id="stat-strokes-tile" class="stat-tile stat-primary">
+                        <span class="stat-label">Strokes</span>
+                        <span id="strokes-count" class="stat-value">0</span>
+                    </div>
+                    <div id="stat-click-tile" class="stat-tile">
+                        <span class="stat-label">Per Click</span>
+                        <span class="stat-value">+<strong id="per-click">1</strong></span>
+                    </div>
+                    <div id="stat-second-tile" class="stat-tile">
+                        <span class="stat-label">Per Second</span>
+                        <span class="stat-value">+<strong id="per-second">0</strong></span>
+                    </div>
+                    <div id="stat-multiplier" class="stat-tile stat-multiplier">
+                        <span class="stat-label">Multiplier</span>
+                        <span id="multiplier-display" class="stat-value"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-left">
+                <div id="media-panel" class="panel-card panel-card-accent">
+                    <h2 id="media-heading">Art Media</h2>
+                    <p id="media-phase-tone" class="section-subtext">
+                        Simple tools, steady hands.
+                    </p>
+                    <div id="current-media-label">
+                        Current:
+                        <span id="current-media">Pencil Sketch (1x)</span>
+                    </div>
+                    <div id="media-interaction">
+                        <button id="draw-btn">
+                            <span class="sword-icon">&#x2694;</span>
+                            <span id="draw-btn-label" class="btn-label">Draw!</span>
+                        </button>
+                        <button id="media-upgrade-btn" class="upgrade-btn"></button>
+                    </div>
+                </div>
+
+                <div id="upgrades-panel" class="panel-card">
+                    <h2 id="upgrades-heading">Click Upgrades</h2>
+                    <p id="upgrades-phase-tone" class="section-subtext">
+                        Refine your linework one tool at a time.
+                    </p>
+                    <div id="upgrades-list"></div>
+                </div>
+            </div>
+
+            <div id="stage">
+                <div id="canvas-area">
+                    <div class="hero-frame">
+                        <div class="hero-rune-ring" aria-hidden="true"></div>
+                        <div class="hero-core">
+                            <div id="hero-title" class="hero-title">
+                                Blank Forge
+                            </div>
+                            <div id="hero-status" class="hero-status">
+                                Awaiting your next stroke.
+                            </div>
+                        </div>
+                        <div
+                            class="hero-ornament hero-ornament-left"
+                            aria-hidden="true"
+                        ></div>
+                        <div
+                            class="hero-ornament hero-ornament-right"
+                            aria-hidden="true"
+                        ></div>
+                    </div>
+                </div>
+                <div id="gallery-section" class="collapsible">
+                    <h2
+                        id="gallery-heading"
+                        class="collapsible-toggle"
+                        data-section="gallery"
+                    >
+                        <span id="gallery-heading-label">Sword Gallery</span>
+                        <span class="toggle-indicator">&#x25BC;</span>
+                    </h2>
+                    <div class="collapsible-content" id="gallery-content">
+                        <p id="gallery-phase-tone" class="gallery-note">
+                            Unlocks automatically as your total Strokes increase.
+                        </p>
+                        <div id="sword-gallery"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-right">
+                <div id="artists-panel">
+                    <h2 id="artists-heading">Artists</h2>
+                    <p id="artists-phase-tone" class="section-subtext">
+                        Each helper adds a steady hand to your craft.
+                    </p>
+                    <div id="artists-list"></div>
+                </div>
+            </div>
+
+            <div id="drawer" class="drawer-closed">
+                <div id="drawer-backdrop"></div>
+                <div id="drawer-shell">
+                    <div id="drawer-top">
+                        <h2 id="drawer-title">Production</h2>
+                        <button id="drawer-close-btn" class="settings-btn">
+                            Close
+                        </button>
+                    </div>
+                    <div id="drawer-content">
+                        <div id="drawer-prestige" class="drawer-panel">
+                        <div
+                            id="prestige-panel"
+                            class="panel-card panel-card-prestige"
+                        >
+                            <div class="prestige-header">
+                                <h3 class="prestige-title">Ascension Rite</h3>
+                                <p class="prestige-subtitle">
+                                    End this run, keep your legacy, return stronger.
+                                </p>
+                                <div id="prestige-phases" class="panel-inline-meta">
+                                    <span id="prestige-phase-build" class="panel-pill"
+                                        >1. Build</span
+                                    >
+                                    <span id="prestige-phase-qualify" class="panel-pill"
+                                        >2. Qualify</span
+                                    >
+                                    <span id="prestige-phase-confirm" class="panel-pill"
+                                        >3. Confirm</span
+                                    >
+                                </div>
+                            </div>
+                            <div class="prestige-main">
+                                <div class="prestige-status-card">
+                                    <div id="prestige-stats"></div>
+                                    <p class="prestige-note">
+                                        Ascension resets this run but preserves Legacy
+                                        Points, purchased ascension upgrades, and your
+                                        ascension count.
+                                    </p>
+                                </div>
+                                <div class="prestige-action-card">
+                                <button
+                                    id="prestige-btn"
+                                    class="prestige-action-btn"
+                                    disabled
+                                >
+                                    Ascend<br />
+                                    <span class="prestige-ep-gain"
+                                        >Reach 10M total Strokes to unlock</span
+                                    >
+                                </button>
+                                    <p class="prestige-action-hint">
+                                        Confirm appears for a short window to prevent
+                                        accidental resets.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="prestige-upgrades-block">
+                                <h3>Ascension Upgrades</h3>
+                                <div id="prestige-upgrades-list"></div>
+                            </div>
+                        </div>
+                        </div>
+                        <div id="drawer-production" class="drawer-panel">
+                            <div id="breakdown-panel" class="panel-card">
+                                <div
+                                    id="production-summary"
+                                    class="panel-inline-meta"
+                                >
+                                    <span
+                                        id="production-artist-pill"
+                                        class="panel-pill"
+                                    >0 artist types active</span
+                                >
+                                <span
+                                    id="production-top-pill"
+                                    class="panel-pill"
+                                    >Top: none</span
+                                >
+                                </div>
+                                <div id="production-breakdown"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="drawer-achievements" class="drawer-panel">
+                        <p class="achievement-note">
+                            Newly unlocked achievements glow briefly.
+                        </p>
+                        <div id="achievements-list"></div>
+                    </div>
+                    <div id="drawer-settings" class="drawer-panel">
+                        <div id="settings-controls">
+                                <button id="mute-btn" class="settings-btn">
+                                    Mute
+                                </button>
+                                <button id="save-btn" class="settings-btn">
+                                    Save
+                                </button>
+                                <button id="export-btn" class="settings-btn">
+                                    Export
+                                </button>
+                                <button id="import-btn" class="settings-btn">
+                                    Import
+                                </button>
+                                <button id="reset-btn" class="settings-btn">
+                                    Reset
+                                </button>
+                            </div>
+                            <textarea
+                                id="save-data"
+                                placeholder="Paste save data here to import..."
+                                rows="3"
+                            ></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden bottom-bar: game JS writes to these elements; we keep them in DOM -->
+            <div id="bottom-bar" aria-hidden="true">
+                <button class="tab-btn" data-drawer="production">
+                    <span class="tab-label">Production</span>
+                    <span class="tab-stat" id="tab-production">0 active</span>
+                </button>
+                <button class="tab-btn" data-drawer="achievements">
+                    <span class="tab-label">Achievements</span>
+                    <span class="tab-stat" id="tab-achievements"
+                        ><span id="achievement-counter">0/11</span></span
+                    >
+                </button>
+                <button class="tab-btn" data-drawer="prestige">
+                    <span class="tab-label">Ascend</span>
+                    <span class="tab-stat" id="tab-ep">0 LP</span>
+                </button>
+                <button class="tab-btn" data-drawer="settings">
+                    <span class="tab-label">Settings</span>
+                </button>
+            </div>
+
+            <div id="notifications"></div>
+        </div>
+
+        <!-- Mobile navigation — only in mobile.html, not part of the main game -->
+        <nav id="mobile-nav" aria-label="Mobile navigation">
+            <button class="mob-tab-btn mob-tab-active" data-mob-tab="draw">
+                <span class="mob-tab-icon">&#x2694;</span>
+                <span class="mob-tab-label">Draw</span>
+            </button>
+            <button class="mob-tab-btn" data-mob-tab="gallery">
+                <span class="mob-tab-icon">&#x1F5BC;</span>
+                <span class="mob-tab-label">Canvas</span>
+            </button>
+            <button class="mob-tab-btn" data-mob-tab="artists">
+                <span class="mob-tab-icon">&#x270F;</span>
+                <span class="mob-tab-label">Artists</span>
+            </button>
+            <button class="mob-tab-btn" data-mob-tab="more">
+                <span class="mob-tab-icon">&#x22EF;</span>
+                <span class="mob-tab-label">More</span>
+            </button>
+        </nav>
+
+        <script src="dist/game.js"></script>
+        <script>
+            // Mobile tab switching — only runs in mobile.html
+            (function () {
+                var DRAWER_TABS = {
+                    production: "production",
+                    achievements: "achievements",
+                    prestige: "prestige",
+                    settings: "settings",
+                };
+
+                var mobBtns = document.querySelectorAll(".mob-tab-btn");
+                var lastDrawerTab = "production";
+
+                mobBtns.forEach(function (btn) {
+                    btn.addEventListener("click", function () {
+                        var tab = btn.dataset.mobTab;
+
+                        if (tab === "more") {
+                            // Open the drawer via the hidden bottom-bar button
+                            var drawerBtn = document.querySelector(
+                                '.tab-btn[data-drawer="' + lastDrawerTab + '"]'
+                            );
+                            if (drawerBtn) drawerBtn.click();
+                            return;
+                        }
+
+                        // Switch visible panel
+                        document.body.dataset.mobileTab = tab;
+                        mobBtns.forEach(function (b) {
+                            b.classList.remove("mob-tab-active");
+                        });
+                        btn.classList.add("mob-tab-active");
+                    });
+                });
+
+                // Track which drawer tab was last opened so "More" re-opens it
+                document.querySelectorAll(".tab-btn[data-drawer]").forEach(function (btn) {
+                    btn.addEventListener("click", function () {
+                        lastDrawerTab = btn.dataset.drawer;
+                    });
+                });
+            })();
+        </script>
+    </body>
+</html>
