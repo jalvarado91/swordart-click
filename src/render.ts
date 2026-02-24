@@ -502,7 +502,7 @@ export function initDOM(): void {
 export function render(state: GameState): void {
   const now = performance.now();
   const clickDelta = prevTotalClicks < 0 ? 0 : state.totalClicks - prevTotalClicks;
-  const canAscend = canPrestige();
+  const canAscend = canPrestige(state);
   const phase = detectRunPhase(state, canAscend);
   if (phase !== prevPhase) {
     applyPhaseClasses(phase);
@@ -512,13 +512,13 @@ export function render(state: GameState): void {
   }
 
   // Stats bar
-  const perClickValue = getEffectiveClickPower();
-  const perSecondValue = getEffectivePassiveRate();
+  const perClickValue = getEffectiveClickPower(state);
+  const perSecondValue = getEffectivePassiveRate(state);
   dom.strokesCount.textContent = formatNumber(state.strokes);
   dom.perClick.textContent = formatNumber(perClickValue);
   dom.perSecond.textContent = formatNumber(perSecondValue);
 
-  const mult = getTotalMultiplier();
+  const mult = getTotalMultiplier(state);
   const showMultiplier = mult > 1;
   dom.multiplier.textContent = mult > 1 ? `${mult.toFixed(1)}x` : "";
   dom.multiplierTile.style.display = showMultiplier ? "" : "none";
@@ -625,7 +625,7 @@ export function render(state: GameState): void {
   let nextUpgradeScore = -1;
   for (const def of UPGRADE_DEFS) {
     const els = dom.upgrades.get(def.id)!;
-    const cost = getUpgradeCost(def);
+    const cost = getUpgradeCost(def, state);
     const owned = state.upgrades[def.id] ?? 0;
     const isVisible = shouldShowProgressiveOption(
       cost,
@@ -654,7 +654,7 @@ export function render(state: GameState): void {
   let nextArtistScore = -1;
   for (const def of ARTIST_DEFS) {
     const els = dom.artists.get(def.id)!;
-    const cost = getArtistCost(def);
+    const cost = getArtistCost(def, state);
     const owned = state.artists[def.id] ?? 0;
     const isVisible = shouldShowProgressiveOption(
       cost,
@@ -672,7 +672,7 @@ export function render(state: GameState): void {
     els.btn.disabled = state.strokes < cost;
     els.cost.textContent = formatNumber(cost) + " Strokes";
     els.count.textContent = owned > 0 ? `Owned: ${owned}` : "";
-    const prod = getArtistProduction(def);
+    const prod = getArtistProduction(def, state);
     els.prod.textContent =
       owned > 0 ? `Producing: ${formatNumber(prod)}/sec` : "";
   }
@@ -814,7 +814,7 @@ export function render(state: GameState): void {
     const els = dom.prestigeUpgrades.get(def.id)!;
     const owned = state.prestigeUpgrades[def.id] ?? 0;
     const maxed = owned >= def.maxLevel;
-    const cost = getPrestigeUpgradeCost(def);
+    const cost = getPrestigeUpgradeCost(def, state);
     els.btn.disabled = maxed || state.erasurePoints < cost;
     els.cost.textContent = maxed ? "MAX" : cost + " LP";
     els.owned.textContent =
@@ -833,7 +833,7 @@ export function render(state: GameState): void {
   // Tab bar inline stats
   dom.tabEP.textContent = `${state.erasurePoints} LP`;
   dom.prestigeTabBtn.classList.toggle("tab-ready", canAscend);
-  const passiveRate = getEffectivePassiveRate();
+  const passiveRate = getEffectivePassiveRate(state);
   let activeArtistTypes = 0;
   let topArtistName = "none";
   let topArtistProd = 0;
@@ -841,7 +841,7 @@ export function render(state: GameState): void {
     const owned = state.artists[def.id] ?? 0;
     if (owned > 0) {
       activeArtistTypes++;
-      const prod = getArtistProduction(def);
+      const prod = getArtistProduction(def, state);
       if (prod > topArtistProd) {
         topArtistProd = prod;
         topArtistName = def.name;
@@ -1056,8 +1056,8 @@ function initBreakdown(): BreakdownElements {
 }
 
 function renderBreakdown(state: GameState): void {
-  const mult = getTotalMultiplier();
-  const totalRate = getEffectivePassiveRate();
+  const mult = getTotalMultiplier(state);
+  const totalRate = getEffectivePassiveRate(state);
   let hasAny = false;
   const rows: Array<{
     defId: string;

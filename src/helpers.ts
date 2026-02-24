@@ -1,6 +1,10 @@
 // Sword Art Click — Pure helper functions
+//
+// All state-dependent functions take GameState as an explicit first parameter
+// so they can be used both by the browser game (logic.ts, render.ts) and by
+// headless tools (scripts/evaluate.ts) without importing the global singleton.
 
-import type { ArtistDef, PrestigeUpgradeDef, UpgradeDef } from "./types.ts";
+import type { ArtistDef, GameState, PrestigeUpgradeDef, UpgradeDef } from "./types.ts";
 import {
   ARTIST_COST_SCALE,
   COST_SCALE,
@@ -9,7 +13,6 @@ import {
   PRESTIGE_THRESHOLD,
   SWORD_DEFS,
 } from "./data.ts";
-import { state } from "./state.ts";
 
 // --- Number formatting ---
 
@@ -26,59 +29,61 @@ export function formatNumber(n: number): string {
 
 // --- Multiplier calculation ---
 
-export function getMediaMultiplier(): number {
-  return MEDIA_TIERS[state.mediaTier]!.multiplier;
+function getMediaMultiplier(s: GameState): number {
+  return MEDIA_TIERS[s.mediaTier]!.multiplier;
 }
 
-export function getSwordBonus(): number {
+export function getSwordBonus(s: GameState): number {
   let bonus = 0;
-  for (const swordId of state.unlockedSwords) {
-    const def = SWORD_DEFS.find((s) => s.id === swordId);
+  for (const swordId of s.unlockedSwords) {
+    const def = SWORD_DEFS.find((d) => d.id === swordId);
     if (def) bonus += def.bonus;
   }
   return bonus;
 }
 
-export function getPrestigeBonus(id: string): number {
-  return state.prestigeUpgrades[id] ?? 0;
+export function getPrestigeBonus(s: GameState, id: string): number {
+  return s.prestigeUpgrades[id] ?? 0;
 }
 
-export function getTotalMultiplier(): number {
-  const mediaMultiplier = getMediaMultiplier();
-  const swordBonus = 1 + getSwordBonus() / 100;
-  const speedSketchBonus = 1 + getPrestigeBonus("speedSketch") * 0.5;
-  return mediaMultiplier * swordBonus * speedSketchBonus;
+export function getTotalMultiplier(s: GameState): number {
+  const mediaMultiplier = getMediaMultiplier(s);
+  const swordBonus = 1 + getSwordBonus(s) / 100;
+  const speedSketchBonus = 1 + getPrestigeBonus(s, "speedSketch") * 0.5;
+  const sharpEyeBonus = 1 + getPrestigeBonus(s, "sharpEye") * 0.05;
+  return mediaMultiplier * swordBonus * speedSketchBonus * sharpEyeBonus;
 }
 
-export function getEffectiveClickPower(): number {
-  const muscleMemoryBonus = 1 + getPrestigeBonus("muscleMemory") * 0.1;
-  return state.clickPower * getTotalMultiplier() * muscleMemoryBonus;
+export function getEffectiveClickPower(s: GameState): number {
+  const muscleMemoryBonus = 1 + getPrestigeBonus(s, "muscleMemory") * 0.1;
+  const steadyHandBonus = 1 + getPrestigeBonus(s, "steadyHand") * 0.05;
+  return s.clickPower * getTotalMultiplier(s) * muscleMemoryBonus * steadyHandBonus;
 }
 
-export function getEffectivePassiveRate(): number {
-  const artSchoolBonus = 1 + getPrestigeBonus("artSchool") * 0.25;
-  return state.passiveRate * getTotalMultiplier() * artSchoolBonus;
+export function getEffectivePassiveRate(s: GameState): number {
+  const artSchoolBonus = 1 + getPrestigeBonus(s, "artSchool") * 0.25;
+  return s.passiveRate * getTotalMultiplier(s) * artSchoolBonus;
 }
 
 // --- Cost calculation ---
 
-export function getUpgradeCost(def: UpgradeDef): number {
-  const owned = state.upgrades[def.id] ?? 0;
+export function getUpgradeCost(def: UpgradeDef, s: GameState): number {
+  const owned = s.upgrades[def.id] ?? 0;
   return Math.floor(def.baseCost * Math.pow(COST_SCALE, owned));
 }
 
-export function getArtistCost(def: ArtistDef): number {
-  const owned = state.artists[def.id] ?? 0;
+export function getArtistCost(def: ArtistDef, s: GameState): number {
+  const owned = s.artists[def.id] ?? 0;
   return Math.floor(def.baseCost * Math.pow(ARTIST_COST_SCALE, owned));
 }
 
-export function getArtistProduction(def: ArtistDef): number {
-  const owned = state.artists[def.id] ?? 0;
-  return def.baseRate * owned * getTotalMultiplier();
+export function getArtistProduction(def: ArtistDef, s: GameState): number {
+  const owned = s.artists[def.id] ?? 0;
+  return def.baseRate * owned * getTotalMultiplier(s);
 }
 
-export function getPrestigeUpgradeCost(def: PrestigeUpgradeDef): number {
-  const owned = state.prestigeUpgrades[def.id] ?? 0;
+export function getPrestigeUpgradeCost(def: PrestigeUpgradeDef, s: GameState): number {
+  const owned = s.prestigeUpgrades[def.id] ?? 0;
   return Math.floor(def.baseCost * Math.pow(1.5, owned));
 }
 
@@ -88,15 +93,15 @@ export function calculateErasurePoints(totalStrokes: number): number {
   return Math.floor(Math.sqrt(totalStrokes / 1_000_000));
 }
 
-export function canPrestige(): boolean {
-  return state.totalStrokes >= PRESTIGE_THRESHOLD;
+export function canPrestige(s: GameState): boolean {
+  return s.totalStrokes >= PRESTIGE_THRESHOLD;
 }
 
 // --- Offline progress ---
 
-export function calculateOfflineProgress(elapsedMs: number): number {
+export function calculateOfflineProgress(s: GameState, elapsedMs: number): number {
   const maxMs = MAX_OFFLINE_HOURS * 60 * 60 * 1000;
   const cappedMs = Math.min(elapsedMs, maxMs);
   const seconds = cappedMs / 1000;
-  return getEffectivePassiveRate() * seconds;
+  return getEffectivePassiveRate(s) * seconds;
 }

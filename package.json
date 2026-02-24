@@ -3,7 +3,12 @@
   "private": true,
   "scripts": {
     "build": "bun build src/main.ts --outdir dist --entry-naming 'game.[ext]' --target browser",
-    "watch": "bun build src/main.ts --outdir dist --entry-naming 'game.[ext]' --target browser --watch"
+    "watch": "bun build src/main.ts --outdir dist --entry-naming 'game.[ext]' --target browser --watch",
+    "evaluate": "bun scripts/evaluate.ts",
+    "evaluate:idle": "bun scripts/evaluate.ts --strategy idle --minutes 120",
+    "evaluate:human": "bun scripts/evaluate.ts --strategy human --clicks 3 --minutes 60",
+    "evaluate:optimal": "bun scripts/evaluate.ts --strategy optimal --clicks 3 --minutes 60",
+    "evaluate:prestige": "bun scripts/evaluate.ts --strategy optimal --clicks 3 --minutes 120 --prestiges 2"
   },
   "devDependencies": {
     "@types/bun": "latest"
