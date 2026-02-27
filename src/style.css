@@ -459,6 +459,20 @@ body.ui-density-compact .btn-label {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+#artists-panel.is-overflowing:not(.is-at-bottom)::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: linear-gradient(to bottom, transparent, var(--paper));
+    pointer-events: none;
+    z-index: 1;
 }
 
 /* --- Center Stage: draw button + canvas + gallery --- */
@@ -936,6 +950,19 @@ body.run-phase-late #draw-btn:hover {
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
+    position: relative;
+}
+
+#upgrades-panel.is-overflowing:not(.is-at-bottom)::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: linear-gradient(to bottom, transparent, var(--paper));
+    pointer-events: none;
+    z-index: 1;
 }
 
 #upgrades-list {
@@ -943,6 +970,23 @@ body.run-phase-late #draw-btn:hover {
     min-height: 0;
     overflow-y: auto;
     padding-right: 4px;
+    padding-bottom: 8px;
+    align-content: start;
+}
+
+#artists-list {
+    padding-bottom: 8px;
+}
+
+.list-end {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.7rem;
+    opacity: 0.45;
+    padding: 12px 0 4px;
+    letter-spacing: 4px;
+    pointer-events: none;
+    user-select: none;
 }
 
 /* --- Panel shared heading style --- */

@@ -408,6 +408,21 @@ export function initDOM(): void {
     });
   }
 
+  // Scroll-to-bottom detection for fade masks
+  const upgradesListEl = document.getElementById("upgrades-list")!;
+  const upgradesPanelEl = document.getElementById("upgrades-panel")!;
+  upgradesListEl.addEventListener("scroll", () => {
+    const atBottom = upgradesListEl.scrollTop + upgradesListEl.clientHeight >= upgradesListEl.scrollHeight - 8;
+    upgradesPanelEl.classList.toggle("is-at-bottom", atBottom);
+  });
+
+  const artistsListEl = document.getElementById("artists-list")!;
+  const artistsPanelEl = document.getElementById("artists-panel")!;
+  artistsListEl.addEventListener("scroll", () => {
+    const atBottom = artistsListEl.scrollTop + artistsListEl.clientHeight >= artistsListEl.scrollHeight - 8;
+    artistsPanelEl.classList.toggle("is-at-bottom", atBottom);
+  });
+
   // Drawer tab buttons
   let activeDrawer: string | null = null;
   const tabBtns = Array.from(
@@ -680,6 +695,20 @@ export function render(state: GameState): void {
     nextArtistEls.btn.classList.remove("is-hidden-by-progression");
   }
 
+  // Scroll fade visibility
+  const upgradesList = document.getElementById("upgrades-list")!;
+  const upgradesPanel = document.getElementById("upgrades-panel")!;
+  upgradesPanel.classList.toggle(
+    "is-overflowing",
+    upgradesList.scrollHeight > upgradesList.clientHeight,
+  );
+  const artistsList = document.getElementById("artists-list")!;
+  const artistsPanel = document.getElementById("artists-panel")!;
+  artistsPanel.classList.toggle(
+    "is-overflowing",
+    artistsList.scrollHeight > artistsList.clientHeight,
+  );
+
   // Production breakdown
   renderBreakdown(state);
 
@@ -898,6 +927,10 @@ function initUpgrades(): Map<string, UpgradeElements> {
     });
   }
 
+  const endMarker = createElement("div", "list-end");
+  endMarker.textContent = "✦ ✦ ✦";
+  list.appendChild(endMarker);
+
   return map;
 }
 
@@ -941,6 +974,10 @@ function initArtists(): Map<string, ArtistElements> {
       prod: prodDiv,
     });
   }
+
+  const endMarker = createElement("div", "list-end");
+  endMarker.textContent = "✦ ✦ ✦";
+  list.appendChild(endMarker);
 
   return map;
 }
