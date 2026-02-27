@@ -9,7 +9,7 @@ out the best fix together.
 
 ## Sessions
 
-## Session 1: Fix the left panel scroll/overlap issue
+## Session 1: Fix the left panel scroll/overlap issue — Completed
 
 **What feels off:** The media panel (current tool) is sticky at the top of the left panel, but its
 background is semi-transparent. When the click upgrades list is long enough to scroll, the
@@ -24,7 +24,7 @@ media panel should visually "lift" above the content or simply be solid.
 
 ---
 
-## Session 2: Canvas sizing
+## Session 2: Canvas sizing — Completed
 
 **What feels off:** The canvas doesn't always use the available horizontal space well, and
 depending on window size it can feel either cramped or oddly proportioned.

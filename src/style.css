@@ -479,11 +479,11 @@ body.ui-density-compact .btn-label {
 
 #stage {
     grid-area: stage;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 1fr 3fr;
     align-items: stretch;
-    padding: 20px 28px;
+    padding: 20px;
     gap: 14px;
     transition: background 0.7s ease;
 }
@@ -621,13 +621,13 @@ body.run-phase-late #draw-btn:hover {
 
 #canvas-area {
     width: 100%;
-    max-width: 760px;
     min-height: 180px;
-    flex: 1 1 auto;
+    max-height: 600px;
+    height: 100%;
     border: 6px solid transparent;
     border-image: var(--sketch-border) 10 stretch;
     background: var(--surface);
-    margin-bottom: 16px;
+    margin: 0 auto;
     position: relative;
     overflow: hidden;
     transition:
@@ -1342,10 +1342,35 @@ body.ui-density-compact {
 
 #gallery-section {
     width: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
     background: rgba(255, 255, 255, 0.16);
     border: 5px solid transparent;
     border-image: var(--sketch-border) 10 stretch;
     padding: 14px;
+}
+
+#gallery-section.is-overflowing:not(.is-at-bottom)::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: linear-gradient(to bottom, transparent, var(--paper));
+    pointer-events: none;
+    z-index: 1;
+}
+
+#gallery-section .collapsible-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
+    padding-bottom: 8px;
 }
 
 #gallery-section h2 {
@@ -2250,11 +2275,7 @@ body.run-phase-late #drawer-prestige .prestige-action-btn:not(:disabled) {
     }
 
     #stage {
-        padding: 24px 34px;
-    }
-
-    #canvas-area {
-        max-width: 700px;
+        padding: 24px;
     }
 
     .drawer-panel.active {

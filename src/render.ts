@@ -423,6 +423,13 @@ export function initDOM(): void {
     artistsPanelEl.classList.toggle("is-at-bottom", atBottom);
   });
 
+  const galleryContentEl = document.getElementById("gallery-content")!;
+  const gallerySectionEl = document.getElementById("gallery-section")!;
+  galleryContentEl.addEventListener("scroll", () => {
+    const atBottom = galleryContentEl.scrollTop + galleryContentEl.clientHeight >= galleryContentEl.scrollHeight - 8;
+    gallerySectionEl.classList.toggle("is-at-bottom", atBottom);
+  });
+
   // Drawer tab buttons
   let activeDrawer: string | null = null;
   const tabBtns = Array.from(
@@ -707,6 +714,12 @@ export function render(state: GameState): void {
   artistsPanel.classList.toggle(
     "is-overflowing",
     artistsList.scrollHeight > artistsList.clientHeight,
+  );
+  const galleryContent = document.getElementById("gallery-content")!;
+  const gallerySection = document.getElementById("gallery-section")!;
+  gallerySection.classList.toggle(
+    "is-overflowing",
+    galleryContent.scrollHeight > galleryContent.clientHeight,
   );
 
   // Production breakdown
@@ -1009,6 +1022,11 @@ function initSwords(): Map<string, SwordElements> {
       bonus: bonusEl,
     });
   }
+
+  const galleryContent = document.getElementById("gallery-content")!;
+  const endMarker = createElement("div", "list-end");
+  endMarker.textContent = "✦ ✦ ✦";
+  galleryContent.appendChild(endMarker);
 
   return map;
 }
