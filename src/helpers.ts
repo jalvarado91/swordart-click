@@ -27,6 +27,34 @@ export function formatNumber(n: number): string {
   return scaled.toFixed(scaled < 10 ? 2 : scaled < 100 ? 1 : 0) + suffix;
 }
 
+// Adaptive precision for the main strokes counter.
+// Base decimals match formatNumber (3 sig figs). If the passive rate is slow
+// relative to the value, extra decimals are added so the number visibly moves.
+// rate: strokes/sec (getEffectivePassiveRate). Omit when rate is unavailable.
+export function formatNumberPrecise(n: number, rate = 0): string {
+  if (n < 1_000) return Math.floor(n).toString();
+  const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi"];
+  const tier = Math.floor(Math.log10(Math.abs(n)) / 3);
+  if (tier === 0) return Math.floor(n).toLocaleString();
+  const suffix = suffixes[tier] ?? `e${tier * 3}`;
+  const scale = Math.pow(10, tier * 3);
+  const scaled = n / scale;
+  // Base decimals match formatNumber's sig-fig bands.
+  const baseDecimals = scaled < 10 ? 2 : scaled < 100 ? 1 : 0;
+  // Adaptive: add decimals until the least-significant shown digit changes at
+  // least once per second. Cap at base+2 to avoid clutter.
+  let decimals = baseDecimals;
+  if (rate > 0 && n > 0) {
+    const scaledRate = rate / scale;
+    // Each decimal place covers one more order of magnitude of slowness.
+    // e.g. scaledRate=0.001 means the 3rd decimal ticks ~1/s → need 3 decimals.
+    while (decimals < baseDecimals + 2 && scaledRate < Math.pow(10, -decimals)) {
+      decimals++;
+    }
+  }
+  return scaled.toFixed(decimals) + suffix;
+}
+
 // --- Multiplier calculation ---
 
 function getMediaMultiplier(s: GameState): number {

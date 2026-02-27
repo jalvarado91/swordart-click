@@ -15,6 +15,7 @@ import {
   calculateErasurePoints,
   canPrestige,
   formatNumber,
+  formatNumberPrecise,
   getArtistCost,
   getArtistProduction,
   getEffectiveClickPower,
@@ -536,7 +537,7 @@ export function render(state: GameState): void {
   // Stats bar
   const perClickValue = getEffectiveClickPower(state);
   const perSecondValue = getEffectivePassiveRate(state);
-  dom.strokesCount.textContent = formatNumber(state.strokes);
+  dom.strokesCount.textContent = formatNumberPrecise(state.strokes, perSecondValue);
   dom.perClick.textContent = formatNumber(perClickValue);
   dom.perSecond.textContent = formatNumber(perSecondValue);
 
