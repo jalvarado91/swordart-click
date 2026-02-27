@@ -38,7 +38,7 @@ constraint makes sense and what value feels right.
 
 ---
 
-## Session 3: Number formatting — more digits
+## Session 3: Number formatting — more digits — Completed
 
 **What feels off:** Some numbers feel like they lose too much precision — "123K" when you'd want
 to know if it's 123.4 or 123.8. Not a huge deal but the extra digit makes numbers feel more
@@ -53,7 +53,7 @@ targeted.
 
 ---
 
-## Session 4: Flash the stat tile background on change
+## Session 4: Flash the stat tile background on change — Completed
 
 **What feels off:** When a number changes, the delta cue animation tells you *what* changed but
 the tile itself doesn't react. It feels a bit disconnected — you're watching a floating number
