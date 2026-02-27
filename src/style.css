@@ -383,18 +383,18 @@ body.run-phase-late {
 @keyframes stat-delta-rise {
     0% {
         opacity: 0;
-        transform: translateY(6px) scale(0.92);
+        transform: translateY(6px) scale(0.92) rotate(0deg);
     }
     16% {
         opacity: 1;
     }
     56% {
         opacity: 1;
-        transform: translateY(-7px) scale(1.03);
+        transform: translateY(calc(-7px - var(--burst-travel, 0px))) scale(1.03) rotate(calc(var(--burst-travel, 0px) * 0.18));
     }
     100% {
         opacity: 0;
-        transform: translateY(-16px) scale(1.05);
+        transform: translateY(calc(-16px - var(--burst-travel, 0px))) scale(1.05) rotate(calc(var(--burst-travel, 0px) * 0.25));
     }
 }
 

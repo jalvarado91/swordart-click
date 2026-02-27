@@ -248,6 +248,7 @@ let statStrokesMergeUntil = 0;
 let statClickMergeUntil = 0;
 let statSecondMergeUntil = 0;
 let statMultMergeUntil = 0;
+let statStrokesBurstCount = 0;
 
 // --- Init: create all DOM elements once ---
 
@@ -552,14 +553,18 @@ export function render(state: GameState): void {
   if (clickDelta > 0) {
     statStrokesCueUntil = now + 380;
     const delta = perClickValue * clickDelta;
+    const wasInMergeWindow = now <= statStrokesMergeUntil;
     statStrokesAccum = accumulateDelta(
       statStrokesAccum,
       delta,
       now,
       statStrokesMergeUntil,
     );
+    statStrokesBurstCount = wasInMergeWindow ? statStrokesBurstCount + 1 : 1;
     statStrokesMergeUntil = now + 260;
     dom.strokesTile.dataset.delta = formatDeltaValue(statStrokesAccum);
+    const burstTravel = Math.min((statStrokesBurstCount - 1) * 5, 30);
+    dom.strokesTile.style.setProperty("--burst-travel", `${burstTravel}px`);
     restartStatCueBurst(dom.strokesTile);
   }
   if (prevPerClickValue >= 0 && perClickValue !== prevPerClickValue) {
