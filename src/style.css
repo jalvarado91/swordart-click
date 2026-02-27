@@ -429,13 +429,13 @@ body.ui-density-compact .btn-label {
 
 #panel-left {
     grid-area: left;
-    overflow-y: auto;
+    overflow: hidden;
     padding: 18px 20px 20px;
     background: rgba(0, 0, 0, 0.015);
     border-right: 4px solid transparent;
     border-image: var(--sketch-hr) 3 4 3 0 stretch;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto 1fr;
     gap: var(--sidebar-stack-gap);
     transition: background 0.7s ease;
 }
@@ -449,8 +449,8 @@ body.ui-density-compact .btn-label {
     background: rgba(0, 0, 0, 0.015);
     border-left: 4px solid transparent;
     border-image: var(--sketch-hr) 3 0 3 4 stretch;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: 1fr;
     gap: var(--sidebar-stack-gap);
     transition: background 0.7s ease;
 }
@@ -459,17 +459,6 @@ body.ui-density-compact .btn-label {
     display: flex;
     flex-direction: column;
     min-height: 0;
-    height: 100%;
-}
-
-#artists-panel h2 {
-    position: sticky;
-    top: 0;
-    z-index: 3;
-    background: var(--paper);
-    padding: 6px 2px 10px;
-    border-bottom: 4px solid transparent;
-    border-image: var(--sketch-hr) 0 3 4 3 stretch;
 }
 
 /* --- Center Stage: draw button + canvas + gallery --- */
@@ -914,9 +903,6 @@ body.run-phase-late #draw-btn:hover {
 
 #media-panel {
     margin-bottom: 0;
-    position: sticky;
-    top: 0;
-    z-index: 2;
 }
 
 #media-panel h2 {
@@ -943,6 +929,20 @@ body.run-phase-late #draw-btn:hover {
     text-align: center;
     color: var(--text-dim);
     font-style: normal;
+}
+
+#upgrades-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#upgrades-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
 }
 
 /* --- Panel shared heading style --- */
