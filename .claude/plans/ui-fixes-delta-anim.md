@@ -68,7 +68,7 @@ hook into it. Animation duration and intensity — what feels responsive vs. fla
 
 ---
 
-## Session 5: Delta numbers — duration and burst animation intensity
+## Session 5: Delta numbers — duration and burst animation intensity — Completed
 
 **What feels off:** Two related things:
 1. Delta numbers disappear quickly during slow/single clicks — before you've had a chance to
@@ -86,3 +86,21 @@ the merge window timing. How to express "burst intensity" in CSS — via a data 
 custom property, or class variant. What "crazier" actually means visually for this aesthetic
 (hand-drawn, sketchy) — probably not particle effects, but maybe more travel distance, stronger
 scale pop, a slight wobble.
+
+---
+
+## Session 6: Media panel clarity
+
+**What feels off:** The media panel is hard to read at a glance. The current multiplier is buried
+in parens after the tier name ("Pencil Sketch (1x)"), the "Next Nx" tag is cryptic without
+context, and the upgrade button doesn't clearly communicate the multiplier jump you're buying.
+
+**What good looks like:** At a glance you know what you're using now and what it does, and what
+the upgrade costs and what you'll gain. The multiplier — both current and next — should be the
+star, not a footnote. The transition from current to next should feel legible: "you have 2x, this
+buys you 5x."
+
+**Areas to explore:** How to surface the current multiplier more prominently — maybe as a distinct
+badge rather than inline parens. How to reframe "Next 2x" into something that shows the delta or
+at least has clear context ("→ 5x multiplier" or "2x → 5x"). Whether the upgrade button layout
+needs restructuring or just copy/label changes.
