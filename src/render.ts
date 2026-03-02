@@ -97,6 +97,8 @@ interface DOMCache {
   mediaPanel: HTMLElement;
   drawBtn: HTMLButtonElement;
   currentMedia: HTMLElement;
+  currentMediaName: HTMLElement;
+  currentMediaMult: HTMLElement;
   mediaBtn: HTMLButtonElement;
   mediaName: HTMLElement;
   mediaCost: HTMLElement;
@@ -278,6 +280,8 @@ export function initDOM(): void {
     mediaPanel: document.getElementById("media-panel")!,
     drawBtn: document.getElementById("draw-btn")! as HTMLButtonElement,
     currentMedia: document.getElementById("current-media")!,
+    currentMediaName: document.getElementById("current-media-name")!,
+    currentMediaMult: document.getElementById("current-media-mult")!,
     mediaBtn: document.getElementById(
       "media-upgrade-btn",
     )! as HTMLButtonElement,
@@ -610,7 +614,6 @@ export function render(state: GameState): void {
 
   // Media panel
   const tier = MEDIA_TIERS[state.mediaTier]!;
-  dom.currentMedia.textContent = `${tier.name} (${tier.multiplier}x)`;
 
   const nextTierIdx = state.mediaTier + 1;
   if (nextTierIdx >= MEDIA_TIERS.length) {
@@ -618,6 +621,8 @@ export function render(state: GameState): void {
     dom.mediaPanel.classList.add("media-maxed");
     dom.drawBtn.classList.add("draw-focus-maxed");
     if (prevMediaTier !== state.mediaTier) {
+      dom.currentMediaName.textContent = tier.name;
+      dom.currentMediaMult.textContent = `${tier.multiplier}x`;
       dom.mediaName.textContent = "Max tier reached";
       dom.mediaDesc.textContent = "";
       dom.mediaCost.textContent = "";
@@ -630,10 +635,12 @@ export function render(state: GameState): void {
     dom.mediaBtn.disabled = state.strokes < nextTier.cost;
     if (prevMediaTier !== state.mediaTier) {
       // Only rebuild text when tier changes
+      dom.currentMediaName.textContent = tier.name;
+      dom.currentMediaMult.textContent = `${tier.multiplier}x`;
       dom.mediaName.childNodes[0]!.textContent = nextTier.name + " ";
       dom.mediaCost.textContent = formatNumber(nextTier.cost) + " Strokes";
       dom.mediaDesc.textContent = nextTier.desc;
-      dom.mediaNext.textContent = `Next ${nextTier.multiplier}x`;
+      dom.mediaNext.textContent = `${tier.multiplier}x → ${nextTier.multiplier}x`;
     }
   }
   // Canvas area theming — update when tier changes

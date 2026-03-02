@@ -944,8 +944,22 @@ body.run-phase-late #draw-btn:hover {
 }
 
 #current-media {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     color: var(--accent-bright);
     font-weight: bold;
+}
+
+#current-media-mult {
+    font-size: 0.74rem;
+    font-weight: normal;
+    color: var(--accent);
+    padding: 1px 7px 2px;
+    border: 3px solid transparent;
+    border-image: var(--sketch-btn) 8 stretch;
+    background: rgba(255, 255, 255, 0.5);
+    line-height: 1.1;
 }
 
 #media-upgrade-btn:disabled {
