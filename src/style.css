@@ -567,7 +567,8 @@ body.run-phase-late #stage {
     justify-content: center;
     gap: 10px;
     transition:
-        transform 0.08s ease,
+        transform 0.07s ease,
+        filter 0.07s ease,
         box-shadow 0.45s ease,
         background 0.45s ease,
         border-image 0.45s ease;
@@ -576,7 +577,8 @@ body.run-phase-late #stage {
 }
 
 #draw-btn:hover {
-    filter: drop-shadow(0 0 4px var(--phase-cta-glow));
+    filter: drop-shadow(0 0 6px var(--phase-cta-glow)) drop-shadow(0 5px 10px rgba(0,0,0,0.13));
+    transform: translateY(-4px) scale(1.01);
 }
 
 #draw-btn:active {
@@ -1062,7 +1064,7 @@ body.run-phase-late #draw-btn:hover {
     text-align: left;
     color: var(--text);
     font-family: "Short Stack", "Georgia", cursive;
-    transition: background 0.15s ease;
+    transition: background 0.15s ease, transform 0.07s ease, filter 0.07s ease;
     line-height: 1.28;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -1073,6 +1075,8 @@ body.run-phase-late #draw-btn:hover {
 .upgrade-btn:hover:not(:disabled) {
     border-image: var(--sketch-btn-heavy) 8 stretch;
     background: var(--paper);
+    transform: translateY(-3px);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
 }
 
 .upgrade-btn:active:not(:disabled) {
@@ -2026,13 +2030,15 @@ body.ui-density-compact {
     cursor: pointer;
     transition:
         background 0.2s ease,
-        filter 0.2s ease;
+        filter 0.07s ease,
+        transform 0.07s ease;
     line-height: 1.35;
 }
 
 #drawer-prestige .prestige-action-btn:hover:not(:disabled) {
     background: var(--paper);
-    filter: drop-shadow(0 0 2px rgba(106, 58, 138, 0.2));
+    filter: drop-shadow(0 0 6px rgba(106, 58, 138, 0.3)) drop-shadow(0 5px 10px rgba(0,0,0,0.11));
+    transform: translateY(-3px);
 }
 
 body.run-phase-mid #media-upgrade-btn:not(:disabled) {
@@ -2109,11 +2115,14 @@ body.run-phase-late #drawer-prestige .prestige-action-btn:not(:disabled) {
     gap: 1px;
     background: rgba(255, 255, 255, 0.52);
     border-width: 4px;
+    transition: background 0.15s ease, transform 0.07s ease, filter 0.07s ease;
 }
 
 #drawer-prestige .prestige-upgrade-btn:hover:not(:disabled) {
     border-image: var(--sketch-btn-prestige) 8 stretch;
     background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-3px);
+    filter: drop-shadow(0 4px 8px rgba(106, 58, 138, 0.1));
 }
 
 #drawer-prestige .prestige-upgrade-btn .upgrade-cost {
@@ -2213,10 +2222,13 @@ body.run-phase-late #drawer-prestige .prestige-action-btn:not(:disabled) {
     font-family: "Short Stack", "Georgia", cursive;
     font-size: var(--settings-btn-size);
     cursor: pointer;
+    transition: transform 0.07s ease, filter 0.07s ease;
 }
 
 .settings-btn:hover {
     border-image: var(--sketch-btn-heavy) 8 stretch;
+    transform: translateY(-3px);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
 }
 
 .settings-btn:active {
