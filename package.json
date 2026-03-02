@@ -1,5 +1,5 @@
 {
-  "name": "swordart-click",
+  "name": "drawn-edge",
   "private": true,
   "scripts": {
     "build": "bun build src/main.ts --outdir dist --entry-naming 'game.[ext]' --target browser",

@@ -1,4 +1,4 @@
-// Sword Art Click — Entry point
+// Drawn Edge — Entry point
 
 import { SAVE_INTERVAL, TICK_RATE } from "./data.ts";
 import { state } from "./state.ts";

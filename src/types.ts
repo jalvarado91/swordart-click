@@ -1,4 +1,4 @@
-// Sword Art Click — Type definitions
+// Drawn Edge — Type definitions
 
 export interface UpgradeEffect {
   type: "click" | "passive";

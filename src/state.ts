@@ -1,4 +1,4 @@
-// Sword Art Click — Game state
+// Drawn Edge — Game state
 
 import type { GameState } from "./types.ts";
 

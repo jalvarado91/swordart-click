@@ -1,4 +1,4 @@
-# Sword Art Click
+# Drawn Edge
 
 Browser-based clicker/incremental game themed around "drawing swords" (sketching + unsheathing pun).
 

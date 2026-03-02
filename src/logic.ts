@@ -1,4 +1,4 @@
-// Sword Art Click — Game logic (all state-mutating functions)
+// Drawn Edge — Game logic (all state-mutating functions)
 
 import type { ArtistDef, PrestigeUpgradeDef, UpgradeDef } from "./types.ts";
 import {

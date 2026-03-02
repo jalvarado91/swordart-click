@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-// Sword Art Click — Headless Game Evaluation
+// Drawn Edge — Headless Game Evaluation
 //
 // Simulates the game without a browser and produces a detailed progression
 // report. Useful for evaluating pacing, balance, and game feel as an agent.

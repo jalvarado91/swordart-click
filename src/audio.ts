@@ -1,4 +1,4 @@
-// Sword Art Click — Sound system
+// Drawn Edge — Sound system
 
 let soundMuted = false;
 let audioCtx: AudioContext | null = null;

@@ -1,4 +1,4 @@
-// Sword Art Click — Static data definitions
+// Drawn Edge — Static data definitions
 
 import type {
   AchievementDef,

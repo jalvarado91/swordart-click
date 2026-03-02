@@ -1,4 +1,4 @@
-// Sword Art Click — DOM cache + single render function
+// Drawn Edge — DOM cache + single render function
 
 import type { GameState } from "./types.ts";
 import {

@@ -1,4 +1,4 @@
-// Sword Art Click — Pure helper functions
+// Drawn Edge — Pure helper functions
 //
 // All state-dependent functions take GameState as an explicit first parameter
 // so they can be used both by the browser game (logic.ts, render.ts) and by

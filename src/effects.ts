@@ -1,4 +1,4 @@
-// Sword Art Click — Imperative side effects (floating text, notifications, shake, erase)
+// Drawn Edge — Imperative side effects (floating text, notifications, shake, erase)
 
 import { formatNumber } from "./helpers.ts";
 
