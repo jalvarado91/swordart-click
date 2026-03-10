@@ -1,0 +1,262 @@
+/* ================================================================
+   MOBILE TEST VERSION — style-mobile.css
+   Loaded only by mobile.html. Not part of the main game.
+   ================================================================ */
+
+/* --- Override desktop constraints --- */
+
+body.mobile-view {
+    min-width: 320px;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+/* --- Simplified single-column grid --- */
+
+body.mobile-view #game {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+        "top-bar"
+        "left";
+    height: 100vh;
+    height: 100dvh;
+}
+
+/* Stage and right panel: assign to same grid area as left panel.
+   Only one is visible at a time via data-mobile-tab. */
+body.mobile-view #stage,
+body.mobile-view #panel-right {
+    grid-area: left;
+}
+
+/* Hide the desktop bottom bar — game JS still writes to its child
+   elements (#tab-production, #tab-ep, etc.) so keep it in the DOM */
+body.mobile-view #bottom-bar {
+    display: none;
+}
+
+/* --- Compact top bar --- */
+
+body.mobile-view #top-bar {
+    padding: 6px 10px 8px;
+    gap: 8px;
+}
+
+body.mobile-view #top-bar h1 {
+    font-size: 0.88rem;
+    letter-spacing: 0;
+    white-space: nowrap;
+}
+
+body.mobile-view #stats {
+    gap: 5px;
+    grid-auto-columns: minmax(68px, auto);
+}
+
+body.mobile-view .stat-tile {
+    padding: 4px 7px 5px;
+}
+
+body.mobile-view .stat-label {
+    font-size: 0.58rem;
+}
+
+body.mobile-view .stat-value {
+    font-size: 0.78rem;
+}
+
+body.mobile-view #strokes-count {
+    font-size: 0.96rem;
+}
+
+/* --- Panel visibility: hide all, show via data-mobile-tab --- */
+
+body.mobile-view #panel-left,
+body.mobile-view #stage,
+body.mobile-view #panel-right {
+    display: none;
+    overflow-y: auto;
+    /* Bottom padding clears the fixed mobile nav */
+    padding-bottom: 72px;
+    /* Remove desktop panel borders */
+    border-right: none;
+    border-left: none;
+    border-image: none;
+}
+
+body.mobile-view[data-mobile-tab="draw"] #panel-left {
+    display: flex;
+    flex-direction: column;
+}
+
+body.mobile-view[data-mobile-tab="gallery"] #stage {
+    display: flex;
+    flex-direction: column;
+}
+
+body.mobile-view[data-mobile-tab="artists"] #panel-right {
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Panel padding tweaks for mobile --- */
+
+body.mobile-view #panel-left {
+    padding-top: 14px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+body.mobile-view #stage {
+    padding-top: 14px;
+    padding-left: 14px;
+    padding-right: 14px;
+    align-items: stretch;
+}
+
+body.mobile-view #panel-right {
+    padding-top: 14px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+/* --- Unsick the media panel (it's sticky on desktop for the sidebar scroll) --- */
+
+body.mobile-view #media-panel {
+    position: static;
+    z-index: auto;
+}
+
+/* --- Bigger draw button for touch --- */
+
+body.mobile-view #draw-btn {
+    min-height: 130px;
+}
+
+body.mobile-view .btn-label {
+    font-size: 1.5rem;
+}
+
+body.mobile-view .sword-icon {
+    font-size: 2.6rem;
+}
+
+/* --- Artists panel: remove sticky heading, allow natural scroll --- */
+
+body.mobile-view #artists-panel {
+    height: auto;
+}
+
+body.mobile-view #artists-panel h2 {
+    position: static;
+    background: none;
+    padding: 0 0 10px;
+    border-bottom: none;
+    border-image: none;
+}
+
+body.mobile-view #artists-list {
+    overflow-y: visible;
+    flex: none;
+    padding-right: 0;
+}
+
+/* --- Canvas area: shrink min-height so it fits on small screens --- */
+
+body.mobile-view #canvas-area {
+    min-height: 140px;
+    max-width: 100%;
+    margin-bottom: 12px;
+}
+
+/* --- Drawer: fit on a phone screen --- */
+
+body.mobile-view #drawer-shell {
+    width: min(480px, 96vw);
+    max-height: 88vh;
+    max-height: 88dvh;
+}
+
+/* Prestige main: single column on mobile */
+body.mobile-view .prestige-main {
+    grid-template-columns: 1fr;
+}
+
+body.mobile-view #prestige-upgrades-list {
+    grid-template-columns: 1fr;
+}
+
+/* ================================================================
+   MOBILE NAVIGATION BAR
+   ================================================================ */
+
+#mobile-nav {
+    display: none; /* hidden on desktop */
+}
+
+body.mobile-view #mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+    background: var(--paper);
+    border-top: 4px solid transparent;
+    border-image: var(--sketch-hr) 4 3 0 3 stretch;
+    padding: 4px 8px max(8px, env(safe-area-inset-bottom, 8px));
+    gap: 6px;
+    /* Prevent the game from triggering touch events beneath */
+    touch-action: manipulation;
+}
+
+.mob-tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 4px 7px;
+    min-height: 52px; /* 44px+ touch target */
+    background: rgba(255, 255, 255, 0.2);
+    border: 4px solid transparent;
+    border-image: var(--sketch-btn) 8 stretch;
+    cursor: pointer;
+    font-family: "Short Stack", "Georgia", cursive;
+    color: var(--ink-light);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.mob-tab-btn:active {
+    transform: translate(1px, 1px);
+}
+
+.mob-tab-btn.mob-tab-active {
+    background: rgba(255, 255, 255, 0.6);
+    border-image: var(--sketch-btn-heavy) 8 stretch;
+    color: var(--ink);
+}
+
+.mob-tab-icon {
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.mob-tab-label {
+    font-size: 0.68rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    line-height: 1;
+}
+
+/* Phase colour variants for active tab */
+body.run-phase-late .mob-tab-btn.mob-tab-active {
+    color: var(--prestige);
+}
